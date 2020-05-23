@@ -1,0 +1,135 @@
+syntax = "proto3";
+
+package lagompb.protobuf;
+
+import "scalapb/scalapb.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+/*  Helper protobuf for serializing the command and akka actor reference
+    during command serde between actors. This is needed to design lagom
+    commands with proto, since the actorRef is not a proto-serializable
+    type by default. During serialization, the LagomPbCommand case class
+    is converted into this protobuf and sent between actors as a
+    bytearray
+*/
+message CommandWrapper {
+    // the actual command
+    google.protobuf.Any command = 1;
+    // the actor ref
+    bytes actor_ref = 2;
+    // additional data to be added to the state meta
+    map<string, string> data = 3;
+}
+
+// For returning a command reply whether it is successful or failed
+message CommandReply {
+    // the actual command reply
+    oneof reply {
+        // success command reply
+        SuccessfulReply successful_reply = 1;
+        // failed command reply
+        FailedReply failed_reply = 2;
+    }
+}
+
+// For returning successful command reply
+message SuccessfulReply {
+    // actual state is wrapped with meta data
+    StateWrapper state_wrapper = 1;
+}
+
+// For returning failed command reply
+message FailedReply {
+    string reason = 1;
+    FailureCause cause = 2;
+}
+
+// For every reject command reply there is an associated reject type
+// that will help make the distinction between the rejection.
+// This will be very useful for api and grpc responses
+enum FailureCause {
+    VALIDATION_ERROR = 0;
+    INTERNAL_ERROR = 1;
+}
+
+// Meta data for the state
+message MetaData {
+    // the revision number for the entity, increases sequentially
+    // this is very useful to handle optimistic lock
+    int64 revision_number = 1;
+    // the time the state has been modified
+    google.protobuf.Timestamp revision_date = 2;
+    // use to store additional data.
+    map<string, string> data = 3;
+}
+
+// Wrap the aggregate state and the meta data.
+message StateWrapper {
+    // the entity state
+    google.protobuf.Any state = 1;
+    // metadata from the event that made this state
+    MetaData meta = 2;
+}
+
+// EventWrapper is an event wrapper that holds both the
+// event and the corresponding aggregate root state.
+message EventWrapper {
+    option (scalapb.message).extends = "lagompb.LagompbEvent";
+    // the event emitted
+    google.protobuf.Any event = 1;
+    // the state obtained from processing the event
+    google.protobuf.Any resulting_state = 2;
+    // meta data
+    MetaData meta = 3;
+}
+
+// KafkaEvent holds all events for a particular service
+// the events will be persisted into kafka
+message KafkaEvent {
+    // the service name
+    string service_name = 1;
+    // the kafka partition key
+    string partition_key = 2;
+    // the actual event
+    google.protobuf.Any event = 3;
+    // the actual state with state meta
+    StateWrapper state = 4;
+}
+
+// Response sent by a command handler after processing a command.
+// With this response will emit an event wrapped in EventWrapper that will be
+// persisted onto the journal store and a reply will be sent to the sender of
+// the command.
+message SuccessCommandHandlerResponse {
+    oneof response {
+        // this help push the current state without persisting
+        // an event
+        google.protobuf.Empty no_event = 1;
+        // the actual event
+        google.protobuf.Any event = 2;
+    }
+}
+
+// Response sent by a command handler after processing a command.
+// This response will not emit any Event. However an reply will be sent to the
+// sender of the command.
+message FailedCommandHandlerResponse {
+    // command handler failed reason
+    string reason = 1;
+    // cause of the failure
+    FailureCause cause = 2;
+}
+
+// Response sent by a command handler after processing a command.
+// The possible responses can be:
+//      - SuccessCommandHandlerResponse
+//      - FailedCommandHandlerResponse
+message CommandHandlerResponse {
+    // actual command handler response
+    oneof handler_response {
+        SuccessCommandHandlerResponse success_response = 1;
+        FailedCommandHandlerResponse failed_response = 2;
+    }
+}
