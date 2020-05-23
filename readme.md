@@ -1,4 +1,4 @@
-# lagompb = lagom + protocol buffer
+# lagom-pb = lagom + protocol buffer
 
 Scala shared code for [lagom](https://www.lagomframework.com/documentation/1.6.x/scala/Home.html) development using protocol buffer. 
 
