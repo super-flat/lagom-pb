@@ -1,5 +1,4 @@
 # lagompb = lagom + protocol buffer
-[![Build Status](https://travis-ci.com/Tochemey/lagompb.svg?token=dEMskmiaoBtqDgs9Wzwn&branch=master)](https://travis-ci.com/Tochemey/lagompb)
 
 Scala shared code for [lagom](https://www.lagomframework.com/documentation/1.6.x/scala/Home.html) development using protocol buffer. 
 
@@ -9,7 +8,7 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 ### Features
 
 - Implementation of an HTTP/Json based microservice using REST interfaces by defining _**api requests and responses as protobuf messages**_. 
-- Implementation of a grpc based microservice using protocol buffer messages. More info: [Grpc](https://grpc.io/).
+- Implementation of a gRPC based microservice using protocol buffer messages. More info: [Grpc](https://grpc.io/).
 - Kafka producer in-built battery([message broker api](https://www.lagomframework.com/documentation/1.6.x/scala/MessageBrokerApi.html)) to publish domain events to kafka as serialized protocol buffer messages.
 - Pure testable functions for events and commands handlers.
 - Easy definition of aggregate root and command serializer.
@@ -17,8 +16,7 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 - Easy implementation of api service either with message broker api or without.
 - State meta adds some `revision number` that can help easily implement optimistic lock.  
 - At every event handled a snapshot of the aggregate state with the state meta are made available for the readSide.
-- All events and snaphots are by default persisted to Postgres SQL.
-- Instrumentation
+- All events and snapshots are by default persisted to Postgres SQL.
 
 ### Usage Overview
 
