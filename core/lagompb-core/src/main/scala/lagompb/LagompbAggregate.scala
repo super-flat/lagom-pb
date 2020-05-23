@@ -29,7 +29,7 @@ import scala.util.Success
 import scala.util.Try
 
 /**
- * LagomPbAggregate abstract class encapsulate all the necessary setup required to
+ * LagompbAggregate abstract class encapsulate all the necessary setup required to
  * create an aggregate in the lagom ecosystem. There are three main components an aggregate
  * requires to be functional: a commands handler, an events handler and a state.
  *

@@ -1,7 +1,5 @@
-import com.lightbend.lagom.core.LagomVersion
 import lagompb.CommonSettings
 import lagompb.CoverageWhitelist
-import lagompb.Dependencies
 import lagompb.LagomSettings
 import lagompb.NoPublish
 
@@ -17,7 +15,7 @@ lazy val root = project
   .in(file("."))
   .aggregate(
     `lagompb-core`,
-    `lagompb-docs`,
+    docs,
   )
   .enablePlugins(CommonSettings)
   .enablePlugins(NoPublish)
@@ -25,8 +23,8 @@ lazy val root = project
     name := "lagompb"
   )
 
-lazy val `lagompb-docs` = project
-  .in(file("core/lagompb-docs"))
+lazy val docs = project
+  .in(file("docs"))
   .enablePlugins(ParadoxPlugin)
   .enablePlugins(ParadoxMaterialThemePlugin)
   .enablePlugins(NoPublish)

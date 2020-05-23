@@ -1,6 +1,6 @@
-# lagompb
+# lagompb = lagom + protocol buffer
 
-Scala shared code for [lagom](https://www.lagomframework.com/documentation/1.6.x/scala/Home.html) development at Namely. 
+Scala shared code for [lagom](https://www.lagomframework.com/documentation/1.6.x/scala/Home.html) development. 
 
 This library helps write lagom microservices easily by making use of protocol buffer messages to define the es/cqrs core
 components like _**api requests/responses**_, _**grpc services**_, _**events**_, _**commands**_ and _**state**_. 

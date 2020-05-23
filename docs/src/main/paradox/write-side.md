@@ -1,6 +1,6 @@
-## Write Side Implementation
+## Write Side
 
-The Write Side helps define the persistence entity/aggregate. To be able to define an aggregate root using lagom-common
+The Write Side helps define the persistence entity/aggregate. To be able to define an aggregate root using lagompb
 the following implementations are required:
 
 * [commands](#commands)
@@ -66,19 +66,19 @@ message BankAccount {
 
 ## Commands handler
 The commands handler is the meat of the aggregate. They encode the business rules of your entity/aggregate and act as a guardian of the aggregate/entity consistency. 
-The commands handler must first validate that the incoming command can be applied to the current model state. The implementation of a command handler must extends the `lagompb.BaseCommandHandler[TState]` where `TState` is the generated scala case class from the state proto definition. See (state section)[#state]
+The commands handler must first validate that the incoming command can be applied to the current model state. The implementation of a command handler must extends the `lagompb.LagompbCommandHandler[TState]` where `TState` is the generated scala case class from the state proto definition. See (state section)[#state]
 
-The only function to override is `handle(command: BaseCommand, state: TState, stateMeta: StateMeta): Try[CommandHandlerResponse]`.
+The only function to override is `handle(command: LagompbCommand, state: TState, stateMeta: StateMeta): Try[CommandHandlerResponse]`.
 
 ## Events handler
 The event handlers are used **_to mutate the state_** of the Aggregate by applying the events to it. Event handlers must be pure functions. 
-To implement the events handler the `lagompb.BaseEventHandler[TState] must be extended where `TState` is the generated scala case class from the state proto definition. 
+To implement the events handler the `lagompb.LagompbEventHandler[TState] must be extended where `TState` is the generated scala case class from the state proto definition. 
 
 The only function to override is `handle(event: scalapb.GeneratedMessage, state: TState): TState`. As one can see the event handler makes available the current state of the aggregate/entity.
 
 ## Aggregate Root
 The aggregate root or model is defined in terms of Commands, Events, and State in the world of ES/CQRS and that has been the approach taken in lagom-common. 
-The aggregate root is implemented by simply extending the `lagompb.BaseAggregate[TState]` where `TState` is the generated scala case class from the state proto definition. See [state section](#state).
+The aggregate root is implemented by simply extending the `lagompb.LagompbAggregate[TState]` where `TState` is the generated scala case class from the state proto definition. See [state section](#state).
 
 There are only four attributes to override:
 
