@@ -72,16 +72,16 @@ section `lagompb`. Please refer to the `reference.conf`.
 
 This allows lagompb to handle under the hood the serialization of api requests and responses as well as the commands and replies sent respectively to and from the aggregate root. Failure to do so will let your service not to run smoothly.
 
-- Implement the commands handler by extending the `io.superflat.lagompb.LagompbCommandHandler[TState]` where `TState`
+- Implement the commands handler by extending the `lagompb.LagompbCommandHandler[TState]` where `TState`
 represents the aggregate state type.
-- Implement the events handler by extending the `io.superflat.lagompb.LagompbEventHandler[TState]` where `TState`
+- Implement the events handler by extending the `lagompb.LagompbEventHandler[TState]` where `TState`
 represents the aggregate state type.
-- Implement the aggregate or persistence entity by extending the `io.superflat.lagompb.LagompbAggregate[TState]` where
+- Implement the aggregate or persistence entity by extending the `lagompb.LagompbAggregate[TState]` where
 `TState` represents the aggregate state type.
-- Define the rest api service definition by extending the `io.superflat.lagompb.LagompbServiceWithKafka` or `io.superflat.lagompb.LagompbService` in a separate sbt submodule project. This only applies for  HTTP-Json services (a.k.a REST). See [Grpc](#grpc) service guidelines.
-- Implement the rest api by extending the `io.superflat.lagompb.LagompbServiceImplWithKafka` or `io.superflat.lagompb.LagompbServiceImpl`. 
+- Define the rest api service definition by extending the `lagompb.LagompbServiceWithKafka` or `lagompb.LagompbService` in a separate sbt submodule project. This only applies for  HTTP-Json services (a.k.a REST). See [Grpc](#grpc) service guidelines.
+- Implement the rest api by extending the `lagompb.LagompbServiceImplWithKafka` or `lagompb.LagompbServiceImpl`. 
 This only applies for  HTTP-Json services (a.k.a REST) See [Grpc](#grpc) service guidelines.
-- Implement the lagom application by extending the `io.superflat.lagompb.LagompbApplication`.
+- Implement the lagom application by extending the `lagompb.LagompbApplication`.
 - Implement the lagom application loader by extending the `LagomApplicationLoader`.
 
 **Note:** It is important to set the `number of shards` and `snapshot retention criteria` in the configuration file. 
