@@ -78,7 +78,7 @@ class LagompbServiceImplSpec extends LagompbSpec {
             )
         )
 
-      val result: LagompbState[TestState] = testImpl.handleNamelyCommandReply[TestState](cmdReply)
+      val result: LagompbState[TestState] = testImpl.handleLagompbCommandReply[TestState](cmdReply)
 
       result.state shouldBe
         TestState()
@@ -97,7 +97,7 @@ class LagompbServiceImplSpec extends LagompbSpec {
             FailedReply()
               .withReason("failed")
           )
-      an[RuntimeException] shouldBe thrownBy(testImpl.handleNamelyCommandReply[TestState](rejected))
+      an[RuntimeException] shouldBe thrownBy(testImpl.handleLagompbCommandReply[TestState](rejected))
     }
 
     "failed to handle CommandReply" in {
@@ -107,7 +107,7 @@ class LagompbServiceImplSpec extends LagompbSpec {
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
       case class WrongReply()
       an[RuntimeException] shouldBe thrownBy(
-        testImpl.handleNamelyCommandReply[TestState](CommandReply().withReply(Reply.Empty))
+        testImpl.handleLagompbCommandReply[TestState](CommandReply().withReply(Reply.Empty))
       )
     }
 
