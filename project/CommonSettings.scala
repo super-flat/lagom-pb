@@ -11,6 +11,8 @@ import sbt.compilerPlugin
 import sbt.plugins
 import sbt.url
 import sbt._
+import scoverage.ScoverageKeys.coverageFailOnMinimum
+import scoverage.ScoverageKeys.coverageMinimum
 
 object CommonSettings extends AutoPlugin {
   override def requires: Plugins = plugins.JvmPlugin
@@ -28,7 +30,9 @@ object CommonSettings extends AutoPlugin {
       "",
       url("https://github.com/super-flat/lagom-pb/graphs/contributors")
     ),
-    description := "lagompb - Scala shared code for lagom development in lagom using protobuf.\n"
+    description := "lagompb - Scala shared code for lagom development in lagom using protobuf.\n",
+    coverageMinimum := 80,
+    coverageFailOnMinimum := true
   )
 
   override def projectSettings = Seq(
