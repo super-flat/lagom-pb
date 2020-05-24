@@ -49,7 +49,7 @@ class TestServiceImpl(
 ) extends LagompbServiceImpl(clusterSharding, persistentEntityRegistry, aggregate)
     with TestService {
 
-  /** aggregate state. it is a generated scalapb message extending the LagomPbState trait
+  /** aggregate state. it is a generated scalapb message extending the LagompbState trait
    *
    * @return aggregate state
    */

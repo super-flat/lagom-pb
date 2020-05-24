@@ -68,7 +68,7 @@ sealed class LagompbCommandSerde(val system: ExtendedActorSystem) extends Serial
       val actorRefStr: String = new String(wrapper.actorRef.toByteArray, StandardCharsets.UTF_8)
       val ref: ActorRef[CommandReply] = actorRefResolver.resolveActorRef[CommandReply](actorRefStr)
 
-      wrapper.command.fold(throw new LagompbException("requires LagomPbCommand"))(any => {
+      wrapper.command.fold(throw new LagompbException("requires LagompbCommand"))(any => {
         log.debug(s"deserializing Command #[${any.typeUrl}]")
 
         msgMap
@@ -79,6 +79,6 @@ sealed class LagompbCommandSerde(val system: ExtendedActorSystem) extends Serial
             LagompbCommand(protoCmd, ref, wrapper.data)
           })
       })
-    case _ => throw new LagompbException("Wrong LagomPbCommand manifest....")
+    case _ => throw new LagompbException("Wrong LagompbCommand manifest....")
   }
 }

@@ -73,7 +73,7 @@ import scala.concurrent.ExecutionContext
    * Handles aggregate event persisted and made available for read model
    *
    * @param event the aggregate event
-   * @param state the LagomPb state that wraps the actual state and some meta data
+   * @param state the Lagompb state that wraps the actual state and some meta data
    */
   def handle(
       connection: Connection,
@@ -85,7 +85,7 @@ import scala.concurrent.ExecutionContext
   final def readSideId: String = config.getString("lagompb.service-name")
 
   /**
-   * aggregate state. it is a generated scalapb message extending the LagomPbState trait
+   * aggregate state. it is a generated scalapb message extending the LagompbState trait
    *
    * @return aggregate state
    */
