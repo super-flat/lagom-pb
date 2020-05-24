@@ -1,25 +1,26 @@
 # lagom-pb = lagom + protocol buffer
 [![Build Status](https://travis-ci.org/super-flat/lagom-pb.svg?branch=master)](https://travis-ci.org/super-flat/lagom-pb)
+[![codecov](https://codecov.io/gh/super-flat/lagom-pb/branch/master/graph/badge.svg)](https://codecov.io/gh/super-flat/lagom-pb)
 
 Scala shared code for [lagom](https://www.lagomframework.com/documentation/1.6.x/scala/Home.html) development using protocol buffer. 
 
 This library helps write lagom microservices easily by making use of protocol buffer messages to define the es/cqrs core
 components like _**api requests/responses**_, _**grpc services**_, _**events**_, _**commands**_ and _**state**_. 
 
-### Features
+## Features
 
 - Implementation of an HTTP/Json based microservice using REST interfaces by defining _**api requests and responses as protobuf messages**_. 
 - Implementation of a gRPC based microservice using protocol buffer messages. More info: [Grpc](https://grpc.io/).
 - Kafka producer in-built battery([message broker api](https://www.lagomframework.com/documentation/1.6.x/scala/MessageBrokerApi.html)) to publish domain events to kafka as serialized protocol buffer messages.
+- Easy definition of aggregate root, events and command handlers.
 - Pure testable functions for events and commands handlers.
-- Easy definition of aggregate root and command serializer.
 - Easy definition of api service descriptors either with message broker api or without.
 - Easy implementation of api service either with message broker api or without.
-- State meta adds some `revision number` that can help easily implement optimistic lock.  
-- At every event handled a snapshot of the aggregate state with the state meta are made available for the readSide.
+- Meta data adds some `revision number` that can help easily implement optimistic lock.  
+- At every event handled a snapshot of the aggregate state with the meta data are made available for the readSide.
 - All events and snapshots are by default persisted to Postgres SQL.
 
-### License
+## License
 
 This software is licensed under the Apache 2 license, quoted below.
 
