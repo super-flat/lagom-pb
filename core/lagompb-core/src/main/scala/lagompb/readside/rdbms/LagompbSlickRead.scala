@@ -48,7 +48,7 @@ import scala.util.Try
    * Handles aggregate event persisted and made available for read model
    *
    * @param event the aggregate event
-   * @param state the namely state that wraps the actual state and some meta data
+   * @param state the LagomPb state that wraps the actual state and some meta data
    */
   def handle(
       event: scalapb.GeneratedMessage,
@@ -85,7 +85,7 @@ import scala.util.Try
   final def readSideId: String = config.getString("lagompb.service-name")
 
   /**
-   * aggregate state. it is a generated scalapb message extending the NamelyState trait
+   * aggregate state. it is a generated scalapb message extending the LagomPbState trait
    *
    * @return aggregate state
    */

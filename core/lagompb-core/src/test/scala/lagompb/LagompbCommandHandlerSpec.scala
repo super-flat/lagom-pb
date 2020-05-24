@@ -87,7 +87,7 @@ class LagompbCommandHandlerSpec extends LagompbSpec {
           )
     }
 
-    "handle no such NamelyCommand" in {
+    "handle no such LagomPbCommand" in {
       val noCmd = NoCmd()
       val meta = MetaData(revisionNumber = 1)
       cmdHandler

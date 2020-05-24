@@ -45,7 +45,7 @@ class TestServiceImplWithKafka(
 ) extends LagompbServiceImplWithKafka(clusterSharding, persistentEntityRegistry, aggregate)
     with TestServiceWithkafka {
 
-  /** aggregate state. it is a generated scalapb message extending the NamelyState trait
+  /** aggregate state. it is a generated scalapb message extending the LagomPbState trait
    *
    * @return aggregate state
    */

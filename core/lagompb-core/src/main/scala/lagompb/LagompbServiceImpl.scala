@@ -40,7 +40,7 @@ sealed trait LagompbServiceImplComponent {
   def aggregateRoot: LagompbAggregate[_]
 
   /**
-   * aggregate state. it is a generated scalapb message extending the NamelyState trait
+   * aggregate state. it is a generated scalapb message extending the LagomPbState trait
    *
    * @return aggregate state
    */
@@ -68,7 +68,7 @@ sealed trait LagompbServiceImplComponent {
     clusterSharding
       .entityRefFor(aggregateRoot.typeKey, entityUuid)
       .ask[CommandReply](replyTo => LagompbCommand(cmd, replyTo, data))
-      .map((value: CommandReply) => handleNamelyCommandReply[TState](value))
+      .map((value: CommandReply) => handleLagomPbCommandReply[TState](value))
   }
 
   private[lagompb] def parseAny[TState <: scalapb.GeneratedMessage](data: Any): TState = {
@@ -86,7 +86,7 @@ sealed trait LagompbServiceImplComponent {
     } else throw new LagompbException("wrong state definition")
   }
 
-  private[lagompb] def handleNamelyCommandReply[TState <: scalapb.GeneratedMessage](
+  private[lagompb] def handleLagomPbCommandReply[TState <: scalapb.GeneratedMessage](
       commandReply: CommandReply
   ): LagompbState[TState] = {
     commandReply.reply match {
@@ -97,7 +97,7 @@ sealed trait LagompbServiceImplComponent {
           case FailureCause.InternalError => throw new LagompbException(failureReply.reason)
           case _ => throw new LagompbException("reason unknown")
         }
-      case _ => throw new LagompbException(s"unknown NamelyCommandReply ${commandReply.reply.getClass.getName}")
+      case _ => throw new LagompbException(s"unknown LagomPbCommandReply ${commandReply.reply.getClass.getName}")
     }
   }
 

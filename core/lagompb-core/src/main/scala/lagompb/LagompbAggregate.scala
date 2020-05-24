@@ -102,7 +102,7 @@ abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
 
   /**
    * Returns the EventSourcedBehavior for lagom, wiring together the
-   * user-provided NamelyCommandHandler and NamelyEventHandler
+   * user-provided LagomPbCommandHandler and LagomPbEventHandler
    *
    * @param persistenceId the aggregate persistence Id
    */
@@ -118,7 +118,7 @@ abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
       )
 
   /**
-   * Given a NamelyState implementation and a NamelyCommand, run the
+   * Given a LagomPbState implementation and a LagomPbCommand, run the
    * implemented commandHandler.handle and persist/reply any event/state
    * as needed.
    *
