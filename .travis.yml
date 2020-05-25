@@ -21,7 +21,7 @@ jobs:
     - stage: compile
       script: sbt compile
     - stage: test
-      script: sbt coverage test coverageReport
+      script: sbt coverage test coverageReport coverageAggregate
     - stage: codecov
       script: bash <(curl -Ls https://coverage.codacy.com/get.sh)
     - stage: release
