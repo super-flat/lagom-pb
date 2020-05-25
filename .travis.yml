@@ -3,8 +3,38 @@ language: scala
 scala:
   - 2.13.1
 
-script:
-  - sbt clean coverage test coverageReport
+before_install:
+  - git fetch --tags --unshallow
 
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
+stages:
+  - name: checker
+  - name: compile
+  - name: test
+  - name: codecov
+  - name: release
+    if: ((branch = master AND type = push) OR (tag IS present)) AND NOT fork
+
+jobs:
+  include:
+    - name: checker
+      script: sbt scalastyle
+    - name: compile
+      script: sbt compile
+    - name: test
+      script: sbt coverage test coverageReport
+    - name: codecov
+      script: bash <(curl -s https://codecov.io/bash)
+    - stage: release
+      jdk: openjdk8
+      script: sbt ci-release
+
+cache:
+  directories:
+    - $HOME/.sbt
+    - $HOME/.ivy2/cache
+    - $HOME/.coursier
+    - target/repos
+
+notifications:
+  email:
+    on_success: never

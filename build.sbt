@@ -47,6 +47,7 @@ lazy val `lagompb-core` = project
   .enablePlugins(AkkaGrpcPlugin)
   .enablePlugins(PlayAkkaHttp2Support)
   .enablePlugins(LagomSettings)
+  .enablePlugins(Publish)
   .settings(
     name := "lagompb-core",
     Compile / unmanagedResources += (Compile / sourceDirectory).value / "main" / "protobuf",
