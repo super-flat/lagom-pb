@@ -24,20 +24,7 @@ object Publish extends AutoPlugin {
 
   override def trigger = allRequirements
 
-  def getEnvWithWarning(key: String): String = {
-    sys.env.get(key) match {
-      case Some(value) => value
-      case None =>
-        // scalastyle:off println
-        println(s"**** WARNING: ENV VAR '$key' MISSING")
-        // scalastyle:on println
-        ""
-    }
-  }
-
   override def projectSettings = Seq(
-    version := sys.env.getOrElse("VERSION", "development"),
-    isSnapshot := !version.value.matches("^\\d+\\.\\d+\\.\\d+$"),
     resolvers += Resolver.jcenterRepo,
     publishArtifact := true,
     Test / publishArtifact := false

@@ -21,16 +21,19 @@ object CommonSettings extends AutoPlugin {
   override def globalSettings = Seq(
     scalaVersion := Versions.scala213,
     organization := "io.superflat",
-    organizationName := "",
+    organizationName := "Super Flat",
+    startYear := Some(2020),
     organizationHomepage := Some(url("https://superflat.io/")),
     homepage := Some(url("https://github.com/super-flat/lagom-pb")),
+    scmInfo := Some(ScmInfo(url("https://github.com/super-flat/lagom-pb"), "git@github.com:super-flat/lagom-pb.git")),
+    licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     developers += Developer(
       "contributors",
       "Contributors",
       "",
       url("https://github.com/super-flat/lagom-pb/graphs/contributors")
     ),
-    description := "lagompb - Scala shared code for lagom development in lagom using protobuf.\n",
+    description := "lagom-pb - Scala shared code for lagom development in lagom using protobuf.\n",
     coverageMinimum := 80,
     coverageFailOnMinimum := true
   )
