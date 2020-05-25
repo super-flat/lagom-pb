@@ -1,6 +1,7 @@
 # lagom-pb = lagom + protocol buffer
 [![Build Status](https://travis-ci.org/super-flat/lagom-pb.svg?branch=master)](https://travis-ci.org/super-flat/lagom-pb)
 [![codecov](https://codecov.io/gh/super-flat/lagom-pb/branch/master/graph/badge.svg)](https://codecov.io/gh/super-flat/lagom-pb)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Scala shared code for [lagom](https://www.lagomframework.com/documentation/1.6.x/scala/Home.html) development using protocol buffer. 
 

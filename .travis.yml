@@ -23,7 +23,7 @@ jobs:
     - stage: test
       script: sbt coverage test coverageReport
     - stage: codecov
-      script: bash <(curl -s https://codecov.io/bash)
+      script: bash <(curl -Ls https://coverage.codacy.com/get.sh)
     - stage: release
       jdk: openjdk8
       script: sbt ci-release
