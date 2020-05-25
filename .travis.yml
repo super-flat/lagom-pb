@@ -8,9 +8,7 @@ before_install:
 
 stages:
   - name: checker
-  - name: compile
   - name: test
-  - name: codecov
   - name: release
     if: ((branch = master AND type = push) OR (tag IS present)) AND NOT fork
 
@@ -18,12 +16,10 @@ jobs:
   include:
     - stage: checker
       script: sbt scalastyle
-    - stage: compile
-      script: sbt compile
     - stage: test
       script: sbt coverage test coverageReport coverageAggregate
-    - stage: codecov
-      script: bash <(curl -Ls https://coverage.codacy.com/get.sh)
+      after_success:
+        -  bash <(curl -Ls https://coverage.codacy.com/get.sh)
     - stage: release
       jdk: openjdk8
       script: sbt ci-release
