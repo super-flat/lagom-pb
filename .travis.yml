@@ -19,7 +19,7 @@ jobs:
     - stage: test
       script: sbt coverage test coverageReport coverageAggregate
       after_success:
-        -  bash <(curl -Ls https://coverage.codacy.com/get.sh)
+        -  bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l Scala
     - stage: release
       jdk: openjdk8
       script: sbt ci-release
