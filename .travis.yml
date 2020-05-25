@@ -4,7 +4,7 @@ scala:
   - 2.13.1
 
 before_install:
-  - git fetch --tags --unshallow
+  - git fetch --tags
 
 stages:
   - name: checker
