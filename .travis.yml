@@ -16,13 +16,13 @@ stages:
 
 jobs:
   include:
-    - name: checker
+    - stage: checker
       script: sbt scalastyle
-    - name: compile
+    - stage: compile
       script: sbt compile
-    - name: test
+    - stage: test
       script: sbt coverage test coverageReport
-    - name: codecov
+    - stage: codecov
       script: bash <(curl -s https://codecov.io/bash)
     - stage: release
       jdk: openjdk8
