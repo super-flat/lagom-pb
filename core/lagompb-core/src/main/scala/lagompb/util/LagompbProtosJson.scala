@@ -1,8 +1,8 @@
 package lagompb.util
 
 import org.{ json4s => j4s }
-import play.api.libs.json._
 import play.api.libs.{ json => pjson }
+import play.api.libs.json._
 import scalapb.GeneratedMessage
 import scalapb.GeneratedMessageCompanion
 import scalapb.json4s.Parser

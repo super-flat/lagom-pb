@@ -4,9 +4,9 @@ import java.util.UUID
 
 import akka.actor.ActorSystem
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
-import com.lightbend.lagom.scaladsl.api.Service.restCall
 import com.lightbend.lagom.scaladsl.api.Descriptor
 import com.lightbend.lagom.scaladsl.api.ServiceCall
+import com.lightbend.lagom.scaladsl.api.Service.restCall
 import com.lightbend.lagom.scaladsl.api.transport.Method
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.server.LagomApplicationContext

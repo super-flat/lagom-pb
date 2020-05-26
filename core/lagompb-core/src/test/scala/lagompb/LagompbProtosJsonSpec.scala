@@ -1,17 +1,17 @@
 package lagompb
 
 import com.google.protobuf.any.Any
-import lagompb.testkit.LagompbSpec
 import lagompb.protobuf.tests.TestAny
 import lagompb.protobuf.tests.TestCmd
+import lagompb.testkit.LagompbSpec
 import lagompb.util.LagompbProtosJson
-import org.json4s.JValue
 import org.json4s.JsonAST.JObject
+import org.json4s.JValue
 import org.json4s.jackson.JsonMethods.parse
+import play.api.libs.{ json => pjson }
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsResult
 import play.api.libs.json.JsValue
-import play.api.libs.{ json => pjson }
 
 class LagompbProtosJsonSpec extends LagompbSpec with LagompbProtosJson {
   val companyUuid = "a432c2c8-1204-4a43-baa4-91eb08330b9b"

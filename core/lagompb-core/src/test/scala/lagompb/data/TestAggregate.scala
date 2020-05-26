@@ -1,12 +1,12 @@
 package lagompb.data
 
 import akka.actor.ActorSystem
+import com.typesafe.config.Config
 import lagompb.LagompbAggregate
 import lagompb.LagompbCommandHandler
 import lagompb.LagompbEventHandler
 import lagompb.protobuf.tests.TestState
 import scalapb.GeneratedMessageCompanion
-import com.typesafe.config.Config
 
 final class TestAggregate(
     actorSystem: ActorSystem,

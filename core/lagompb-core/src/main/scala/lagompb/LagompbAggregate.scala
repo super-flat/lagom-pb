@@ -14,12 +14,12 @@ import akka.persistence.typed.scaladsl.RetentionCriteria
 import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.persistence.AkkaTaggerAdapter
 import com.typesafe.config.Config
+import lagompb.protobuf.core._
 import lagompb.protobuf.core.CommandHandlerResponse.HandlerResponse.Empty
 import lagompb.protobuf.core.CommandHandlerResponse.HandlerResponse.FailedResponse
 import lagompb.protobuf.core.CommandHandlerResponse.HandlerResponse.SuccessResponse
 import lagompb.protobuf.core.SuccessCommandHandlerResponse.Response.Event
 import lagompb.protobuf.core.SuccessCommandHandlerResponse.Response.NoEvent
-import lagompb.protobuf.core._
 import lagompb.util.LagompbProtosCompanions
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
