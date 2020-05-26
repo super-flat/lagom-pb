@@ -1,7 +1,6 @@
 package lagompb
 
-import java.time.Instant
-import java.time.ZoneId
+import java.time.{Instant, ZoneId}
 
 import com.google.protobuf.timestamp.Timestamp
 import lagompb.testkit.LagompbSpec
@@ -34,7 +33,9 @@ class TimestampsSpec extends LagompbSpec {
   "An java Instant date" must {
     val instant = Instant.ofEpochSecond(1582879956, 704545000)
     "be convertes successfully to Protobuf Timestamp" in {
-      instant.toTimestamp === Timestamp().withSeconds(1582879956).withNanos(704545000)
+      instant.toTimestamp === Timestamp()
+        .withSeconds(1582879956)
+        .withNanos(704545000)
     }
   }
 }

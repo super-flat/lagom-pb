@@ -4,8 +4,7 @@ import com.google.protobuf.any.Any
 import lagompb.protobuf.tests.TestCmd
 import lagompb.testkit.LagompbSpec
 import lagompb.util.LagompbProtosCompanions
-import scalapb.GeneratedMessage
-import scalapb.GeneratedMessageCompanion
+import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 class LagompbProtosCompanionsSpec extends LagompbSpec {
   "Protos Companions" should {
@@ -15,7 +14,8 @@ class LagompbProtosCompanionsSpec extends LagompbSpec {
     }
 
     "Contains the companions" in {
-      val map: Map[String, GeneratedMessageCompanion[_ <: GeneratedMessage]] = LagompbProtosCompanions.companionsMap
+      val map: Map[String, GeneratedMessageCompanion[_ <: GeneratedMessage]] =
+        LagompbProtosCompanions.companionsMap
       map.keySet should contain("lagompb.protobuf.TestCmd")
     }
 

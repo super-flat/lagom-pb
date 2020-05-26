@@ -4,9 +4,7 @@ import java.util.UUID
 
 import lagompb.data.TestEventHandler
 import lagompb.protobuf.core.MetaData
-import lagompb.protobuf.tests.TestEvent
-import lagompb.protobuf.tests.TestState
-import lagompb.protobuf.tests.WrongEvent
+import lagompb.protobuf.tests.{TestEvent, TestState, WrongEvent}
 import lagompb.testkit.LagompbSpec
 
 class LagompbEventHandlerSpec extends LagompbSpec {
@@ -18,13 +16,16 @@ class LagompbEventHandlerSpec extends LagompbSpec {
       val prevState = TestState(companyId, "state")
       val event = TestEvent(companyId, "new state")
 
-      val result: TestState = eventHandler.handle(event, prevState, MetaData.defaultInstance)
+      val result: TestState =
+        eventHandler.handle(event, prevState, MetaData.defaultInstance)
       result should be(TestState(companyId, "new state"))
     }
 
     "handle wrong event" in {
       val prevState = TestState(companyId, "state")
-      assertThrows[NotImplementedError](eventHandler.handle(WrongEvent(), prevState, MetaData.defaultInstance))
+      assertThrows[NotImplementedError](
+        eventHandler.handle(WrongEvent(), prevState, MetaData.defaultInstance)
+      )
     }
   }
 }

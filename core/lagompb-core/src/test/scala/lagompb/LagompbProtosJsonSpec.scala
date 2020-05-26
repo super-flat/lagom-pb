@@ -1,17 +1,14 @@
 package lagompb
 
 import com.google.protobuf.any.Any
-import lagompb.protobuf.tests.TestAny
-import lagompb.protobuf.tests.TestCmd
+import lagompb.protobuf.tests.{TestAny, TestCmd}
 import lagompb.testkit.LagompbSpec
 import lagompb.util.LagompbProtosJson
 import org.json4s.JsonAST.JObject
 import org.json4s.JValue
 import org.json4s.jackson.JsonMethods.parse
-import play.api.libs.{ json => pjson }
-import play.api.libs.json.JsObject
-import play.api.libs.json.JsResult
-import play.api.libs.json.JsValue
+import play.api.libs.{json => pjson}
+import play.api.libs.json.{JsObject, JsResult, JsValue}
 
 class LagompbProtosJsonSpec extends LagompbSpec with LagompbProtosJson {
   val companyUuid = "a432c2c8-1204-4a43-baa4-91eb08330b9b"
@@ -61,7 +58,8 @@ class LagompbProtosJsonSpec extends LagompbSpec with LagompbProtosJson {
            |""".stripMargin
 
       val jsvalue: JsValue = pjson.Json.parse(testAnyJson)
-      val deserialized: JsResult[TestAny] = pjson.Json.fromJson[TestAny](jsvalue)
+      val deserialized: JsResult[TestAny] =
+        pjson.Json.fromJson[TestAny](jsvalue)
       deserialized.isSuccess shouldBe true
 
       val testCmdJson =
@@ -90,7 +88,8 @@ class LagompbProtosJsonSpec extends LagompbSpec with LagompbProtosJson {
            |""".stripMargin
 
       val jsvalue: JsValue = pjson.Json.parse(testAnyJson)
-      val deserialized: JsResult[TestAny] = pjson.Json.fromJson[TestAny](jsvalue)
+      val deserialized: JsResult[TestAny] =
+        pjson.Json.fromJson[TestAny](jsvalue)
       deserialized.isSuccess shouldBe false
     }
 
@@ -134,7 +133,8 @@ class LagompbProtosJsonSpec extends LagompbSpec with LagompbProtosJson {
     }
 
     "serialize into PlayJson" in {
-      val json: JValue = parse("""{"name":"Toy","price":35.35}""", useBigDecimalForDouble = true)
+      val json: JValue =
+        parse("""{"name":"Toy","price":35.35}""", useBigDecimalForDouble = true)
       toPlayJson(json) shouldBe a[JsObject]
 
       val lotto1: JValue = parse("""{

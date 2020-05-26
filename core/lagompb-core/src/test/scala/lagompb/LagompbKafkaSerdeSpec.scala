@@ -6,22 +6,22 @@ import akka.util.ByteString
 import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.api.deser.MessageSerializer
 import com.lightbend.lagom.scaladsl.api.transport.MessageProtocol
-import lagompb.protobuf.core.KafkaEvent
-import lagompb.protobuf.core.MetaData
-import lagompb.protobuf.core.StateWrapper
-import lagompb.protobuf.tests.TestEvent
-import lagompb.protobuf.tests.TestState
+import lagompb.protobuf.core.{KafkaEvent, MetaData, StateWrapper}
+import lagompb.protobuf.tests.{TestEvent, TestState}
 import lagompb.testkit.LagompbSpec
 
 class LagompbKafkaSerdeSpec extends LagompbSpec {
   val serviceEventSerializer: LagompbKafkaSerde = new LagompbKafkaSerde
-  val reqSerializer: MessageSerializer.NegotiatedSerializer[KafkaEvent, ByteString] =
+  val reqSerializer
+    : MessageSerializer.NegotiatedSerializer[KafkaEvent, ByteString] =
     serviceEventSerializer.serializerForRequest
 
-  val respSerializer: MessageSerializer.NegotiatedSerializer[KafkaEvent, ByteString] =
+  val respSerializer
+    : MessageSerializer.NegotiatedSerializer[KafkaEvent, ByteString] =
     serviceEventSerializer.serializerForResponse(Seq(MessageProtocol.empty))
 
-  val deserializer: MessageSerializer.NegotiatedDeserializer[KafkaEvent, ByteString] =
+  val deserializer
+    : MessageSerializer.NegotiatedDeserializer[KafkaEvent, ByteString] =
     serviceEventSerializer.deserializer(MessageProtocol.empty)
 
   val eventId: String = UUID.randomUUID().toString
@@ -33,7 +33,8 @@ class LagompbKafkaSerdeSpec extends LagompbSpec {
       .withName("test")
   )
 
-  val anyState: Any = Any.pack(TestState().withName("test").withCompanyUuid(companyId))
+  val anyState: Any =
+    Any.pack(TestState().withName("test").withCompanyUuid(companyId))
   val stateWrapper: StateWrapper = StateWrapper()
     .withMeta(MetaData().withRevisionNumber(1))
     .withState(anyState)

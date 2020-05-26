@@ -7,11 +7,8 @@ import akka.actor.testkit.typed.scaladsl.TestProbe
 import akka.actor.typed.ActorRef
 import akka.persistence.typed.PersistenceId
 import com.google.protobuf.any.Any
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import lagompb.data.TestAggregate
-import lagompb.data.TestCommandHandler
-import lagompb.data.TestEventHandler
+import com.typesafe.config.{Config, ConfigFactory}
+import lagompb.data.{TestAggregate, TestCommandHandler, TestEventHandler}
 import lagompb.protobuf.core._
 import lagompb.protobuf.core.CommandReply.Reply
 import lagompb.protobuf.tests._
@@ -19,14 +16,11 @@ import lagompb.testkit.LagompbActorTestKit
 
 import scala.concurrent.duration.FiniteDuration
 
-class LagompbAggregateSpec
-    extends LagompbActorTestKit(
-      s"""
+class LagompbAggregateSpec extends LagompbActorTestKit(s"""
       akka.persistence.journal.plugin = "akka.persistence.journal.inmem"
       akka.persistence.snapshot-store.plugin = "akka.persistence.snapshot-store.local"
       akka.persistence.snapshot-store.local.dir = "tmp/snapshot"
-    """
-    ) {
+    """) {
 
   private val companyUUID = "93cfb5fc-c01b-4cda-bb45-31875bafda23"
 
@@ -36,9 +30,11 @@ class LagompbAggregateSpec
   private val config: Config = ConfigFactory.load()
 
   private def parseState(any: Any): TestState = {
-    val typeUrl: String = any.typeUrl.substring(any.typeUrl.lastIndexOf('/') + 1)
+    val typeUrl: String =
+      any.typeUrl.substring(any.typeUrl.lastIndexOf('/') + 1)
     typeUrl match {
-      case "lagompb.protobuf.TestState" => TestState.parseFrom(any.value.toByteArray)
+      case "lagompb.protobuf.TestState" =>
+        TestState.parseFrom(any.value.toByteArray)
       case _ => throw new RuntimeException(s"wrong state definition $typeUrl")
     }
   }
@@ -46,20 +42,25 @@ class LagompbAggregateSpec
   "LagompbAggregate Implementation" should {
     "handle command as expected" in {
       // Let us create the sender of commands
-      val commandSender: TestProbe[CommandReply] = createTestProbe[CommandReply]()
+      val commandSender: TestProbe[CommandReply] =
+        createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate = new TestAggregate(
+        null,
+        config,
+        new TestCommandHandler(null),
+        new TestEventHandler(null)
+      )
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
-      val aggregateRef: ActorRef[LagompbCommand] = spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
+      val aggregateRef: ActorRef[LagompbCommand] =
+        spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
       val testCmd = TestCmd(companyUUID, "first test")
 
       // let us send the command to the aggregate
-      val data = Map(
-        "audit|employeeUuid" -> "1223",
-        "audit|createdAt" -> "2020-04-17"
-      )
+      val data =
+        Map("audit|employeeUuid" -> "1223", "audit|createdAt" -> "2020-04-17")
       aggregateRef ! LagompbCommand(testCmd, commandSender.ref, data)
       commandSender.receiveMessage(replyTimeout) match {
         case CommandReply(reply) =>
@@ -77,22 +78,34 @@ class LagompbAggregateSpec
     }
     "handle invalid command as expected" in {
       // Let us create the sender of commands
-      val commandSender: TestProbe[CommandReply] = createTestProbe[CommandReply]()
+      val commandSender: TestProbe[CommandReply] =
+        createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate = new TestAggregate(
+        null,
+        config,
+        new TestCommandHandler(null),
+        new TestEventHandler(null)
+      )
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
-      val aggregateRef: ActorRef[LagompbCommand] = spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
+      val aggregateRef: ActorRef[LagompbCommand] =
+        spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
       val testCmd = TestCmd("", "first test")
 
       // let us send the command to the aggregate
-      aggregateRef ! LagompbCommand(testCmd, commandSender.ref, Map.empty[String, String])
+      aggregateRef ! LagompbCommand(
+        testCmd,
+        commandSender.ref,
+        Map.empty[String, String]
+      )
 
       commandSender.receiveMessage(replyTimeout) match {
         case CommandReply(reply) =>
           reply match {
-            case Reply.FailedReply(value) => value.reason shouldBe "command is invalid"
+            case Reply.FailedReply(value) =>
+              value.reason shouldBe "command is invalid"
             case _ => fail("unexpected message type")
           }
         case _ => fail("unexpected message type")
@@ -100,20 +113,25 @@ class LagompbAggregateSpec
     }
     "received command and persist no event" in {
       // Let us create the sender of commands
-      val commandSender: TestProbe[CommandReply] = createTestProbe[CommandReply]()
+      val commandSender: TestProbe[CommandReply] =
+        createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate = new TestAggregate(
+        null,
+        config,
+        new TestCommandHandler(null),
+        new TestEventHandler(null)
+      )
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
-      val aggregateRef: ActorRef[LagompbCommand] = spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
+      val aggregateRef: ActorRef[LagompbCommand] =
+        spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
       val testCmd = TestGetCmd().withCompanyUuid(companyUUID)
 
       // let us send the command to the aggregate
-      val data = Map(
-        "audit|employeeUuid" -> "1223",
-        "audit|createdAt" -> "2020-04-17"
-      )
+      val data =
+        Map("audit|employeeUuid" -> "1223", "audit|createdAt" -> "2020-04-17")
       aggregateRef ! LagompbCommand(testCmd, commandSender.ref, data)
       commandSender.receiveMessage(replyTimeout) match {
         case CommandReply(reply) =>
@@ -131,13 +149,20 @@ class LagompbAggregateSpec
     }
     "received command and return unhandled response" in {
       // Let us create the sender of commands
-      val commandSender: TestProbe[CommandReply] = createTestProbe[CommandReply]()
+      val commandSender: TestProbe[CommandReply] =
+        createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate = new TestAggregate(
+        null,
+        config,
+        new TestCommandHandler(null),
+        new TestEventHandler(null)
+      )
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
-      val aggregateRef: ActorRef[LagompbCommand] = spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
+      val aggregateRef: ActorRef[LagompbCommand] =
+        spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
       val testCmd = TestEmptyCmd().withCompanyUuid(companyUUID)
 
       // let us send the command to the aggregate
@@ -145,7 +170,8 @@ class LagompbAggregateSpec
       commandSender.receiveMessage(replyTimeout) match {
         case CommandReply(reply) =>
           reply match {
-            case Reply.FailedReply(value) => value.reason should include("unknown command handler response")
+            case Reply.FailedReply(value) =>
+              value.reason should include("unknown command handler response")
             case _ => fail("unexpected message type")
           }
         case _ => fail("unexpected message type")
@@ -153,13 +179,20 @@ class LagompbAggregateSpec
     }
     "received command and return unhandled success response" in {
       // Let us create the sender of commands
-      val commandSender: TestProbe[CommandReply] = createTestProbe[CommandReply]()
+      val commandSender: TestProbe[CommandReply] =
+        createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate = new TestAggregate(
+        null,
+        config,
+        new TestCommandHandler(null),
+        new TestEventHandler(null)
+      )
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
-      val aggregateRef: ActorRef[LagompbCommand] = spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
+      val aggregateRef: ActorRef[LagompbCommand] =
+        spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
       val testCmd = TestEmptySuccessCmd().withCompanyUuid(companyUUID)
 
       // let us send the command to the aggregate
@@ -167,7 +200,10 @@ class LagompbAggregateSpec
       commandSender.receiveMessage(replyTimeout) match {
         case CommandReply(reply) =>
           reply match {
-            case Reply.FailedReply(value) => value.reason should include("unknown command handler success response")
+            case Reply.FailedReply(value) =>
+              value.reason should include(
+                "unknown command handler success response"
+              )
             case _ => fail("unexpected message type")
           }
         case _ => fail("unexpected message type")
@@ -176,13 +212,20 @@ class LagompbAggregateSpec
 
     "receive command and return an event out of scope" in {
       // Let us create the sender of commands
-      val commandSender: TestProbe[CommandReply] = createTestProbe[CommandReply]()
+      val commandSender: TestProbe[CommandReply] =
+        createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate = new TestAggregate(
+        null,
+        config,
+        new TestCommandHandler(null),
+        new TestEventHandler(null)
+      )
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
-      val aggregateRef: ActorRef[LagompbCommand] = spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
+      val aggregateRef: ActorRef[LagompbCommand] =
+        spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
       val testCmd = TestUnknownEventCmd().withCompanyUuid(companyUUID)
 
       // let us send the command to the aggregate
@@ -201,13 +244,20 @@ class LagompbAggregateSpec
 
     "handle command handler failure" in {
       // Let us create the sender of commands
-      val commandSender: TestProbe[CommandReply] = createTestProbe[CommandReply]()
+      val commandSender: TestProbe[CommandReply] =
+        createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate = new TestAggregate(
+        null,
+        config,
+        new TestCommandHandler(null),
+        new TestEventHandler(null)
+      )
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
-      val aggregateRef: ActorRef[LagompbCommand] = spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
+      val aggregateRef: ActorRef[LagompbCommand] =
+        spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
       val testCmd = TestFailCmd().withCompanyUuid(companyUUID)
 
       // let us send the command to the aggregate
@@ -216,19 +266,31 @@ class LagompbAggregateSpec
     }
 
     "handle wrong state parsing" in {
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate = new TestAggregate(
+        null,
+        config,
+        new TestCommandHandler(null),
+        new TestEventHandler(null)
+      )
       val stateWrapper = StateWrapper().withState(
         Any()
           .withTypeUrl("type.googleapis.com/lagom.test")
           .withValue(com.google.protobuf.ByteString.copyFrom("".getBytes))
       )
 
-      an[LagompbException] shouldBe thrownBy(aggregate.genericCommandHandler(stateWrapper, null))
+      an[LagompbException] shouldBe thrownBy(
+        aggregate.genericCommandHandler(stateWrapper, null)
+      )
     }
 
     "handle generic event handler" in {
       val companyUuid = "12234"
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate = new TestAggregate(
+        null,
+        config,
+        new TestCommandHandler(null),
+        new TestEventHandler(null)
+      )
       val stateWrapper = StateWrapper()
         .withState(
           Any
@@ -259,7 +321,8 @@ class LagompbAggregateSpec
             )
         )
 
-      val newState: StateWrapper = aggregate.genericEventHandler(stateWrapper, eventWrapper)
+      val newState: StateWrapper =
+        aggregate.genericEventHandler(stateWrapper, eventWrapper)
       newState.getState shouldBe (Any.pack(
         TestState()
           .withName("resulting")
@@ -269,8 +332,15 @@ class LagompbAggregateSpec
 
     "generic event handler handles wrong event" in {
 
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
-      an[LagompbException] shouldBe thrownBy(aggregate.genericEventHandler(null, WrongEventTagger.defaultInstance))
+      val aggregate = new TestAggregate(
+        null,
+        config,
+        new TestCommandHandler(null),
+        new TestEventHandler(null)
+      )
+      an[LagompbException] shouldBe thrownBy(
+        aggregate.genericEventHandler(null, WrongEventTagger.defaultInstance)
+      )
     }
   }
 }

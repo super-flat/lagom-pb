@@ -3,8 +3,7 @@ package lagompb
 import java.util.UUID
 
 import lagompb.protobuf.extensions.ExtensionsProto
-import lagompb.protobuf.tests.TestCmd
-import lagompb.protobuf.tests.TestEvent
+import lagompb.protobuf.tests.{TestCmd, TestEvent}
 import lagompb.testkit.LagompbSpec
 import scalapb.descriptors.FieldDescriptor
 
@@ -14,9 +13,12 @@ class ProtosExtensionSpec extends LagompbSpec {
   "Check the existence of kafka option" should {
     val event: TestEvent = TestEvent(companyId, "new state")
     "be successful" in {
-      val filter: Seq[FieldDescriptor] = event.companion.scalaDescriptor.fields.filter { field =>
-        field.getOptions.extension(ExtensionsProto.kafka).fold[Boolean](false)(_.partitionKey)
-      }
+      val filter: Seq[FieldDescriptor] =
+        event.companion.scalaDescriptor.fields.filter { field =>
+          field.getOptions
+            .extension(ExtensionsProto.kafka)
+            .fold[Boolean](false)(_.partitionKey)
+        }
 
       filter.size should ===(1)
       event.getField(filter.head).as[String] should ===(companyId)
@@ -26,9 +28,12 @@ class ProtosExtensionSpec extends LagompbSpec {
   "Check the existence of entity id" should {
     val cmd = TestCmd().withName("new state").withCompanyUuid(companyId)
     "be successful" in {
-      val filter: Seq[FieldDescriptor] = cmd.companion.scalaDescriptor.fields.filter { field =>
-        field.getOptions.extension(ExtensionsProto.command).fold[Boolean](false)(_.entityId)
-      }
+      val filter: Seq[FieldDescriptor] =
+        cmd.companion.scalaDescriptor.fields.filter { field =>
+          field.getOptions
+            .extension(ExtensionsProto.command)
+            .fold[Boolean](false)(_.entityId)
+        }
 
       filter.size should ===(1)
       cmd.getField(filter.head).as[String] should ===(companyId)
