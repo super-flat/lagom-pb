@@ -72,7 +72,7 @@ sealed trait LagompbServiceImplComponent {
   }
 
   private[lagompb] def parseAny[TState <: scalapb.GeneratedMessage](data: Any): TState = {
-    val typeUrl: String = data.typeUrl.split('/').last
+    val typeUrl: String = data.typeUrl.split('/').lastOption.getOrElse("")
 
     log.debug(s"Aggregate State: $typeUrl")
 
