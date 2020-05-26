@@ -3,9 +3,9 @@ package lagompb
 import java.util.UUID
 
 import lagompb.protobuf.extensions.ExtensionsProto
-import lagompb.testkit.LagompbSpec
 import lagompb.protobuf.tests.TestCmd
 import lagompb.protobuf.tests.TestEvent
+import lagompb.testkit.LagompbSpec
 import scalapb.descriptors.FieldDescriptor
 
 class ProtosExtensionSpec extends LagompbSpec {

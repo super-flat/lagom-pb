@@ -10,8 +10,8 @@ import com.lightbend.lagom.scaladsl.broker.TopicProducer
 import com.lightbend.lagom.scaladsl.persistence.EventStreamElement
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import io.grpc.Status
-import lagompb.protobuf.core.CommandReply.Reply
 import lagompb.protobuf.core._
+import lagompb.protobuf.core.CommandReply.Reply
 import lagompb.protobuf.extensions.ExtensionsProto
 import lagompb.util.LagompbCommon
 import lagompb.util.LagompbProtosCompanions
@@ -72,7 +72,7 @@ sealed trait LagompbServiceImplComponent {
   }
 
   private[lagompb] def parseAny[TState <: scalapb.GeneratedMessage](data: Any): TState = {
-    val typeUrl: String = data.typeUrl.split('/').last
+    val typeUrl: String = data.typeUrl.split('/').lastOption.getOrElse("")
 
     log.debug(s"Aggregate State: $typeUrl")
 
@@ -252,10 +252,9 @@ abstract class LagompbServiceImplWithKafka(
             )
           case Success(result: Option[KafkaEvent]) =>
             result match {
-              case Some(value: KafkaEvent) => {
+              case Some(value: KafkaEvent) =>
                 log.debug("[Lagompb]: event has been persisted into kafka successfully")
                 value
-              }
               case None =>
                 throw new LagompbException(s"unable to transform event ${anyEvent.typeUrl} for kafka")
             }

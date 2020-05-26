@@ -1,8 +1,8 @@
 package lagompb
 
 import com.google.protobuf.any.Any
-import lagompb.testkit.LagompbSpec
 import lagompb.protobuf.tests.TestCmd
+import lagompb.testkit.LagompbSpec
 import lagompb.util.LagompbProtosCompanions
 import scalapb.GeneratedMessage
 import scalapb.GeneratedMessageCompanion

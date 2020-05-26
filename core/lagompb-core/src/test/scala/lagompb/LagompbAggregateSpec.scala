@@ -9,25 +9,13 @@ import akka.persistence.typed.PersistenceId
 import com.google.protobuf.any.Any
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import lagompb.protobuf.core.CommandReply
-import lagompb.protobuf.core.EventWrapper
-import lagompb.protobuf.core.FailureCause
-import lagompb.protobuf.core.MetaData
-import lagompb.protobuf.core.StateWrapper
-import lagompb.protobuf.core.CommandReply.Reply
 import lagompb.data.TestAggregate
 import lagompb.data.TestCommandHandler
 import lagompb.data.TestEventHandler
+import lagompb.protobuf.core._
+import lagompb.protobuf.core.CommandReply.Reply
+import lagompb.protobuf.tests._
 import lagompb.testkit.LagompbActorTestKit
-import lagompb.protobuf.tests.TestCmd
-import lagompb.protobuf.tests.TestEmptyCmd
-import lagompb.protobuf.tests.TestEmptySuccessCmd
-import lagompb.protobuf.tests.TestEvent
-import lagompb.protobuf.tests.TestFailCmd
-import lagompb.protobuf.tests.TestGetCmd
-import lagompb.protobuf.tests.TestState
-import lagompb.protobuf.tests.TestUnknownEventCmd
-import lagompb.protobuf.tests.WrongEventTagger
 
 import scala.concurrent.duration.FiniteDuration
 

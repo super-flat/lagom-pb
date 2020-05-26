@@ -8,8 +8,8 @@ import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import lagompb.data._
-import lagompb.protobuf.core.CommandReply.Reply
 import lagompb.protobuf.core._
+import lagompb.protobuf.core.CommandReply.Reply
 import lagompb.protobuf.tests.TestCmd
 import lagompb.protobuf.tests.TestState
 import lagompb.testkit.LagompbSpec

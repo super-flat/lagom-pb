@@ -9,9 +9,9 @@ import com.lightbend.lagom.scaladsl.api.transport.MessageProtocol
 import lagompb.protobuf.core.KafkaEvent
 import lagompb.protobuf.core.MetaData
 import lagompb.protobuf.core.StateWrapper
-import lagompb.testkit.LagompbSpec
 import lagompb.protobuf.tests.TestEvent
 import lagompb.protobuf.tests.TestState
+import lagompb.testkit.LagompbSpec
 
 class LagompbKafkaSerdeSpec extends LagompbSpec {
   val serviceEventSerializer: LagompbKafkaSerde = new LagompbKafkaSerde
@@ -34,7 +34,7 @@ class LagompbKafkaSerdeSpec extends LagompbSpec {
   )
 
   val anyState: Any = Any.pack(TestState().withName("test").withCompanyUuid(companyId))
-  val stateWrapper = StateWrapper()
+  val stateWrapper: StateWrapper = StateWrapper()
     .withMeta(MetaData().withRevisionNumber(1))
     .withState(anyState)
 

@@ -4,8 +4,8 @@ import akka.actor.ActorSystem
 import com.google.protobuf.any.Any
 import lagompb.LagompbCommand
 import lagompb.LagompbCommandHandler
-import lagompb.protobuf.core.CommandHandlerResponse.HandlerResponse
 import lagompb.protobuf.core._
+import lagompb.protobuf.core.CommandHandlerResponse.HandlerResponse
 import lagompb.protobuf.tests._
 
 import scala.util.Try

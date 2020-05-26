@@ -17,7 +17,7 @@ trait LagompbService extends Service with LagompbProtosJson {
   /** routes define the various routes handled by the service. */
   def routes: Seq[Descriptor.Call[_, _]]
 
-  protected val serviceName = LagompbCommon.config.getString("lagompb.service-name")
+  protected val serviceName: String = LagompbCommon.config.getString("lagompb.service-name")
 
   final override def descriptor: Descriptor = {
     import Service._
@@ -48,7 +48,7 @@ trait LagompbServiceWithKafka extends Service with LagompbProtosJson {
    */
   def kafkaEvents: Topic[KafkaEvent]
 
-  protected val serviceName = LagompbCommon.config.getString("lagompb.service-name")
+  protected val serviceName: String = LagompbCommon.config.getString("lagompb.service-name")
 
   final override def descriptor: Descriptor = {
     import Service._

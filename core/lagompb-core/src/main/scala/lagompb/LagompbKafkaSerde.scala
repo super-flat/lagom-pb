@@ -1,10 +1,10 @@
 package lagompb
 
 import akka.util.ByteString
-import com.lightbend.lagom.scaladsl.api.deser.MessageSerializer.NegotiatedDeserializer
-import com.lightbend.lagom.scaladsl.api.deser.MessageSerializer.NegotiatedSerializer
 import com.lightbend.lagom.scaladsl.api.deser.MessageSerializer
 import com.lightbend.lagom.scaladsl.api.deser.StrictMessageSerializer
+import com.lightbend.lagom.scaladsl.api.deser.MessageSerializer.NegotiatedDeserializer
+import com.lightbend.lagom.scaladsl.api.deser.MessageSerializer.NegotiatedSerializer
 import com.lightbend.lagom.scaladsl.api.transport.MessageProtocol
 import lagompb.protobuf.core.KafkaEvent
 
