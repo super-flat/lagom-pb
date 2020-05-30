@@ -2,6 +2,7 @@ package lagompb.readside
 
 import akka.actor.{ActorSystem => ActorSystemClassic}
 import akka.actor.typed.ActorSystem
+import akka.actor.typed.scaladsl.adapter._
 import akka.cluster.sharding.typed.scaladsl.ShardedDaemonProcess
 import akka.cluster.sharding.typed.ShardedDaemonProcessSettings
 import akka.persistence.jdbc.query.scaladsl.JdbcReadJournal
@@ -36,7 +37,6 @@ import scala.concurrent.ExecutionContext
   protected def projectionName: String = config.getString("lagompb.service-name")
 
   protected val actorSystemTyped: ActorSystem[_] = {
-    import akka.actor.typed.scaladsl.adapter._
     actorSystem.toTyped
   }
 
@@ -62,7 +62,7 @@ import scala.concurrent.ExecutionContext
    * @param tag the event tag
    * @return the projection instance
    */
-  protected def setExactlyOnceProjection(tag: String) =
+  protected def setExactlyOnceProjection(tag: String): SlickProjection[EventEnvelope[LagompbEvent]] =
     SlickProjection
       .exactlyOnce(projectionId = ProjectionId(projectionName, tag), setSourceProvider(tag), dbConfig, handler = this)
 
