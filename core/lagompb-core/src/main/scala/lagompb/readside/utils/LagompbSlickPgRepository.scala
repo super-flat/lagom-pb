@@ -45,7 +45,7 @@ abstract class LagompbSlickPgRepository[T <: LagompbSlickTable[E], E](tableQuery
    * @param model the data model of the record to update
    * @return the updated record or None if it was not found
    */
-  def update(model: T): Future[Option[E]]
+  def update(model: E): Future[Option[E]]
 
   /**
    * Deletes a record from the database with the corresponding id.
