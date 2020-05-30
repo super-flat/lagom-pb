@@ -1,7 +1,4 @@
-import lagompb.CommonSettings
-import lagompb.CoverageWhitelist
-import lagompb.LagomSettings
-import lagompb.NoPublish
+import lagompb.{CommonSettings, CoverageWhitelist, LagomAkka, LagomSettings, NoPublish}
 
 // custom task that prints the artifact name
 lazy val printArtifactName: TaskKey[Unit] = taskKey[Unit]("Get the artifact name")
@@ -47,6 +44,7 @@ lazy val `lagompb-core` = project
   .enablePlugins(AkkaGrpcPlugin)
   .enablePlugins(PlayAkkaHttp2Support)
   .enablePlugins(LagomSettings)
+  .enablePlugins(LagomAkka)
   .enablePlugins(Publish)
   .settings(
     name := "lagompb-core",
