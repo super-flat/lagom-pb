@@ -1,28 +1,15 @@
 package lagompb.readside
 
-import akka.persistence.jdbc.query.scaladsl.JdbcReadJournal
 import akka.projection.eventsourced.EventEnvelope
-import akka.projection.eventsourced.scaladsl.EventSourcedProvider
-import akka.projection.slick.{SlickHandler, SlickProjection}
 import akka.Done
 import akka.actor.{ActorSystem => ActorSystemClassic}
-import akka.actor.typed.ActorSystem
-import akka.cluster.sharding.typed.ShardedDaemonProcessSettings
-import akka.cluster.sharding.typed.scaladsl.ShardedDaemonProcess
-import akka.persistence.query.Offset
-import akka.projection.{ProjectionBehavior, ProjectionId}
-import akka.projection.scaladsl.SourceProvider
-import com.github.ghik.silencer.silent
 import com.google.protobuf.any
-import com.lightbend.lagom.scaladsl.persistence.AggregateEventTag
 import com.typesafe.config.Config
 import lagompb.{LagompbEvent, LagompbException}
 import lagompb.protobuf.core.{EventWrapper, MetaData}
 import lagompb.util.LagompbProtosCompanions
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
-import slick.basic.DatabaseConfig
 import slick.dbio.{DBIO, DBIOAction}
-import slick.jdbc.PostgresProfile
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
@@ -42,7 +29,7 @@ import scala.util.{Failure, Success, Try}
  * @param ec          the execution context
  * @tparam TState the aggregate state type
  */
-@silent abstract class LagompbSlickProjection[TState <: scalapb.GeneratedMessage](
+abstract class LagompbSlickProjection[TState <: scalapb.GeneratedMessage](
     config: Config,
     actorSystem: ActorSystemClassic
 )(implicit ec: ExecutionContext)

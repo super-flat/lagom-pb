@@ -27,8 +27,6 @@ class LagompbCommandSerdeSpec extends LagompbActorTestKit(s"""
     val command = TestCmd(companyUUID, "John Ross")
     val data =
       Map("audit|employeeUuid" -> "1223", "audit|createdAt" -> "2020-04-17")
-    serializationTestKit.verifySerialization(
-      LagompbCommand(command, probe.ref, data)
-    )
+    serializationTestKit.verifySerialization(LagompbCommand(command, probe.ref, data))
   }
 }

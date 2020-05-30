@@ -1,27 +1,30 @@
 package lagompb.readside
 
-import com.typesafe.config.Config
-
-import scala.concurrent.ExecutionContext
 import akka.actor.{ActorSystem => ActorSystemClassic}
 import akka.actor.typed.ActorSystem
 import akka.cluster.sharding.typed.scaladsl.ShardedDaemonProcess
 import akka.cluster.sharding.typed.ShardedDaemonProcessSettings
 import akka.persistence.jdbc.query.scaladsl.JdbcReadJournal
 import akka.persistence.query.Offset
+import akka.projection.{ProjectionBehavior, ProjectionId}
 import akka.projection.eventsourced.EventEnvelope
+import akka.projection.eventsourced.scaladsl.EventSourcedProvider
 import akka.projection.scaladsl.SourceProvider
 import akka.projection.slick.{SlickHandler, SlickProjection}
-import akka.projection.{ProjectionBehavior, ProjectionId}
-import akka.projection.eventsourced.scaladsl.EventSourcedProvider
+import com.github.ghik.silencer.silent
 import com.lightbend.lagom.scaladsl.persistence.AggregateEventTag
+import com.typesafe.config.Config
 import lagompb.LagompbEvent
 import slick.basic.DatabaseConfig
 import slick.jdbc.PostgresProfile
 
-abstract class LagompbProjection[TState <: scalapb.GeneratedMessage](config: Config, actorSystem: ActorSystemClassic)(
-    implicit ec: ExecutionContext
-) extends SlickHandler[EventEnvelope[LagompbEvent]] {
+import scala.concurrent.ExecutionContext
+
+@silent abstract class LagompbProjection[TState <: scalapb.GeneratedMessage](
+    config: Config,
+    actorSystem: ActorSystemClassic
+)(implicit ec: ExecutionContext)
+    extends SlickHandler[EventEnvelope[LagompbEvent]] {
 
   /**
    * aggregate state. it is a generated scalapb message extending the LagompbState trait

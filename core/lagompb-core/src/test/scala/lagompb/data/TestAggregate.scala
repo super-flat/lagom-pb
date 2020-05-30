@@ -6,16 +6,12 @@ import lagompb.{LagompbAggregate, LagompbCommandHandler, LagompbEventHandler}
 import lagompb.protobuf.tests.TestState
 import scalapb.GeneratedMessageCompanion
 
-final class TestAggregate(actorSystem: ActorSystem,
-                          config: Config,
-                          commandHandler: LagompbCommandHandler[TestState],
-                          eventHandler: LagompbEventHandler[TestState])
-    extends LagompbAggregate[TestState](
-      actorSystem,
-      config,
-      commandHandler,
-      eventHandler
-    ) {
+final class TestAggregate(
+    actorSystem: ActorSystem,
+    config: Config,
+    commandHandler: LagompbCommandHandler[TestState],
+    eventHandler: LagompbEventHandler[TestState]
+) extends LagompbAggregate[TestState](actorSystem, config, commandHandler, eventHandler) {
 
   override def aggregateName: String = "TestAggregate"
 
