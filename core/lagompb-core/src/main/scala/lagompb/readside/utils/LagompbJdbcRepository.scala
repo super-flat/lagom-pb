@@ -44,7 +44,7 @@ trait LagompbJdbcRepository[T] {
    * @param connection the implicit database connection
    * @return the updated record or None if it was not found
    */
-  def update(entityId: String, model: T)(implicit connection: Connection): Future[Option[Int]]
+  def update(entityId: String, model: T)(implicit connection: Connection): Future[Int]
 
   /**
    * Deletes a record from the database with the corresponding id.
