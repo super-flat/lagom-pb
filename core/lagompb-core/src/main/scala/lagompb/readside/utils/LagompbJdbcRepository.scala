@@ -39,11 +39,12 @@ trait LagompbJdbcRepository[T] {
   /**
    * Update the corresponding record in the database.
    *
+   * @param entityId the record id
    * @param model the data model of the record to update
    * @param connection the implicit database connection
    * @return the updated record or None if it was not found
    */
-  def update(model: T)(implicit connection: Connection): Future[Option[T]]
+  def update(entityId: String, model: T)(implicit connection: Connection): Future[Option[T]]
 
   /**
    * Deletes a record from the database with the corresponding id.
