@@ -1,4 +1,4 @@
-package lagompb.readside.utils
+package lagompb.readside
 
 import java.sql.Connection
 

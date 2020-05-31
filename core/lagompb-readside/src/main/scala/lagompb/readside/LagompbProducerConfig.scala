@@ -1,4 +1,4 @@
-package lagompb.readside.utils
+package lagompb.readside
 
 import com.typesafe.config.Config
 

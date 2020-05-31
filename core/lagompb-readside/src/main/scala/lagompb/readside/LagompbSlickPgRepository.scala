@@ -1,6 +1,5 @@
-package lagompb.readside.utils
+package lagompb.readside
 
-import lagompb.readside.LagompbSlickTable
 import slick.dbio.Effect
 import slick.jdbc.PostgresProfile
 import slick.jdbc.PostgresProfile.api._

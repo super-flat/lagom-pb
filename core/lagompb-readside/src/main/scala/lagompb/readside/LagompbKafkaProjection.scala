@@ -10,7 +10,6 @@ import com.typesafe.config.Config
 import lagompb.{LagompbEvent, LagompbException}
 import lagompb.protobuf.core.{EventWrapper, KafkaEvent, StateWrapper}
 import lagompb.protobuf.extensions.ExtensionsProto
-import lagompb.readside.utils.LagompbProducerConfig
 import lagompb.util.LagompbProtosCompanions
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
