@@ -1,13 +1,13 @@
 package lagompb.readside
 
-import akka.projection.eventsourced.EventEnvelope
 import akka.Done
 import akka.actor.{ActorSystem => ActorSystemClassic}
+import akka.projection.eventsourced.EventEnvelope
 import com.google.protobuf.any
 import com.typesafe.config.Config
-import lagompb.{LagompbEvent, LagompbException}
 import lagompb.protobuf.core.{EventWrapper, MetaData}
 import lagompb.util.LagompbProtosCompanions
+import lagompb.{LagompbEvent, LagompbException}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.dbio.{DBIO, DBIOAction}
 
@@ -18,7 +18,7 @@ import scala.util.{Failure, Success, Try}
  * LagompbSlickProjection helps implement multiple readSide processors where the offsets are
  * persisted postgres. One of the greatest advantage is one can process events emitted differently by
  * spawning different type of [[LagompbSlickProjection]] to handle them.
- * Each instance must be registered in the [[lagompb.LagompbApplication]] via
+ * Each instance must be registered in the LagompbApplication via
  * the dependency injection and the init method called
  *
  * Please bear in mind that the akka.projection.slick is required to be set in the configuration file.

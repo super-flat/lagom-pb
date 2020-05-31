@@ -1,17 +1,17 @@
 package lagompb.readside
 
-import akka.actor.{ActorSystem => ActorSystemClassic}
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.adapter._
-import akka.cluster.sharding.typed.scaladsl.ShardedDaemonProcess
+import akka.actor.{ActorSystem => ActorSystemClassic}
 import akka.cluster.sharding.typed.ShardedDaemonProcessSettings
+import akka.cluster.sharding.typed.scaladsl.ShardedDaemonProcess
 import akka.persistence.jdbc.query.scaladsl.JdbcReadJournal
 import akka.persistence.query.Offset
-import akka.projection.{ProjectionBehavior, ProjectionId}
 import akka.projection.eventsourced.EventEnvelope
 import akka.projection.eventsourced.scaladsl.EventSourcedProvider
 import akka.projection.scaladsl.SourceProvider
 import akka.projection.slick.{SlickHandler, SlickProjection}
+import akka.projection.{ProjectionBehavior, ProjectionId}
 import com.github.ghik.silencer.silent
 import com.lightbend.lagom.scaladsl.persistence.AggregateEventTag
 import com.typesafe.config.Config

@@ -1,17 +1,17 @@
 package lagompb.readside
 
-import akka.projection.eventsourced.EventEnvelope
 import akka.Done
 import akka.actor.{ActorSystem => ActorSystemClassic}
-import akka.kafka.{ProducerMessage, ProducerSettings}
 import akka.kafka.scaladsl.SendProducer
+import akka.kafka.{ProducerMessage, ProducerSettings}
+import akka.projection.eventsourced.EventEnvelope
 import com.google.protobuf.any
 import com.typesafe.config.Config
-import lagompb.{LagompbEvent, LagompbException}
 import lagompb.protobuf.core.{EventWrapper, StateWrapper}
 import lagompb.protobuf.extensions.ExtensionsProto
 import lagompb.readside.utils.LagompbProducerConfig
 import lagompb.util.LagompbProtosCompanions
+import lagompb.{LagompbEvent, LagompbException}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 import scalapb.descriptors.FieldDescriptor
@@ -36,7 +36,7 @@ abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage](
   // The implementation class needs to set the akka.kafka.producer settings in the config file as well
   // as the lagompb.kafka-projections
   val producerConfig: LagompbProducerConfig = LagompbProducerConfig(
-    actorSystem.settings.config.getConfig(" lagompb.kafka-projections")
+    actorSystem.settings.config.getConfig(" lagompb.projection.kafka")
   )
 
   private val sendProducer = SendProducer(

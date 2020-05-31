@@ -2,12 +2,12 @@ package lagompb.readside
 
 import akka.Done
 import com.github.ghik.silencer.silent
-import com.lightbend.lagom.scaladsl.persistence.{AggregateEventTag, ReadSideProcessor}
 import com.lightbend.lagom.scaladsl.persistence.slick.SlickReadSide
+import com.lightbend.lagom.scaladsl.persistence.{AggregateEventTag, ReadSideProcessor}
 import com.typesafe.config.Config
-import lagompb.{LagompbEvent, LagompbException}
 import lagompb.protobuf.core.{EventWrapper, MetaData}
 import lagompb.util.LagompbProtosCompanions
+import lagompb.{LagompbEvent, LagompbException}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.dbio.{DBIO, DBIOAction}
 
@@ -16,7 +16,7 @@ import scala.util.{Failure, Success, Try}
 
 /**
  * It will be implemented by any slick-based readSide Processor.
- * It must be registered in the [[lagompb.LagompbApplication]]
+ * It must be registered in the LagompbApplication
  *
  * @param readSide the slick readSide component
  * @param config   the configuration instance

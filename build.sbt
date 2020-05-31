@@ -13,6 +13,7 @@ lazy val root = project
   .aggregate(
     `lagompb-core`,
     docs,
+    `lagompb-readside`
   )
   .enablePlugins(CommonSettings)
   .enablePlugins(NoPublish)
@@ -49,7 +50,7 @@ lazy val `lagompb-core` = project
   .settings(
     name := "lagompb-core",
     Compile / unmanagedResources += (Compile / sourceDirectory).value / "main" / "protobuf",
-    coverageExcludedPackages := CoverageWhitelist.whitelist.mkString(";"),
+    coverageExcludedPackages := CoverageWhitelist.whitelist.mkString(";")
   )
   .settings(
     PB.protoSources in Compile := Seq(file("core/lagompb-core/src/main/protobuf")),
@@ -62,5 +63,17 @@ lazy val `lagompb-core` = project
       ) -> (sourceManaged in Compile).value
     ),
   )
+
+lazy val `lagompb-readside` = project
+  .in(file("core/lagompb-readside"))
+  .enablePlugins(LagomScala)
+  .enablePlugins(LagomSettings)
+  .enablePlugins(LagomAkka)
+  .enablePlugins(Publish)
+  .settings(
+    name := "lagompb-readside",
+    coverageExcludedPackages := CoverageWhitelist.whitelist.mkString(";")
+  )
+  .dependsOn(`lagompb-core`)
 
 cancelable in Global := true
