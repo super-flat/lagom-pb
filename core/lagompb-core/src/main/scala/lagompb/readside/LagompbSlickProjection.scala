@@ -26,16 +26,14 @@ import scala.util.{Failure, Success, Try}
  * @see https://doc.akka.io/docs/akka-projection/current/slick.html#configuration
  * @param config      the configuration instance
  * @param actorSystem the actor system
- * @param projectionName the projectionName must be unique per projection instance
  * @param ec          the execution context
  * @tparam TState the aggregate state type
  */
 abstract class LagompbSlickProjection[TState <: scalapb.GeneratedMessage](
     config: Config,
-    actorSystem: ActorSystemClassic,
-    projectionName: String
+    actorSystem: ActorSystemClassic
 )(implicit ec: ExecutionContext)
-    extends LagompbProjection[TState](config, actorSystem, projectionName) {
+    extends LagompbProjection[TState](config, actorSystem) {
 
   override def process(envelope: EventEnvelope[LagompbEvent]): DBIO[Done] = {
     envelope.event match {

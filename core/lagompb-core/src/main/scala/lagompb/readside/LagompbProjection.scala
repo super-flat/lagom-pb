@@ -23,8 +23,7 @@ import scala.concurrent.ExecutionContext
 
 @silent abstract class LagompbProjection[TState <: scalapb.GeneratedMessage](
     config: Config,
-    actorSystem: ActorSystemClassic,
-    projectionName: String
+    actorSystem: ActorSystemClassic
 )(implicit ec: ExecutionContext)
     extends SlickHandler[EventEnvelope[LagompbEvent]] {
 
@@ -34,6 +33,12 @@ import scala.concurrent.ExecutionContext
    * @return aggregate state
    */
   def aggregateStateCompanion: scalapb.GeneratedMessageCompanion[TState]
+
+  /**
+   * The projection Name must be unique
+   * @return
+   */
+  def projectionName: String
 
   protected val actorSystemTyped: ActorSystem[_] = {
     actorSystem.toTyped
