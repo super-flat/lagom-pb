@@ -42,8 +42,6 @@ lazy val `lagompb-core` = project
   .in(file("core/lagompb-core"))
   .enablePlugins(LagomScala)
   .settings(lagomForkedTestSettings: _*)
-  .enablePlugins(AkkaGrpcPlugin)
-  .enablePlugins(PlayAkkaHttp2Support)
   .enablePlugins(LagomSettings)
   .enablePlugins(LagomAkka)
   .enablePlugins(Publish)

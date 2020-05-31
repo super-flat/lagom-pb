@@ -17,7 +17,7 @@ jobs:
     - stage: checker
       script: sbt scalastyle
     - stage: test
-      script: sbt coverage test coverageReport coverageAggregate
+      script: sbt coverage test coverageAggregate
       after_script:
         - bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l Scala -r target/scala-2.13/coverage-report/cobertura.xml
     - stage: release
