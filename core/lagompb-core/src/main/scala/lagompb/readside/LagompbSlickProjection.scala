@@ -16,7 +16,7 @@ import scala.util.{Failure, Success, Try}
 
 /**
  * LagompbSlickProjection helps implement multiple readSide processors where the offsets are
- * persisted in a RDBMS of choice. One of the greatest advantage is one can process events emitted differently by
+ * persisted postgres. One of the greatest advantage is one can process events emitted differently by
  * spawning different type of [[LagompbSlickProjection]] to handle them.
  * Each instance must be registered in the [[lagompb.LagompbApplication]] via
  * the dependency injection and the init method called

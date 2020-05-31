@@ -19,6 +19,14 @@ import slick.dbio.{DBIO, DBIOAction}
 
 import scala.concurrent.ExecutionContext
 
+/**
+ * Helps push snapshots and journal events to kafka
+ *
+ * @param config
+ * @param actorSystem
+ * @param ec
+ * @tparam TState
+ */
 abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage](
     config: Config,
     actorSystem: ActorSystemClassic
