@@ -1,7 +1,8 @@
 package lagompb.readside
 
-import scala.reflect.ClassTag
 import slick.jdbc.PostgresProfile.api._
+
+import scala.reflect.ClassTag
 
 /**
  * LagompbSlickTable will be implemented by any slick schema definition
