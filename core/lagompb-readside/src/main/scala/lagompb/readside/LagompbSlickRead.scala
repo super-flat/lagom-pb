@@ -2,12 +2,12 @@ package lagompb.readside
 
 import akka.Done
 import com.github.ghik.silencer.silent
-import com.lightbend.lagom.scaladsl.persistence.slick.SlickReadSide
 import com.lightbend.lagom.scaladsl.persistence.{AggregateEventTag, ReadSideProcessor}
+import com.lightbend.lagom.scaladsl.persistence.slick.SlickReadSide
 import com.typesafe.config.Config
+import lagompb.{LagompbEvent, LagompbException}
 import lagompb.protobuf.core.{EventWrapper, MetaData}
 import lagompb.util.LagompbProtosCompanions
-import lagompb.{LagompbEvent, LagompbException}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.dbio.{DBIO, DBIOAction}
 

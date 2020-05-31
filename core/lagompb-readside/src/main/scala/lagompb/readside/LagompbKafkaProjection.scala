@@ -3,15 +3,15 @@ package lagompb.readside
 import akka.Done
 import akka.actor.{ActorSystem => ActorSystemClassic}
 import akka.kafka.scaladsl.SendProducer
-import akka.kafka.{ProducerMessage, ProducerSettings}
+import akka.kafka.ProducerSettings
 import akka.projection.eventsourced.EventEnvelope
 import com.google.protobuf.any
 import com.typesafe.config.Config
-import lagompb.protobuf.core.{EventWrapper, StateWrapper}
+import lagompb.{LagompbEvent, LagompbException}
+import lagompb.protobuf.core.{EventWrapper, KafkaEvent, StateWrapper}
 import lagompb.protobuf.extensions.ExtensionsProto
 import lagompb.readside.utils.LagompbProducerConfig
 import lagompb.util.LagompbProtosCompanions
-import lagompb.{LagompbEvent, LagompbException}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 import scalapb.descriptors.FieldDescriptor
@@ -22,10 +22,10 @@ import scala.concurrent.ExecutionContext
 /**
  * Helps push snapshots and journal events to kafka
  *
- * @param config
- * @param actorSystem
- * @param ec
- * @tparam TState
+ * @param config the configuration instance
+ * @param actorSystem the actor system
+ * @param ec the execution context
+ * @tparam TState the aggregate state type
  */
 abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage](
     config: Config,
@@ -58,28 +58,38 @@ abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage](
                     .exists(_.partitionKey)
               ) match {
               case Some(fd: FieldDescriptor) =>
-                // get the partition key
-                val partitionKey = comp
-                  .parseFrom(event.value.toByteArray)
-                  .getField(fd)
-                  .as[String]
-
                 // let us wrap the state and the meta data and persist to kafka
-                val stateWrapper = StateWrapper().withMeta(meta).withState(resultingState)
-
-                val kafkaMessages: ProducerMessage.Envelope[String, Array[Byte], String] =
-                  ProducerMessage.multi(
-                    Seq(
-                      new ProducerRecord(producerConfig.stateTopic, partitionKey, stateWrapper.toByteArray),
-                      new ProducerRecord(producerConfig.eventsTopic, partitionKey, event.value.toByteArray)
-                    ),
-                    ""
+                val result = sendProducer
+                  .send(
+                    new ProducerRecord(
+                      producerConfig.topic,
+                      comp
+                        .parseFrom(event.value.toByteArray)
+                        .getField(fd)
+                        .as[String],
+                      KafkaEvent.defaultInstance
+                        .withEvent(event)
+                        .withState(StateWrapper().withMeta(meta).withState(resultingState))
+                        .withPartitionKey(
+                          comp
+                            .parseFrom(event.value.toByteArray)
+                            .getField(fd)
+                            .as[String]
+                        )
+                        .withServiceName(config.getString("lagompb.service-name"))
+                        .toByteArray
+                    )
                   )
-
-                // let us publish the messages to kafka
-                val result = sendProducer.sendEnvelope(kafkaMessages).map { _ =>
-                  Done
-                }
+                  .map { recordMetadata =>
+                    log.info(
+                      "Published event [{}] and state [{}] to topic/partition {}/{}",
+                      event.typeUrl,
+                      resultingState.typeUrl,
+                      producerConfig.topic,
+                      recordMetadata.partition
+                    )
+                    Done
+                  }
 
                 DBIO.from(result)
 
