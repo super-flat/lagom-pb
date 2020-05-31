@@ -27,17 +27,7 @@
     <!-- Turn down Slick noise-->
     <logger name="scala.slick" level="ERROR"/>
 
-    <variable name="ENV" value="$ENV:-dev}"/>
-    <if condition='p("ENV").equals("dev")'>
-        <then>
-            <root level="DEBUG">
-                <appender-ref ref="ASYNCSTDOUT"/>
-            </root>
-        </then>
-        <else>
-            <root level="INFO">
-                <appender-ref ref="ASYNCSTDOUT"/>
-            </root>
-        </else>
-    </if>
+    <root level="DEBUG">
+        <appender-ref ref="ASYNCSTDOUT"/>
+    </root>
 </configuration>

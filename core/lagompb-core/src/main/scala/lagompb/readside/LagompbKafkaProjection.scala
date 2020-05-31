@@ -21,9 +21,10 @@ import scala.concurrent.ExecutionContext
 
 abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage](
     config: Config,
-    actorSystem: ActorSystemClassic
+    actorSystem: ActorSystemClassic,
+    projectionName: String
 )(implicit ec: ExecutionContext)
-    extends LagompbProjection[TState](config, actorSystem) {
+    extends LagompbProjection[TState](config, actorSystem, projectionName) {
 
   // The implementation class needs to set the akka.kafka.producer settings in the config file as well
   // as the lagompb.kafka-projections
