@@ -74,7 +74,7 @@ import scala.concurrent.ExecutionContext
       .exactlyOnce(projectionId = ProjectionId(projectionName, tag), setSourceProvider(tag), dbConfig, handler = this)
 
   /**
-   * Initialize the projection
+   * Initialize the projection to start fetching the events that are emitted
    */
   def init(): Unit = {
     ShardedDaemonProcess(actorSystemTyped).init[ProjectionBehavior.Command](
