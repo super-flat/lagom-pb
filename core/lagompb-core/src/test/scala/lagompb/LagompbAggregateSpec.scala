@@ -45,12 +45,7 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
       val commandSender: TestProbe[CommandReply] =
         createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(
-        null,
-        config,
-        new TestCommandHandler(null),
-        new TestEventHandler(null)
-      )
+      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -81,12 +76,7 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
       val commandSender: TestProbe[CommandReply] =
         createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(
-        null,
-        config,
-        new TestCommandHandler(null),
-        new TestEventHandler(null)
-      )
+      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -95,11 +85,7 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
       val testCmd = TestCmd("", "first test")
 
       // let us send the command to the aggregate
-      aggregateRef ! LagompbCommand(
-        testCmd,
-        commandSender.ref,
-        Map.empty[String, String]
-      )
+      aggregateRef ! LagompbCommand(testCmd, commandSender.ref, Map.empty[String, String])
 
       commandSender.receiveMessage(replyTimeout) match {
         case CommandReply(reply) =>
@@ -116,12 +102,7 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
       val commandSender: TestProbe[CommandReply] =
         createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(
-        null,
-        config,
-        new TestCommandHandler(null),
-        new TestEventHandler(null)
-      )
+      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -152,12 +133,7 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
       val commandSender: TestProbe[CommandReply] =
         createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(
-        null,
-        config,
-        new TestCommandHandler(null),
-        new TestEventHandler(null)
-      )
+      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -182,12 +158,7 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
       val commandSender: TestProbe[CommandReply] =
         createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(
-        null,
-        config,
-        new TestCommandHandler(null),
-        new TestEventHandler(null)
-      )
+      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -201,9 +172,7 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
         case CommandReply(reply) =>
           reply match {
             case Reply.FailedReply(value) =>
-              value.reason should include(
-                "unknown command handler success response"
-              )
+              value.reason should include("unknown command handler success response")
             case _ => fail("unexpected message type")
           }
         case _ => fail("unexpected message type")
@@ -215,12 +184,7 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
       val commandSender: TestProbe[CommandReply] =
         createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(
-        null,
-        config,
-        new TestCommandHandler(null),
-        new TestEventHandler(null)
-      )
+      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -247,12 +211,7 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
       val commandSender: TestProbe[CommandReply] =
         createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(
-        null,
-        config,
-        new TestCommandHandler(null),
-        new TestEventHandler(null)
-      )
+      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -266,31 +225,19 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
     }
 
     "handle wrong state parsing" in {
-      val aggregate = new TestAggregate(
-        null,
-        config,
-        new TestCommandHandler(null),
-        new TestEventHandler(null)
-      )
+      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
       val stateWrapper = StateWrapper().withState(
         Any()
           .withTypeUrl("type.googleapis.com/lagom.test")
           .withValue(com.google.protobuf.ByteString.copyFrom("".getBytes))
       )
 
-      an[LagompbException] shouldBe thrownBy(
-        aggregate.genericCommandHandler(stateWrapper, null)
-      )
+      an[LagompbException] shouldBe thrownBy(aggregate.genericCommandHandler(stateWrapper, null))
     }
 
     "handle generic event handler" in {
       val companyUuid = "12234"
-      val aggregate = new TestAggregate(
-        null,
-        config,
-        new TestCommandHandler(null),
-        new TestEventHandler(null)
-      )
+      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
       val stateWrapper = StateWrapper()
         .withState(
           Any
@@ -332,15 +279,8 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
 
     "generic event handler handles wrong event" in {
 
-      val aggregate = new TestAggregate(
-        null,
-        config,
-        new TestCommandHandler(null),
-        new TestEventHandler(null)
-      )
-      an[LagompbException] shouldBe thrownBy(
-        aggregate.genericEventHandler(null, WrongEventTagger.defaultInstance)
-      )
+      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      an[LagompbException] shouldBe thrownBy(aggregate.genericEventHandler(null, WrongEventTagger.defaultInstance))
     }
   }
 }

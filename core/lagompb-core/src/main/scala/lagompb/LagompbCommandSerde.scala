@@ -12,11 +12,10 @@ import lagompb.util.LagompbProtosCompanions
 import org.slf4j.{Logger, LoggerFactory}
 
 /**
-  * LagomPbCommandSerializer
-  * It is used internally by lagom-common to serialize commands and replies
-  */
-sealed class LagompbCommandSerde(val system: ExtendedActorSystem)
-    extends SerializerWithStringManifest {
+ * LagomPbCommandSerializer
+ * It is used internally by lagom-common to serialize commands and replies
+ */
+sealed class LagompbCommandSerde(val system: ExtendedActorSystem) extends SerializerWithStringManifest {
 
   private final val log: Logger =
     LoggerFactory.getLogger(classOf[LagompbCommandSerde])
@@ -25,13 +24,7 @@ sealed class LagompbCommandSerde(val system: ExtendedActorSystem)
   // construct a map of type_url -> companion object parser
   final lazy val msgMap: Map[String, Array[Byte] => scalapb.GeneratedMessage] =
     LagompbProtosCompanions.companions
-      .map(
-        companion =>
-          (
-            companion.scalaDescriptor.fullName,
-            (s: Array[Byte]) => companion.parseFrom(s)
-        )
-      )
+      .map(companion => (companion.scalaDescriptor.fullName, (s: Array[Byte]) => companion.parseFrom(s)))
       .toMap
 
   final val LagomPbCommandManifest: String = classOf[LagompbCommand].getName
@@ -45,9 +38,7 @@ sealed class LagompbCommandSerde(val system: ExtendedActorSystem)
           .toSerializationFormat(actorRef)
           .getBytes(StandardCharsets.UTF_8)
 
-        log.debug(
-          s"serializing Command [${cmd.companion.scalaDescriptor.fullName}]"
-        )
+        log.debug(s"serializing Command [${cmd.companion.scalaDescriptor.fullName}]")
 
         CommandWrapper()
           .withCommand(Any.pack(cmd))
@@ -70,18 +61,12 @@ sealed class LagompbCommandSerde(val system: ExtendedActorSystem)
         val ref: ActorRef[CommandReply] =
           actorRefResolver.resolveActorRef[CommandReply](actorRefStr)
 
-        wrapper.command.fold(
-          throw new LagompbException("requires LagompbCommand")
-        )(any => {
+        wrapper.command.fold(throw new LagompbException("requires LagompbCommand"))(any => {
           log.debug(s"deserializing Command #[${any.typeUrl}]")
 
           msgMap
             .get(any.typeUrl.split('/').lastOption.getOrElse(""))
-            .fold(
-              throw new LagompbException(
-                s"unable to deserialize command ${any.typeUrl}. "
-              )
-            )(mesg => {
+            .fold(throw new LagompbException(s"unable to deserialize command ${any.typeUrl}. "))(mesg => {
 
               val protoCmd: scalapb.GeneratedMessage =
                 mesg(any.value.toByteArray)

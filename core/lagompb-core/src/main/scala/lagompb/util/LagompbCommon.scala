@@ -10,15 +10,15 @@ import scala.reflect.runtime.universe
 import scala.util.{Failure, Success, Try}
 
 /**
-  * Loads protocol buffer generated messages file object to build a registry of
-  * scalapb message companions for the various serialization supported in lagompb
-  */
+ * Loads protocol buffer generated messages file object to build a registry of
+ * scalapb message companions for the various serialization supported in lagompb
+ */
 object LagompbCommon {
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   /**
-    * Loads configuration into memory for usage
-    */
+   * Loads configuration into memory for usage
+   */
   lazy val config: Config = ConfigFactory.load()
 
   private val packageName: String = config.getString("lagompb.protos-package")
@@ -26,9 +26,9 @@ object LagompbCommon {
   private lazy val reflections = new Reflections(packageName)
 
   /**
-    * Load scalapb generated  fileobjects that contain proto companions messages
-    * @return the sequence of scalapb.GeneratedFileObject
-    */
+   * Load scalapb generated  fileobjects that contain proto companions messages
+   * @return the sequence of scalapb.GeneratedFileObject
+   */
   @throws(classOf[ScalaReflectionException])
   def loadFileObjects(): Seq[GeneratedFileObject] = {
     val fileObjects: Seq[Class[_ <: GeneratedFileObject]] = reflections
@@ -50,7 +50,7 @@ object LagompbCommon {
         case Failure(exception) =>
           exception match {
             case e: ScalaReflectionException => throw e
-            case _                           => seq
+            case _ => seq
           }
         case Success(fileObject) =>
           val subMsg: String = fileObject.messagesCompanions

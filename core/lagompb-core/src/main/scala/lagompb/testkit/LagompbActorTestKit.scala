@@ -23,50 +23,40 @@ abstract class LagompbActorTestKit(testKit: ActorTestKit)
     with ScalaFutures {
 
   /**
-    * Config loaded from `application-test.conf` if that exists, otherwise
-    * using default configuration from the lagompb.conf resources that ship with the Akka libraries.
-    * The application.conf of your project is not used in this case.
-    */
+   * Config loaded from `application-test.conf` if that exists, otherwise
+   * using default configuration from the lagompb.conf resources that ship with the Akka libraries.
+   * The application.conf of your project is not used in this case.
+   */
   def this() = this(ActorTestKit(ActorTestKitBase.testNameFromCallStack()))
 
   /**
-    * Use a custom config for the actor system.
-    */
+   * Use a custom config for the actor system.
+   */
   def this(config: String) =
-    this(
-      ActorTestKit(
-        ActorTestKitBase.testNameFromCallStack(),
-        ConfigFactory.parseString(config)
-      )
-    )
+    this(ActorTestKit(ActorTestKitBase.testNameFromCallStack(), ConfigFactory.parseString(config)))
 
   /**
-    * Use a custom config for the actor system.
-    */
+   * Use a custom config for the actor system.
+   */
   def this(config: Config) =
     this(ActorTestKit(ActorTestKitBase.testNameFromCallStack(), config))
 
   /**
-    * Use a custom config for the actor system, and a custom akka TestKitSettings.
-    */
+   * Use a custom config for the actor system, and a custom akka TestKitSettings.
+   */
   def this(config: Config, settings: TestKitSettings) =
-    this(
-      ActorTestKit(ActorTestKitBase.testNameFromCallStack(), config, settings)
-    )
+    this(ActorTestKit(ActorTestKitBase.testNameFromCallStack(), config, settings))
 
   /**
-    * `PatienceConfig` from akka test kit default timeout
-    */
+   * `PatienceConfig` from akka test kit default timeout
+   */
   implicit val patience: PatienceConfig =
-    PatienceConfig(
-      testKit.testKitSettings.DefaultTimeout.duration,
-      Span(100, org.scalatest.time.Millis)
-    )
+    PatienceConfig(testKit.testKitSettings.DefaultTimeout.duration, Span(100, org.scalatest.time.Millis))
 
   /**
-    * Shuts down the ActorTestKit. If override be sure to call super.afterAll
-    * or shut down the testkit explicitly with `testKit.shutdownTestKit()`.
-    */
+   * Shuts down the ActorTestKit. If override be sure to call super.afterAll
+   * or shut down the testkit explicitly with `testKit.shutdownTestKit()`.
+   */
   protected override def afterAll(): Unit = {
     testKit.shutdownTestKit()
   }
