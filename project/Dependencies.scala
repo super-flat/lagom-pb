@@ -1,8 +1,8 @@
 package lagompb
 
 import com.lightbend.lagom.core.LagomVersion
-import scalapb.compiler.Version.scalapbVersion
 import sbt._
+import scalapb.compiler.Version.scalapbVersion
 
 /**
  * Holds the list of dependencies used in the project and their various version

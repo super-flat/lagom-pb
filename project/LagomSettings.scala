@@ -1,18 +1,9 @@
 package lagompb
 
-import com.lightbend.lagom.sbt.LagomImport.lagomScaladslApi
-import com.lightbend.lagom.sbt.LagomImport.lagomScaladslCluster
-import com.lightbend.lagom.sbt.LagomImport.lagomScaladslKafkaBroker
-import com.lightbend.lagom.sbt.LagomImport.lagomScaladslPersistenceJdbc
-import com.lightbend.lagom.sbt.LagomImport.lagomScaladslServer
-import com.lightbend.lagom.sbt.LagomImport.lagomScaladslTestKit
-import com.lightbend.lagom.sbt.LagomImport.lagomScaladslPersistenceCassandra
-import lagompb.Dependencies.Compile
-import lagompb.Dependencies.Runtime
+import com.lightbend.lagom.sbt.LagomImport._
+import lagompb.Dependencies.{Compile, Runtime}
 import play.sbt.PlayImport.filters
-import sbt.AutoPlugin
-import sbt.Plugins
-import sbt.plugins
+import sbt.{plugins, AutoPlugin, Plugins}
 import sbt.Keys.libraryDependencies
 
 /**
