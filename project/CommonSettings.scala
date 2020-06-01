@@ -3,7 +3,7 @@ package lagompb
 import lagompb.Dependencies.Versions
 import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile
 import sbt.Keys._
-import sbt.{compilerPlugin, plugins, url, AutoPlugin, CrossVersion, Developer, Plugins, _}
+import sbt._
 import scoverage.ScoverageKeys.{coverageFailOnMinimum, coverageMinimum}
 
 object CommonSettings extends AutoPlugin {
