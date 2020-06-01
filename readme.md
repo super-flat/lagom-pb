@@ -20,7 +20,7 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 - Easy implementation of api service either with message broker api or without.
 - Meta data adds some `revision number` that can help easily implement optimistic lock.  
 - At every event handled a snapshot of the aggregate state with the meta data are made available for the readSide.
-- All events and snapshots are by default persisted to Postgres SQL.
+- All events, snapshots and readSide offsets are persisted to Postgres SQL.
 
 ## License
 
