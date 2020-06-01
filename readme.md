@@ -16,8 +16,7 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 
 - Implementation of a gRPC based microservice using protocol buffer messages. More info: [gRPC](https://grpc.io/).
 
-- ReadSide in-built battery via ([Message broker api](https://www.lagomframework.com/documentation/1.6.x/scala/MessageBrokerApi.html)) to publish domain events to kafka as serialized protocol buffer messages 
-and ([Akka Projection](https://doc.akka.io/docs/akka-projection/current/)).
+- ReadSide in-built battery via ([Message broker api](https://www.lagomframework.com/documentation/1.6.x/scala/MessageBrokerApi.html)) to publish domain events to kafka as serialized protocol buffer messages and ([Akka Projection](https://doc.akka.io/docs/akka-projection/current/)).
 
 - Easy definition of aggregate root, events and command handlers.
 
