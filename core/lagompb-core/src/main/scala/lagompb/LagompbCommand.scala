@@ -1,7 +1,7 @@
 package lagompb
 
 import akka.actor.typed.ActorRef
-import lagompb.protobuf.core.CommandReply
+import lagompb.core.CommandReply
 
 /**
  * Defines the type of command to handle by the aggregate.

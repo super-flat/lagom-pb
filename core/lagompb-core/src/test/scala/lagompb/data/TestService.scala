@@ -10,7 +10,7 @@ import com.lightbend.lagom.scaladsl.api.{Descriptor, ServiceCall}
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.server.{LagomApplicationContext, LagomServer, LocalServiceLocator}
 import com.softwaremill.macwire.wire
-import lagompb.protobuf.tests.{TestCmd, TestState}
+import lagompb.tests.{TestCmd, TestState}
 import lagompb.{
   LagompbAggregate,
   LagompbApplication,

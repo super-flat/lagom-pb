@@ -9,9 +9,9 @@ import com.lightbend.lagom.scaladsl.api.transport.BadRequest
 import com.lightbend.lagom.scaladsl.broker.TopicProducer
 import com.lightbend.lagom.scaladsl.persistence.{EventStreamElement, PersistentEntityRegistry}
 import io.grpc.Status
-import lagompb.protobuf.core.CommandReply.Reply
-import lagompb.protobuf.core._
-import lagompb.protobuf.extensions.ExtensionsProto
+import lagompb.core.CommandReply.Reply
+import lagompb.core._
+import lagompb.extensions.ExtensionsProto
 import lagompb.util.{LagompbCommon, LagompbProtosCompanions}
 import org.slf4j.{Logger, LoggerFactory}
 import scalapb.GeneratedMessage

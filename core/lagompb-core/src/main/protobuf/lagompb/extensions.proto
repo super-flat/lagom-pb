@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-package lagompb.protobuf;
+package lagompb;
 
 import "google/protobuf/descriptor.proto";
 

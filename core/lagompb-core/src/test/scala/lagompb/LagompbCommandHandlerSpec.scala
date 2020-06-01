@@ -4,8 +4,8 @@ import java.util.UUID
 
 import com.google.protobuf.any.Any
 import lagompb.data.TestCommandHandler
-import lagompb.protobuf.core._
-import lagompb.protobuf.tests.{NoCmd, TestCmd, TestEvent, TestState}
+import lagompb.core._
+import lagompb.tests.{NoCmd, TestCmd, TestEvent, TestState}
 import lagompb.testkit.LagompbSpec
 
 import scala.util.Try

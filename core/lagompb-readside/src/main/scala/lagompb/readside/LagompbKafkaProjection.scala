@@ -6,8 +6,8 @@ import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.SendProducer
 import com.google.protobuf.any
 import com.typesafe.config.Config
-import lagompb.protobuf.core.{KafkaEvent, MetaData, StateWrapper}
-import lagompb.protobuf.extensions.ExtensionsProto
+import lagompb.core.{KafkaEvent, MetaData, StateWrapper}
+import lagompb.extensions.ExtensionsProto
 import lagompb.LagompbException
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}

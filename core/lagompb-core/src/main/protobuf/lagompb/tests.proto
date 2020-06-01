@@ -1,13 +1,13 @@
 syntax = "proto3";
 
-package lagompb.protobuf;
+package lagompb;
 
 import "scalapb/scalapb.proto";
 import "lagompb/extensions.proto";
 import "google/protobuf/any.proto";
 
 message TestCmd {
-    string company_uuid = 1 [(lagompb.protobuf.command).entity_id = true];
+    string company_uuid = 1 [(lagompb.command).entity_id = true];
     string name = 2;
 }
 
@@ -15,30 +15,30 @@ message TestCmd {
 // handler response without persisting
 // an event
 message TestGetCmd {
-    string company_uuid = 1 [(lagompb.protobuf.command).entity_id = true];
+    string company_uuid = 1 [(lagompb.command).entity_id = true];
 }
 
 // It is used to test unhandled
 // command handler response
 message TestEmptyCmd {
-    string company_uuid = 1 [(lagompb.protobuf.command).entity_id = true];
+    string company_uuid = 1 [(lagompb.command).entity_id = true];
 }
 
 // Used to test Empty command handler
 // success response
 message TestEmptySuccessCmd {
-    string company_uuid = 1 [(lagompb.protobuf.command).entity_id = true];
+    string company_uuid = 1 [(lagompb.command).entity_id = true];
 }
 
 // Used to handle wrong event emitted by
 // the command handler
 message TestUnknownEventCmd {
-    string company_uuid = 1 [(lagompb.protobuf.command).entity_id = true];
+    string company_uuid = 1 [(lagompb.command).entity_id = true];
 }
 
 // Used to test a fail command handler response
 message TestFailCmd {
-    string company_uuid = 1 [(lagompb.protobuf.command).entity_id = true];
+    string company_uuid = 1 [(lagompb.command).entity_id = true];
 }
 
 message NoCmd {
@@ -49,7 +49,7 @@ message WrongEventTagger {
 }
 
 message TestEvent {
-    string event_uuid = 1 [(lagompb.protobuf.kafka).partition_key = true];
+    string event_uuid = 1 [(lagompb.kafka).partition_key = true];
     string name = 2;
 }
 

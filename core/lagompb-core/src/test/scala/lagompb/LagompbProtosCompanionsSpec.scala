@@ -1,7 +1,7 @@
 package lagompb
 
 import com.google.protobuf.any.Any
-import lagompb.protobuf.tests.TestCmd
+import lagompb.tests.TestCmd
 import lagompb.testkit.LagompbSpec
 import lagompb.util.LagompbProtosCompanions
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
@@ -16,7 +16,7 @@ class LagompbProtosCompanionsSpec extends LagompbSpec {
     "Contains the companions" in {
       val map: Map[String, GeneratedMessageCompanion[_ <: GeneratedMessage]] =
         LagompbProtosCompanions.companionsMap
-      map.keySet should contain("lagompb.protobuf.TestCmd")
+      map.keySet should contain("lagompb.TestCmd")
     }
 
     "Gets scalapb GeneratedMessageCompanion object" in {

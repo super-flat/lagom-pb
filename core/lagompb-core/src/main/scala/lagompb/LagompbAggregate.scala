@@ -10,9 +10,9 @@ import akka.persistence.typed.scaladsl.{Effect, EventSourcedBehavior, ReplyEffec
 import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.persistence.AkkaTaggerAdapter
 import com.typesafe.config.Config
-import lagompb.protobuf.core.CommandHandlerResponse.HandlerResponse.{Empty, FailedResponse, SuccessResponse}
-import lagompb.protobuf.core.SuccessCommandHandlerResponse.Response.{Event, NoEvent}
-import lagompb.protobuf.core._
+import lagompb.core.CommandHandlerResponse.HandlerResponse.{Empty, FailedResponse, SuccessResponse}
+import lagompb.core.SuccessCommandHandlerResponse.Response.{Event, NoEvent}
+import lagompb.core._
 import lagompb.util.LagompbProtosCompanions
 import org.slf4j.{Logger, LoggerFactory}
 

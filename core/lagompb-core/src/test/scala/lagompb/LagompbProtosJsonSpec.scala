@@ -1,7 +1,7 @@
 package lagompb
 
 import com.google.protobuf.any.Any
-import lagompb.protobuf.tests.{TestAny, TestCmd}
+import lagompb.tests.{TestAny, TestCmd}
 import lagompb.testkit.LagompbSpec
 import lagompb.util.LagompbProtosJson
 import play.api.libs.json.{JsResult, JsValue}
@@ -32,7 +32,7 @@ class LagompbProtosJsonSpec extends LagompbSpec with LagompbProtosJson {
         s"""
            |{
            |"cmd":{
-           |    "@type":"type.googleapis.com/lagompb.protobuf.TestCmd",
+           |    "@type":"type.googleapis.com/lagompb.TestCmd",
            |    "companyUuid":"a432c2c8-1204-4a43-baa4-91eb08330b9b",
            |    "name":"test"
            |    }
@@ -47,7 +47,7 @@ class LagompbProtosJsonSpec extends LagompbSpec with LagompbProtosJson {
         s"""
            |{
            |"cmd":{
-           |    "@type":"type.googleapis.com/lagompb.protobuf.TestCmd",
+           |    "@type":"type.googleapis.com/lagompb.TestCmd",
            |    "companyUuid":"a432c2c8-1204-4a43-baa4-91eb08330b9b",
            |    "name":"test"
            |    }
@@ -77,7 +77,7 @@ class LagompbProtosJsonSpec extends LagompbSpec with LagompbProtosJson {
         s"""
            |{
            |"TestCmd":{
-           |    "@type":"type.googleapis.com/lagompb.protobuf.TestEvent",
+           |    "@type":"type.googleapis.com/lagompb.TestEvent",
            |    "companyUuid":"a432c2c8-1204-4a43-baa4-91eb08330b9b",
            |    "name":"test"
            |    }

@@ -1,7 +1,7 @@
 package lagompb
 
 import akka.actor.ActorSystem
-import lagompb.protobuf.core.{CommandHandlerResponse, MetaData}
+import lagompb.core.{CommandHandlerResponse, MetaData}
 
 import scala.util.Try
 

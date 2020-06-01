@@ -1,7 +1,7 @@
 package lagompb
 
-import lagompb.protobuf.core.CoreProto
-import lagompb.protobuf.options.OptionsProto
+import lagompb.core.CoreProto
+import lagompb.options.OptionsProto
 import lagompb.testkit.LagompbSpec
 import lagompb.util.LagompbCommon
 import scalapb.GeneratedFileObject

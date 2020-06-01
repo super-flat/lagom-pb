@@ -7,7 +7,7 @@ import com.lightbend.lagom.scaladsl.persistence.{AggregateEventTag, EventStreamE
 import com.lightbend.lagom.scaladsl.persistence.jdbc.{JdbcReadSide, JdbcSession}
 import com.typesafe.config.Config
 import lagompb.{LagompbEvent, LagompbException}
-import lagompb.protobuf.core.{EventWrapper, MetaData}
+import lagompb.core.{EventWrapper, MetaData}
 import lagompb.util.LagompbProtosCompanions
 import org.slf4j.{Logger, LoggerFactory}
 

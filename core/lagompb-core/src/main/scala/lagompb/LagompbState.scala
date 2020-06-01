@@ -1,6 +1,6 @@
 package lagompb
 
-import lagompb.protobuf.core.MetaData
+import lagompb.core.MetaData
 
 /**
  * LagompbState wraps the actual aggregate state with some meta data about the state

@@ -1,9 +1,13 @@
 package lagompb
 
 object CoverageWhitelist {
+
   val whitelist = Seq(
     "<empty>",
-    "lagompb.protobuf.*",
+    "lagompb.core.*",
+    "lagompb.extensions.*",
+    "lagompb.options.*",
+    "lagompb.tests.*",
     "lagompb.data.*",
     "lagompb.testkit.*",
     "lagompb.readside.*",

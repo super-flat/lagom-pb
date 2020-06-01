@@ -3,7 +3,7 @@ package lagompb
 import com.lightbend.lagom.scaladsl.api.broker.Topic
 import com.lightbend.lagom.scaladsl.api.broker.kafka.{KafkaProperties, PartitionKeyStrategy}
 import com.lightbend.lagom.scaladsl.api.{Descriptor, Service}
-import lagompb.protobuf.core.KafkaEvent
+import lagompb.core.KafkaEvent
 import lagompb.util.{LagompbCommon, LagompbProtosJson}
 
 /**

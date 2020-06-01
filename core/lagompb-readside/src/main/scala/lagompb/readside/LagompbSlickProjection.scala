@@ -4,7 +4,7 @@ import akka.Done
 import akka.actor.{ActorSystem => ActorSystemClassic}
 import com.google.protobuf.any
 import com.typesafe.config.Config
-import lagompb.protobuf.core.MetaData
+import lagompb.core.MetaData
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.dbio.{DBIO, DBIOAction}
 

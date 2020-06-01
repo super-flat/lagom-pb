@@ -3,8 +3,8 @@ package lagompb
 import java.util.UUID
 
 import lagompb.data.TestEventHandler
-import lagompb.protobuf.core.MetaData
-import lagompb.protobuf.tests.{TestEvent, TestState, WrongEvent}
+import lagompb.core.MetaData
+import lagompb.tests.{TestEvent, TestState, WrongEvent}
 import lagompb.testkit.LagompbSpec
 
 class LagompbEventHandlerSpec extends LagompbSpec {

@@ -2,8 +2,8 @@ package lagompb.data
 
 import akka.actor.ActorSystem
 import lagompb.LagompbEventHandler
-import lagompb.protobuf.core.MetaData
-import lagompb.protobuf.tests.{TestEvent, TestState}
+import lagompb.core.MetaData
+import lagompb.tests.{TestEvent, TestState}
 
 class TestEventHandler(actorSystem: ActorSystem) extends LagompbEventHandler[TestState](actorSystem) {
 

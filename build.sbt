@@ -32,7 +32,7 @@ lazy val `lagompb-core` = project
   .enablePlugins(Publish)
   .settings(
     name := "lagompb-core",
-    Compile / unmanagedResources += (Compile / sourceDirectory).value / "main" / "protobuf",
+    Compile / unmanagedResourceDirectories += (Compile / sourceDirectory).value / "main" / "protobuf",
     coverageExcludedPackages := CoverageWhitelist.whitelist.mkString(";")
   )
   .settings(

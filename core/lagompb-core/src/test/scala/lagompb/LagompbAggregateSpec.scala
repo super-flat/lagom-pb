@@ -9,9 +9,9 @@ import akka.persistence.typed.PersistenceId
 import com.google.protobuf.any.Any
 import com.typesafe.config.{Config, ConfigFactory}
 import lagompb.data.{TestAggregate, TestCommandHandler, TestEventHandler}
-import lagompb.protobuf.core.CommandReply.Reply
-import lagompb.protobuf.core._
-import lagompb.protobuf.tests._
+import lagompb.core.CommandReply.Reply
+import lagompb.core._
+import lagompb.tests._
 import lagompb.testkit.LagompbActorTestKit
 
 import scala.concurrent.duration.FiniteDuration
@@ -32,7 +32,7 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
     val typeUrl: String =
       any.typeUrl.substring(any.typeUrl.lastIndexOf('/') + 1)
     typeUrl match {
-      case "lagompb.protobuf.TestState" =>
+      case "lagompb.TestState" =>
         TestState.parseFrom(any.value.toByteArray)
       case _ => throw new RuntimeException(s"wrong state definition $typeUrl")
     }

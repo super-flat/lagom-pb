@@ -18,7 +18,7 @@ import com.google.protobuf.any
 import com.lightbend.lagom.scaladsl.persistence.AggregateEventTag
 import com.typesafe.config.Config
 import lagompb.{LagompbEvent, LagompbException}
-import lagompb.protobuf.core.{EventWrapper, MetaData}
+import lagompb.core.{EventWrapper, MetaData}
 import lagompb.util.LagompbProtosCompanions
 import org.slf4j.{Logger, LoggerFactory}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}

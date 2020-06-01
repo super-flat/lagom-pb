@@ -6,8 +6,8 @@ import akka.util.ByteString
 import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.api.deser.MessageSerializer
 import com.lightbend.lagom.scaladsl.api.transport.MessageProtocol
-import lagompb.protobuf.core.{KafkaEvent, MetaData, StateWrapper}
-import lagompb.protobuf.tests.{TestEvent, TestState}
+import lagompb.core.{KafkaEvent, MetaData, StateWrapper}
+import lagompb.tests.{TestEvent, TestState}
 import lagompb.testkit.LagompbSpec
 
 class LagompbKafkaSerdeSpec extends LagompbSpec {

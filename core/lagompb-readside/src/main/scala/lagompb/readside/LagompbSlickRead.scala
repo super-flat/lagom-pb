@@ -6,7 +6,7 @@ import com.lightbend.lagom.scaladsl.persistence.{AggregateEventTag, ReadSideProc
 import com.lightbend.lagom.scaladsl.persistence.slick.SlickReadSide
 import com.typesafe.config.Config
 import lagompb.{LagompbEvent, LagompbException}
-import lagompb.protobuf.core.{EventWrapper, MetaData}
+import lagompb.core.{EventWrapper, MetaData}
 import lagompb.util.LagompbProtosCompanions
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.dbio.{DBIO, DBIOAction}

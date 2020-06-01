@@ -2,8 +2,8 @@ package lagompb
 
 import java.util.UUID
 
-import lagompb.protobuf.extensions.ExtensionsProto
-import lagompb.protobuf.tests.{TestCmd, TestEvent}
+import lagompb.extensions.ExtensionsProto
+import lagompb.tests.{TestCmd, TestEvent}
 import lagompb.testkit.LagompbSpec
 import scalapb.descriptors.FieldDescriptor
 
