@@ -34,7 +34,7 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 
 ## Project Status
 
-Project is still under heavy development. API
+Project is still under heavy development. API is subject to change.
 
 ## License
 
