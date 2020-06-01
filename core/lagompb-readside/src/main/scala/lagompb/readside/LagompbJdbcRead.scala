@@ -3,12 +3,12 @@ package lagompb.readside
 import java.sql.Connection
 
 import com.github.ghik.silencer.silent
-import com.lightbend.lagom.scaladsl.persistence.{AggregateEventTag, EventStreamElement, ReadSideProcessor}
 import com.lightbend.lagom.scaladsl.persistence.jdbc.{JdbcReadSide, JdbcSession}
+import com.lightbend.lagom.scaladsl.persistence.{AggregateEventTag, EventStreamElement, ReadSideProcessor}
 import com.typesafe.config.Config
-import lagompb.{LagompbEvent, LagompbException}
 import lagompb.protobuf.core.{EventWrapper, MetaData}
 import lagompb.util.LagompbProtosCompanions
+import lagompb.{LagompbEvent, LagompbException}
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.ExecutionContext
@@ -33,6 +33,12 @@ import scala.concurrent.ExecutionContext
   val log: Logger =
     LoggerFactory.getLogger(getClass)
 
+  final override def buildHandler(): ReadSideProcessor.ReadSideHandler[LagompbEvent] =
+    readSide
+      .builder[LagompbEvent](readSideId)
+      .setEventHandler(handleEvent)
+      .build()
+
   private def handleEvent: (Connection, EventStreamElement[EventWrapper]) => Unit = {
     (connection: Connection, eventElement: EventStreamElement[EventWrapper]) =>
       {
@@ -54,11 +60,8 @@ import scala.concurrent.ExecutionContext
       }
   }
 
-  final override def buildHandler(): ReadSideProcessor.ReadSideHandler[LagompbEvent] =
-    readSide
-      .builder[LagompbEvent](readSideId)
-      .setEventHandler(handleEvent)
-      .build()
+  //  An identifier for this read side. This will be used to store offsets in the offset store.
+  final def readSideId: String = config.getString("lagompb.service-name")
 
   final override def aggregateTags: Set[AggregateEventTag[LagompbEvent]] =
     LagompbEvent.Tag.allTags
@@ -70,9 +73,6 @@ import scala.concurrent.ExecutionContext
    * @param state the Lagompb state that wraps the actual state and some meta data
    */
   def handle(connection: Connection, event: scalapb.GeneratedMessage, state: TState, metaData: MetaData): Unit
-
-  //  An identifier for this read side. This will be used to store offsets in the offset store.
-  final def readSideId: String = config.getString("lagompb.service-name")
 
   /**
    * aggregate state. it is a generated scalapb message extending the LagompbState trait

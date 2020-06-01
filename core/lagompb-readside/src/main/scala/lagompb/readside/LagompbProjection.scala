@@ -1,17 +1,17 @@
 package lagompb.readside
 
-import akka.actor.{ActorSystem => ActorSystemClassic}
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.adapter._
+import akka.actor.{ActorSystem => ActorSystemClassic}
 import akka.cluster.sharding.typed.ShardedDaemonProcessSettings
 import akka.cluster.sharding.typed.scaladsl.ShardedDaemonProcess
 import akka.persistence.jdbc.query.scaladsl.JdbcReadJournal
 import akka.persistence.query.Offset
-import akka.projection.{ProjectionBehavior, ProjectionId}
 import akka.projection.eventsourced.EventEnvelope
 import akka.projection.eventsourced.scaladsl.EventSourcedProvider
 import akka.projection.scaladsl.SourceProvider
 import akka.projection.slick.{SlickHandler, SlickProjection}
+import akka.projection.{ProjectionBehavior, ProjectionId}
 import com.github.ghik.silencer.silent
 import com.lightbend.lagom.scaladsl.persistence.AggregateEventTag
 import com.typesafe.config.Config
@@ -29,6 +29,13 @@ import scala.concurrent.ExecutionContext
     extends SlickHandler[EventEnvelope[LagompbEvent]] {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
+  protected val actorSystemTyped: ActorSystem[_] = {
+    actorSystem.toTyped
+  }
+  // The implementation class needs to set the akka.projection.slick config for the offset database
+  protected val dbConfig: DatabaseConfig[PostgresProfile] =
+    DatabaseConfig.forConfig("akka.projection.slick", actorSystem.settings.config)
+  protected val baseTag: String = config.getString("lagompb.events.tagname")
 
   /**
    * aggregate state. it is a generated scalapb message extending the LagompbState trait
@@ -43,36 +50,6 @@ import scala.concurrent.ExecutionContext
    */
   def projectionName: String
 
-  protected val actorSystemTyped: ActorSystem[_] = {
-    actorSystem.toTyped
-  }
-
-  // The implementation class needs to set the akka.projection.slick config for the offset database
-  protected val dbConfig: DatabaseConfig[PostgresProfile] =
-    DatabaseConfig.forConfig("akka.projection.slick", actorSystem.settings.config)
-
-  protected val baseTag: String = config.getString("lagompb.events.tagname")
-
-  /**
-   * Set the Event Sourced Provider per tag
-   *
-   * @param tag the event tag
-   * @return the event sourced provider
-   */
-  protected def setSourceProvider(tag: String): SourceProvider[Offset, EventEnvelope[LagompbEvent]] =
-    EventSourcedProvider
-      .eventsByTag[LagompbEvent](actorSystemTyped, readJournalPluginId = JdbcReadJournal.Identifier, tag)
-
-  /**
-   * Build the projection instance based upon the event tag
-   *
-   * @param tag the event tag
-   * @return the projection instance
-   */
-  protected def setExactlyOnceProjection(tag: String): SlickProjection[EventEnvelope[LagompbEvent]] =
-    SlickProjection
-      .exactlyOnce(projectionId = ProjectionId(projectionName, tag), setSourceProvider(tag), dbConfig, handler = this)
-
   /**
    * Initialize the projection to start fetching the events that are emitted
    */
@@ -85,5 +62,25 @@ import scala.concurrent.ExecutionContext
       stopMessage = Some(ProjectionBehavior.Stop)
     )
   }
+
+  /**
+   * Build the projection instance based upon the event tag
+   *
+   * @param tag the event tag
+   * @return the projection instance
+   */
+  protected def setExactlyOnceProjection(tag: String): SlickProjection[EventEnvelope[LagompbEvent]] =
+    SlickProjection
+      .exactlyOnce(projectionId = ProjectionId(projectionName, tag), setSourceProvider(tag), dbConfig, handler = this)
+
+  /**
+   * Set the Event Sourced Provider per tag
+   *
+   * @param tag the event tag
+   * @return the event sourced provider
+   */
+  protected def setSourceProvider(tag: String): SourceProvider[Offset, EventEnvelope[LagompbEvent]] =
+    EventSourcedProvider
+      .eventsByTag[LagompbEvent](actorSystemTyped, readJournalPluginId = JdbcReadJournal.Identifier, tag)
 
 }

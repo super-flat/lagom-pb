@@ -2,15 +2,15 @@ package lagompb.readside
 
 import akka.Done
 import akka.actor.{ActorSystem => ActorSystemClassic}
-import akka.kafka.scaladsl.SendProducer
 import akka.kafka.ProducerSettings
+import akka.kafka.scaladsl.SendProducer
 import akka.projection.eventsourced.EventEnvelope
 import com.google.protobuf.any
 import com.typesafe.config.Config
-import lagompb.{LagompbEvent, LagompbException}
 import lagompb.protobuf.core.{EventWrapper, KafkaEvent, StateWrapper}
 import lagompb.protobuf.extensions.ExtensionsProto
 import lagompb.util.LagompbProtosCompanions
+import lagompb.{LagompbEvent, LagompbException}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 import scalapb.descriptors.FieldDescriptor
