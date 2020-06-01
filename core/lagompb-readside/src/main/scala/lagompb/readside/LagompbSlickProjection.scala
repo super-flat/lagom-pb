@@ -2,12 +2,9 @@ package lagompb.readside
 
 import akka.Done
 import akka.actor.{ActorSystem => ActorSystemClassic}
-import akka.projection.eventsourced.EventEnvelope
 import com.google.protobuf.any
 import com.typesafe.config.Config
-import lagompb.protobuf.core.{EventWrapper, MetaData}
-import lagompb.util.LagompbProtosCompanions
-import lagompb.{LagompbEvent, LagompbException}
+import lagompb.protobuf.core.MetaData
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.dbio.{DBIO, DBIOAction}
 

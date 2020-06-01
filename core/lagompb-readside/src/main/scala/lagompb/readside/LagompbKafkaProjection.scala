@@ -4,17 +4,15 @@ import akka.Done
 import akka.actor.{ActorSystem => ActorSystemClassic}
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.SendProducer
-import akka.projection.eventsourced.EventEnvelope
 import com.google.protobuf.any
 import com.typesafe.config.Config
-import lagompb.protobuf.core.{EventWrapper, KafkaEvent, MetaData, StateWrapper}
+import lagompb.protobuf.core.{KafkaEvent, MetaData, StateWrapper}
 import lagompb.protobuf.extensions.ExtensionsProto
-import lagompb.util.LagompbProtosCompanions
-import lagompb.{LagompbEvent, LagompbException}
+import lagompb.LagompbException
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
-import scalapb.descriptors.FieldDescriptor
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
+import scalapb.descriptors.FieldDescriptor
 import slick.dbio.{DBIO, DBIOAction}
 
 import scala.concurrent.ExecutionContext
