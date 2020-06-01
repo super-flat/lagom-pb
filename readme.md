@@ -13,15 +13,24 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 ## Features
 
 - Implementation of an HTTP/Json based microservice using REST interfaces by defining _**api requests and responses as protobuf messages**_.
+
 - Implementation of a gRPC based microservice using protocol buffer messages. More info: [gRPC](https://grpc.io/).
+
 - ReadSide in-built battery via ([Message broker api](https://www.lagomframework.com/documentation/1.6.x/scala/MessageBrokerApi.html)) to publish domain events to kafka as serialized protocol buffer messages 
 and ([Akka Projection](https://doc.akka.io/docs/akka-projection/current/)).
+
 - Easy definition of aggregate root, events and command handlers.
+
 - Pure testable functions for events and commands handlers.
+
 - Easy definition of api service descriptors either with message broker api or without.
+
 - Easy implementation of api service either with message broker api or without.
+
 - Metadata adds some `revision number` that can help easily implement optimistic lock.
+
 - At every event handled a snapshot of the aggregate state with the metadata are made available for the readSide.
+
 - All events, snapshots and readSide offsets are persisted to Postgres SQL.
 
 ## License
