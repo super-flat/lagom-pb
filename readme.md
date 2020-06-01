@@ -32,6 +32,10 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 
 - All events, snapshots and readSide offsets are persisted to Postgres SQL.
 
+## Project Status
+
+Project is still under heavy development. API
+
 ## License
 
 This software is licensed under the Apache 2 license, quoted below.
