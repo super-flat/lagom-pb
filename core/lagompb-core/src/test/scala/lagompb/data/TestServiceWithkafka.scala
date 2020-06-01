@@ -5,11 +5,12 @@ import java.util.UUID
 import akka.actor.ActorSystem
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
 import com.lightbend.lagom.scaladsl.api.Service.restCall
-import com.lightbend.lagom.scaladsl.api.{Descriptor, ServiceCall}
 import com.lightbend.lagom.scaladsl.api.transport.Method
+import com.lightbend.lagom.scaladsl.api.{Descriptor, ServiceCall}
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.server.{LagomApplicationContext, LagomServer, LocalServiceLocator}
 import com.softwaremill.macwire.wire
+import lagompb.protobuf.tests.{TestCmd, TestState}
 import lagompb.{
   LagompbAggregate,
   LagompbApplication,
@@ -19,7 +20,6 @@ import lagompb.{
   LagompbServiceWithKafka,
   LagompbState
 }
-import lagompb.protobuf.tests.{TestCmd, TestState}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 import scala.concurrent.ExecutionContext
@@ -63,9 +63,10 @@ class TestApplicationWithKafka(context: LagomApplicationContext)
 
   def commandHandler: LagompbCommandHandler[TestState] =
     wire[TestCommandHandler]
-  def aggregate: LagompbAggregate[TestState] = wire[TestAggregate]
 
   override def aggregateRoot: LagompbAggregate[_] = aggregate
+
+  def aggregate: LagompbAggregate[TestState] = wire[TestAggregate]
 
   /** server helps define the lagom server. Please refer to the lagom doc
    *

@@ -45,6 +45,7 @@ object Dependencies {
     val embeddedPostgresVersion = "0.13.3"
     val embeddedKafkaVersion = "2.5.0"
     val akkaProjectionVersion = "0.1"
+    val scalapbPlayJsonVersion = "0.12.0"
   }
 
   object Compile {
@@ -98,6 +99,11 @@ object Dependencies {
 
     val akkaProjectionEventSourced
       : ModuleID = "com.lightbend.akka" %% "akka-projection-eventsourced" % Versions.akkaProjectionVersion
+
+    val scalapbPlayJson: ModuleID = "io.github.scalapb-json" %% "scalapb-playjson" % Versions.scalapbPlayJsonVersion
+
+    val scalapbPlayJsonMacros
+      : ModuleID = "io.github.scalapb-json" %% "scalapb-playjson-macros" % Versions.scalapbPlayJsonVersion
   }
 
   object Runtime {

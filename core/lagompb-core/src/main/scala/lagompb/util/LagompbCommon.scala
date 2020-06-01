@@ -14,16 +14,14 @@ import scala.util.{Failure, Success, Try}
  * scalapb message companions for the various serialization supported in lagompb
  */
 object LagompbCommon {
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   /**
    * Loads configuration into memory for usage
    */
   lazy val config: Config = ConfigFactory.load()
-
-  private val packageName: String = config.getString("lagompb.protos-package")
-
   private lazy val reflections = new Reflections(packageName)
+  private val logger: Logger = LoggerFactory.getLogger(getClass)
+  private val packageName: String = config.getString("lagompb.protos-package")
 
   /**
    * Load scalapb generated  fileobjects that contain proto companions messages

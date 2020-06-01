@@ -1,10 +1,9 @@
 package lagompb.util
 
-import org.{json4s => j4s}
-import play.api.libs.{json => pjson}
 import play.api.libs.json._
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
-import scalapb.json4s.{Parser, Printer, TypeRegistry}
+import scalapb_json.TypeRegistry
+import scalapb_playjson.{Parser, Printer}
 
 import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
@@ -14,39 +13,13 @@ import scala.util.{Failure, Success, Try}
  * using protocol buffer messages
  */
 trait LagompbProtosJson {
-  implicit def toJson4s(json: play.api.libs.json.JsValue): org.json4s.JValue =
-    json match {
-      case pjson.JsString(str) => j4s.JString(str)
-      case pjson.JsNull => j4s.JNull
-      case pjson.JsBoolean(value) => j4s.JBool(value)
-      case pjson.JsNumber(value) => j4s.JDecimal(value)
-      case pjson.JsArray(items) => j4s.JArray(items.map(toJson4s).toList)
-      case pjson.JsObject(items) =>
-        j4s.JObject(items.map { case (k, v) => k -> toJson4s(v) }.toList)
-    }
-
-  implicit def toPlayJson(json: org.json4s.JValue): play.api.libs.json.JsValue =
-    json match {
-      case j4s.JString(str) => pjson.JsString(str)
-      case j4s.JNothing => pjson.JsNull
-      case j4s.JNull => pjson.JsNull
-      case j4s.JDecimal(value) => pjson.JsNumber(value)
-      case j4s.JDouble(value) => pjson.JsNumber(value)
-      case j4s.JInt(value) => pjson.JsNumber(BigDecimal(value))
-      case j4s.JLong(value) => pjson.JsNumber(BigDecimal(value))
-      case j4s.JBool(value) => pjson.JsBoolean(value)
-      case j4s.JArray(fields) => pjson.JsArray(fields.map(toPlayJson))
-      case j4s.JObject(fields) =>
-        pjson.JsObject(fields.map { case (k, v) => k -> toPlayJson(v) }.toMap)
-      case j4s.JSet(fields) => pjson.JsArray(fields.toList.map(toPlayJson))
-    }
 
   implicit def writes[A <: GeneratedMessage: GeneratedMessageCompanion]: Writes[A] =
-    (o: A) => scalapbJsonPrinter.toJson(o)
+    (o: A) => printer.toJson(o)
 
   implicit def reads[A <: GeneratedMessage: GeneratedMessageCompanion]: Reads[A] =
     (json: JsValue) =>
-      Try[A](scalapbJsonParser.fromJson[A](json)) match {
+      Try[A](parser.fromJson[A](json)) match {
         case Success(value) => JsSuccess(value)
         case Failure(f) => JsError(f.getMessage)
     }
@@ -58,9 +31,9 @@ trait LagompbProtosJson {
         reg.addFile(fileObject)
       })
 
-  private lazy val scalapbJsonParser: Parser =
+  private lazy val parser: Parser =
     new Parser().withTypeRegistry(typeRegistry)
-  private lazy val scalapbJsonPrinter: Printer =
+  private lazy val printer: Printer =
     new Printer().includingDefaultValueFields
       .withTypeRegistry(typeRegistry)
 }

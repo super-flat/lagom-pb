@@ -3,8 +3,8 @@ package lagompb
 import java.nio.charset.StandardCharsets
 
 import akka.actor.ExtendedActorSystem
-import akka.actor.typed.{ActorRef, ActorRefResolver}
 import akka.actor.typed.scaladsl.adapter._
+import akka.actor.typed.{ActorRef, ActorRefResolver}
 import akka.serialization.SerializerWithStringManifest
 import com.google.protobuf.any.Any
 import lagompb.protobuf.core.{CommandReply, CommandWrapper}
@@ -17,17 +17,15 @@ import org.slf4j.{Logger, LoggerFactory}
  */
 sealed class LagompbCommandSerde(val system: ExtendedActorSystem) extends SerializerWithStringManifest {
 
-  private final val log: Logger =
-    LoggerFactory.getLogger(classOf[LagompbCommandSerde])
-  private val actorRefResolver = ActorRefResolver(system.toTyped)
-
   // construct a map of type_url -> companion object parser
   final lazy val msgMap: Map[String, Array[Byte] => scalapb.GeneratedMessage] =
     LagompbProtosCompanions.companions
       .map(companion => (companion.scalaDescriptor.fullName, (s: Array[Byte]) => companion.parseFrom(s)))
       .toMap
-
   final val LagomPbCommandManifest: String = classOf[LagompbCommand].getName
+  private final val log: Logger =
+    LoggerFactory.getLogger(classOf[LagompbCommandSerde])
+  private val actorRefResolver = ActorRefResolver(system.toTyped)
 
   override def manifest(o: AnyRef): String = o.getClass.getName
 

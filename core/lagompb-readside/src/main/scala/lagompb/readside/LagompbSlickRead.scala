@@ -2,12 +2,12 @@ package lagompb.readside
 
 import akka.Done
 import com.github.ghik.silencer.silent
-import com.lightbend.lagom.scaladsl.persistence.{AggregateEventTag, ReadSideProcessor}
 import com.lightbend.lagom.scaladsl.persistence.slick.SlickReadSide
+import com.lightbend.lagom.scaladsl.persistence.{AggregateEventTag, ReadSideProcessor}
 import com.typesafe.config.Config
-import lagompb.{LagompbEvent, LagompbException}
 import lagompb.protobuf.core.{EventWrapper, MetaData}
 import lagompb.util.LagompbProtosCompanions
+import lagompb.{LagompbEvent, LagompbException}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.dbio.{DBIO, DBIOAction}
 
@@ -35,14 +35,6 @@ import scala.util.{Failure, Success, Try}
       })
       .build()
 
-  /**
-   * Handles aggregate event persisted and made available for read model
-   *
-   * @param event the aggregate event
-   * @param state the Lagompb state that wraps the actual state and some meta data
-   */
-  def handle(event: scalapb.GeneratedMessage, state: TState, metaData: MetaData): DBIO[Done]
-
   private def handle(eventWrapper: EventWrapper): DBIO[Done] = {
     LagompbProtosCompanions
       .getCompanion(eventWrapper.getEvent)
@@ -65,11 +57,19 @@ import scala.util.{Failure, Success, Try}
       })
   }
 
+  //  An identifier for this read side. This will be used to store offsets in the offset store.
+  final def readSideId: String = config.getString("lagompb.service-name")
+
   final override def aggregateTags: Set[AggregateEventTag[LagompbEvent]] =
     LagompbEvent.Tag.allTags
 
-  //  An identifier for this read side. This will be used to store offsets in the offset store.
-  final def readSideId: String = config.getString("lagompb.service-name")
+  /**
+   * Handles aggregate event persisted and made available for read model
+   *
+   * @param event the aggregate event
+   * @param state the Lagompb state that wraps the actual state and some meta data
+   */
+  def handle(event: scalapb.GeneratedMessage, state: TState, metaData: MetaData): DBIO[Done]
 
   /**
    * aggregate state. it is a generated scalapb message extending the LagompbState trait

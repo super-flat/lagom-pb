@@ -1,13 +1,5 @@
 import lagompb.{CommonSettings, CoverageWhitelist, LagomAkka, LagomSettings, NoPublish}
 
-// custom task that prints the artifact name
-lazy val printArtifactName: TaskKey[Unit] = taskKey[Unit]("Get the artifact name")
-printArtifactName := {
-  // scalastyle:off println
-  println((artifactPath in (Compile, packageBin)).value.getName)
-  // scalastyle:on println
-}
-
 lazy val root = project
   .in(file("."))
   .aggregate(`lagompb-core`, `lagompb-readside`, docs)

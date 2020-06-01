@@ -9,8 +9,8 @@ import akka.persistence.typed.PersistenceId
 import com.google.protobuf.any.Any
 import com.typesafe.config.{Config, ConfigFactory}
 import lagompb.data.{TestAggregate, TestCommandHandler, TestEventHandler}
-import lagompb.protobuf.core._
 import lagompb.protobuf.core.CommandReply.Reply
+import lagompb.protobuf.core._
 import lagompb.protobuf.tests._
 import lagompb.testkit.LagompbActorTestKit
 
@@ -23,11 +23,10 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
     """) {
 
   private val companyUUID = "93cfb5fc-c01b-4cda-bb45-31875bafda23"
-
-  private def randomId(): String = UUID.randomUUID().toString
-
   private val replyTimeout = FiniteDuration(30, TimeUnit.SECONDS)
   private val config: Config = ConfigFactory.load()
+
+  private def randomId(): String = UUID.randomUUID().toString
 
   private def parseState(any: Any): TestState = {
     val typeUrl: String =
