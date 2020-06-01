@@ -26,13 +26,11 @@ abstract class LagompbApplication(context: LagomApplicationContext)
     with AllowedHostsComponents
     with CSRFComponents
     with SecurityHeadersComponents {
-  // lagomServer is set by the server definition in the implementation class
-  override lazy val lagomServer: LagomServer = server
-
   // Json Serializer registry not needed
   final override lazy val jsonSerializerRegistry: JsonSerializerRegistry =
     EmptyJsonSerializerRegistry
-
+  // lagomServer is set by the server definition in the implementation class
+  override lazy val lagomServer: LagomServer = server
   // set the security filters
   override val httpFilters: Seq[EssentialFilter] =
     Seq(corsFilter, allowedHostsFilter, csrfFilter, securityHeadersFilter)

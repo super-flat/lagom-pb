@@ -9,15 +9,15 @@ import com.lightbend.lagom.scaladsl.api.transport.BadRequest
 import com.lightbend.lagom.scaladsl.broker.TopicProducer
 import com.lightbend.lagom.scaladsl.persistence.{EventStreamElement, PersistentEntityRegistry}
 import io.grpc.Status
-import lagompb.protobuf.core._
 import lagompb.protobuf.core.CommandReply.Reply
+import lagompb.protobuf.core._
 import lagompb.protobuf.extensions.ExtensionsProto
 import lagompb.util.{LagompbCommon, LagompbProtosCompanions}
 import org.slf4j.{Logger, LoggerFactory}
 import scalapb.GeneratedMessage
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 sealed trait LagompbServiceImplComponent {
@@ -63,22 +63,6 @@ sealed trait LagompbServiceImplComponent {
       .map((value: CommandReply) => handleLagompbCommandReply[TState](value))
   }
 
-  private[lagompb] def parseAny[TState <: scalapb.GeneratedMessage](data: Any): TState = {
-    val typeUrl: String = data.typeUrl.split('/').lastOption.getOrElse("")
-
-    log.debug(s"Aggregate State: $typeUrl")
-
-    if (aggregateStateCompanion.scalaDescriptor.fullName.equals(typeUrl)) {
-      Try {
-        data.unpack(aggregateStateCompanion).asInstanceOf[TState]
-      } match {
-        case Failure(exception) =>
-          throw new LagompbException(exception.getMessage)
-        case Success(value) => value
-      }
-    } else throw new LagompbException("wrong state definition")
-  }
-
   private[lagompb] def handleLagompbCommandReply[TState <: scalapb.GeneratedMessage](
       commandReply: CommandReply
   ): LagompbState[TState] = {
@@ -105,6 +89,22 @@ sealed trait LagompbServiceImplComponent {
     val state: Any = stateWrapper.getState
     val parsed: TState = parseAny[TState](state)
     LagompbState[TState](parsed, meta)
+  }
+
+  private[lagompb] def parseAny[TState <: scalapb.GeneratedMessage](data: Any): TState = {
+    val typeUrl: String = data.typeUrl.split('/').lastOption.getOrElse("")
+
+    log.debug(s"Aggregate State: $typeUrl")
+
+    if (aggregateStateCompanion.scalaDescriptor.fullName.equals(typeUrl)) {
+      Try {
+        data.unpack(aggregateStateCompanion).asInstanceOf[TState]
+      } match {
+        case Failure(exception) =>
+          throw new LagompbException(exception.getMessage)
+        case Success(value) => value
+      }
+    } else throw new LagompbException("wrong state definition")
   }
 }
 

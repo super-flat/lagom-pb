@@ -7,8 +7,8 @@ import com.lightbend.lagom.scaladsl.testkit.ServiceTest
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import com.typesafe.config.{Config, ConfigFactory}
 import lagompb.data._
-import lagompb.protobuf.core._
 import lagompb.protobuf.core.CommandReply.Reply
+import lagompb.protobuf.core._
 import lagompb.protobuf.tests.{TestCmd, TestState}
 import lagompb.testkit.LagompbSpec
 

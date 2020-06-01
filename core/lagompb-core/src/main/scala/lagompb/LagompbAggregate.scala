@@ -10,9 +10,9 @@ import akka.persistence.typed.scaladsl.{Effect, EventSourcedBehavior, ReplyEffec
 import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.persistence.AkkaTaggerAdapter
 import com.typesafe.config.Config
-import lagompb.protobuf.core._
 import lagompb.protobuf.core.CommandHandlerResponse.HandlerResponse.{Empty, FailedResponse, SuccessResponse}
 import lagompb.protobuf.core.SuccessCommandHandlerResponse.Response.{Event, NoEvent}
+import lagompb.protobuf.core._
 import lagompb.util.LagompbProtosCompanions
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -66,6 +66,23 @@ abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
       )
   }
 
+  /**
+   * Returns the EventSourcedBehavior for lagom, wiring together the
+   * user-provided LagompbCommandHandler and LagompbEventHandler
+   *
+   * @param persistenceId the aggregate persistence Id
+   */
+  private[lagompb] def create(
+      persistenceId: PersistenceId
+  ): EventSourcedBehavior[LagompbCommand, LagompbEvent, StateWrapper] =
+    EventSourcedBehavior
+      .withEnforcedReplies[LagompbCommand, LagompbEvent, StateWrapper](
+        persistenceId = persistenceId,
+        emptyState = initialState,
+        commandHandler = genericCommandHandler,
+        eventHandler = genericEventHandler
+      )
+
   private def initialState: StateWrapper =
     StateWrapper()
       .withState(Any.pack(stateCompanion.defaultInstance))
@@ -85,23 +102,6 @@ abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
         throw new LagompbException(s"unable to handle event ${event.getClass.getName}")
     }
   }
-
-  /**
-   * Returns the EventSourcedBehavior for lagom, wiring together the
-   * user-provided LagompbCommandHandler and LagompbEventHandler
-   *
-   * @param persistenceId the aggregate persistence Id
-   */
-  private[lagompb] def create(
-      persistenceId: PersistenceId
-  ): EventSourcedBehavior[LagompbCommand, LagompbEvent, StateWrapper] =
-    EventSourcedBehavior
-      .withEnforcedReplies[LagompbCommand, LagompbEvent, StateWrapper](
-        persistenceId = persistenceId,
-        emptyState = initialState,
-        commandHandler = genericCommandHandler,
-        eventHandler = genericEventHandler
-      )
 
   /**
    * Given a LagompbState implementation and a LagompbCommand, run the
