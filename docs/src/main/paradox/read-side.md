@@ -28,6 +28,12 @@ freedom of having multiple read side ti handle different events based upon the b
 
 ## Akka Projection based read side
 
+@@@ note
+
+This is the recommended way
+
+@@@
+
 The solution to the limitation of the lagom based read side is the integration of akka projection. The following classes can be extended
 to implement a read side processor.
 

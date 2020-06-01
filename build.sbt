@@ -20,7 +20,7 @@ lazy val docs = project
         .withColor("light-blue", "blue")
         .withFavicon("")
     },
-    paradoxProperties in Compile ++= Map("snip.github_link" -> "true")
+    paradoxProperties in Compile ++= Map("snip.github_link" -> "false")
   )
 
 lazy val `lagompb-core` = project
