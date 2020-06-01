@@ -35,30 +35,24 @@ abstract class LagompbSlickProjection[TState <: scalapb.GeneratedMessage](
 )(implicit ec: ExecutionContext)
     extends LagompbProjection[TState](config, actorSystem) {
 
-  override def process(envelope: EventEnvelope[LagompbEvent]): DBIO[Done] = {
-    envelope.event match {
-      case EventWrapper(Some(event: any.Any), Some(resultingState), Some(meta)) =>
-        LagompbProtosCompanions
-          .getCompanion(event)
-          .fold[DBIO[Done]](
-            DBIOAction.failed(new LagompbException(s"[Lagompb] unable to parse event ${event.typeUrl}"))
-          )((comp: GeneratedMessageCompanion[_ <: GeneratedMessage]) => {
-            Try {
-              handle(
-                event.unpack(comp),
-                resultingState
-                  .unpack[TState](aggregateStateCompanion),
-                meta
-              )
-            } match {
-              case Failure(exception) =>
-                DBIOAction.failed(exception)
-              case Success(result: Any) =>
-                result
-            }
-          })
-      case _ =>
-        DBIO.failed(new LagompbException(s"[Lagompb] unknown event received ${envelope.event.getClass.getName}"))
+  final override def handleEvent(
+      comp: GeneratedMessageCompanion[_ <: GeneratedMessage],
+      event: any.Any,
+      resultingState: any.Any,
+      meta: MetaData
+  ): DBIO[Done] = {
+    Try {
+      handle(
+        event.unpack(comp),
+        resultingState
+          .unpack[TState](aggregateStateCompanion),
+        meta
+      )
+    } match {
+      case Failure(exception) =>
+        DBIOAction.failed(exception)
+      case Success(result: Any) =>
+        result
     }
   }
 
