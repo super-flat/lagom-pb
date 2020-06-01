@@ -3,16 +3,8 @@ package lagompb
 import lagompb.Dependencies.Versions
 import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile
 import sbt.Keys._
-import sbt.AutoPlugin
-import sbt.CrossVersion
-import sbt.Developer
-import sbt.Plugins
-import sbt.compilerPlugin
-import sbt.plugins
-import sbt.url
-import sbt._
-import scoverage.ScoverageKeys.coverageFailOnMinimum
-import scoverage.ScoverageKeys.coverageMinimum
+import sbt.{compilerPlugin, plugins, url, AutoPlugin, CrossVersion, Developer, Plugins, _}
+import scoverage.ScoverageKeys.{coverageFailOnMinimum, coverageMinimum}
 
 object CommonSettings extends AutoPlugin {
   override def requires: Plugins = plugins.JvmPlugin
@@ -69,9 +61,7 @@ object CommonSettings extends AutoPlugin {
       compilerPlugin(("com.github.ghik" % "silencer-plugin" % Versions.silencerVersion).cross(CrossVersion.full)),
       ("com.github.ghik" % "silencer-lib" % Versions.silencerVersion % Provided).cross(CrossVersion.full)
     ),
-    resolvers ++= Seq(
-      Resolver.jcenterRepo
-    ),
+    resolvers ++= Seq(Resolver.jcenterRepo),
     scalafmtOnCompile := true
   )
 }

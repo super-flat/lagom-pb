@@ -2,9 +2,7 @@ package lagompb
 
 import com.lightbend.lagom.sbt.LagomImport.lagomScaladslTestKit
 import sbt.Keys.libraryDependencies
-import sbt.AutoPlugin
-import sbt.Plugins
-import sbt.plugins
+import sbt.{plugins, AutoPlugin, Plugins}
 
 /**
  * Dependencies required for testing
