@@ -5,6 +5,11 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/67ead50b17f842dbab2dec43922535da)](https://www.codacy.com/gh/super-flat/lagom-pb?utm_source=github.com&utm_medium=referral&utm_content=super-flat/lagom-pb&utm_campaign=Badge_Coverage)
 ![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/io.superflat/lagompb-core_2.13?server=https%3A%2F%2Foss.sonatype.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+![GitHub top language](https://img.shields.io/github/languages/top/super-flat/lagom-pb)
+![GitHub contributors](https://img.shields.io/github/contributors/super-flat/lagom-pb)
+![GitHub last commit](https://img.shields.io/github/last-commit/super-flat/lagom-pb)
+![GitHub stars](https://img.shields.io/github/stars/super-flat/lagom-pb?style=social)
+![GitHub forks](https://img.shields.io/github/forks/super-flat/lagom-pb?label=Fork&style=social)
 
 Scala shared code for [lagom](https://www.lagomframework.com/documentation/1.6.x/scala/Home.html) development using protocol buffer.
 
