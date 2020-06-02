@@ -8,8 +8,7 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/super-flat/lagom-pb)
 ![GitHub contributors](https://img.shields.io/github/contributors/super-flat/lagom-pb)
 ![GitHub last commit](https://img.shields.io/github/last-commit/super-flat/lagom-pb)
-![GitHub stars](https://img.shields.io/github/stars/super-flat/lagom-pb?style=social)
-![GitHub forks](https://img.shields.io/github/forks/super-flat/lagom-pb?label=Fork&style=social)
+
 
 Scala shared code for [lagom](https://www.lagomframework.com/documentation/1.6.x/scala/Home.html) development using protocol buffer.
 
