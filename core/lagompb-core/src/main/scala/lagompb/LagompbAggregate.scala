@@ -59,9 +59,9 @@ abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
       .withRetention(
         RetentionCriteria
           .snapshotEvery(
-            numberOfEvents = config.getInt("lagompb.snaphsot-criteria.frequency"), // snapshotFrequency
+            numberOfEvents = config.getInt("lagompb.snapshot-criteria.frequency"), // snapshotFrequency
             keepNSnapshots = config
-              .getInt("lagompb.snaphsot-criteria.retention") //snapshotRetention
+              .getInt("lagompb.snapshot-criteria.retention") //snapshotRetention
           )
       )
   }
