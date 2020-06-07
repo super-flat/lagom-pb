@@ -5,7 +5,7 @@ Lagom-pb = @link:[lagom](https://www.lagomframework.com/documentation/1.6.x/scal
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/59e8747c2777466cb75d73d5fea8c8a8)](https://app.codacy.com/gh/super-flat/lagom-pb?utm_source=github.com&utm_medium=referral&utm_content=super-flat/lagom-pb&utm_campaign=Badge_Grade_Dashboard)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Scala shared code for @link:[lagom](https://www.lagomframework.com/documentation/1.6.x/scala/Home.html) { open=new } development. 
+Scala shared code for @link:[lagom](https://www.lagomframework.com/documentation/1.6.x/scala/Home.html) { open=new } development using protocol buffer. 
 
 This library helps write lagom microservices easily by making use of protocol buffer messages to define the es/cqrs core
 components like _**api requests/responses**_, _**grpc services**_, _**events**_, _**commands**_ and _**state**_. 
