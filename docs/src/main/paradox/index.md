@@ -24,4 +24,4 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 
 ## Sample Project
 
-@link:[Sample](https://github.com/super-flat/lagom-pb-sample)
+@link:[Sample](https://github.com/super-flat/lagom-pb-sample) { open=new }

@@ -36,9 +36,9 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 
 - All events, snapshots and readSide offsets are persisted to Postgres SQL.
 
-## Project Status
+## Sample Project
 
-Project is still under heavy development. API is subject to change.
+[Sample](https://github.com/super-flat/lagom-pb-sample)
 
 ## License
 
