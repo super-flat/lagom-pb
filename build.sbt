@@ -11,6 +11,8 @@ lazy val docs = project
   .in(file("docs"))
   .enablePlugins(ParadoxPlugin)
   .enablePlugins(ParadoxMaterialThemePlugin)
+  .enablePlugins(ParadoxSitePlugin)
+  .enablePlugins(GhpagesPlugin)
   .enablePlugins(NoPublish)
   .settings(
     // Make sure code generation is run before paradox:
@@ -20,7 +22,8 @@ lazy val docs = project
         .withColor("light-blue", "blue")
         .withFavicon("")
     },
-    paradoxProperties in Compile ++= Map("snip.github_link" -> "false")
+    paradoxProperties in Compile ++= Map("snip.github_link" -> "false"),
+    git.remoteRepo := scmInfo.value.get.connection.replace("scm:git:", "")
   )
 
 lazy val `lagompb-core` = project
