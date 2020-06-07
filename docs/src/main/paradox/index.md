@@ -21,3 +21,7 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 * [Configuration](configuration.md)
 
 @@@
+
+## Sample Project
+
+@link:[Sample](https://github.com/super-flat/lagom-pb-sample)
