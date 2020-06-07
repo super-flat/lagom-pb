@@ -23,7 +23,7 @@ lazy val docs = project
         .withFavicon("")
     },
     paradoxProperties in Compile ++= Map("snip.github_link" -> "false"),
-    git.remoteRepo := scmInfo.value.get.connection.replace("scm:git:", "")
+    git.remoteRepo := "git@github.com:super-flat/lagom-pb.git"
   )
 
 lazy val `lagompb-core` = project
