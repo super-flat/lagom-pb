@@ -38,7 +38,7 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 
 ## Sample Project
 
-[Sample](https://github.com/super-flat/lagom-pb-sample)
+There is a demo application built on top the library that can be found here [Sample](https://github.com/super-flat/lagom-pb-sample)
 
 ## License
 
