@@ -19,7 +19,7 @@ object Dependencies {
     val scalaTestVersion = "3.1.2"
     val playJsonDerivedCodecsVersion = "7.0.0"
     val akkaDiscoveryKubernetesApiVersion = "1.0.7"
-    val postgresDriverVersion = "42.2.12"
+    val postgresDriverVersion = "42.2.13"
     val akkaManagementVersion = "1.0.7"
     val akkaManagementClusterBootstrapVersion = "1.0.7"
     val akkaManagementClusterHttpVersion = "1.0.7"
