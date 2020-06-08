@@ -41,7 +41,7 @@ object Dependencies {
     val apacheCommonValidatorVersion = "1.6"
     val googleRe2jVersion = "1.3"
     val googleProtobufUtilVersion = "3.11.4"
-    val commonProtoVersion = "1.17.0-0"
+    val commonProtoVersion = "1.18.0-0"
     val embeddedPostgresVersion = "0.13.3"
     val embeddedKafkaVersion = "2.5.0"
     val akkaProjectionVersion = "0.2"
