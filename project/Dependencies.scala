@@ -40,7 +40,7 @@ object Dependencies {
     val scalaClassFinderVersion = "1.5.1"
     val apacheCommonValidatorVersion = "1.6"
     val googleRe2jVersion = "1.4"
-    val googleProtobufUtilVersion = "3.11.4"
+    val googleProtobufUtilVersion = "3.12.2"
     val commonProtoVersion = "1.18.0-0"
     val embeddedPostgresVersion = "0.13.3"
     val embeddedKafkaVersion = "2.5.0"
