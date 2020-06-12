@@ -19,7 +19,7 @@ Kindly describe the feature or issue this PR is solving.
 
 - Do not compromise on code quality
 
-- Doctrings on all functions, methods, classes and objects
+- Doctrings (JavaDoc) on all functions, methods, classes and objects
 
 - Compiled locally 
 
