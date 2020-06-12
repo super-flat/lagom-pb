@@ -9,21 +9,18 @@ import com.lightbend.lagom.scaladsl.api.transport.BadRequest
 import com.lightbend.lagom.scaladsl.broker.TopicProducer
 import com.lightbend.lagom.scaladsl.persistence.{EventStreamElement, PersistentEntityRegistry}
 import io.grpc.Status
-import lagompb.core.CommandReply.Reply
 import lagompb.core._
+import lagompb.core.CommandReply.Reply
 import lagompb.extensions.ExtensionsProto
-import lagompb.util.{LagompbCommon, LagompbProtosCompanions}
+import lagompb.util.LagompbProtosCompanions
 import org.slf4j.{Logger, LoggerFactory}
 import scalapb.GeneratedMessage
 
-import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 sealed trait LagompbServiceImplComponent {
   final val log: Logger = LoggerFactory.getLogger(getClass)
-
-  implicit val timeout: Timeout = Timeout(LagompbCommon.config.getInt("lagompb.ask-timeout").seconds)
 
   /**
    * aggregateRoot defines the persistent entity that will be used to handle commands
@@ -56,7 +53,7 @@ sealed trait LagompbServiceImplComponent {
       entityUuid: String,
       cmd: TCommand,
       data: Map[String, String]
-  )(implicit ec: ExecutionContext): Future[LagompbState[TState]] = {
+  )(implicit ec: ExecutionContext, timeout: Timeout): Future[LagompbState[TState]] = {
     clusterSharding
       .entityRefFor(aggregateRoot.typeKey, entityUuid)
       .ask[CommandReply](replyTo => LagompbCommand(cmd, replyTo, data))
@@ -117,8 +114,8 @@ sealed trait LagompbServiceImplComponent {
  */
 sealed abstract class LagompbRestServiceImpl(
     clusterSharding: ClusterSharding,
-    persistentEntityRegistry: PersistentEntityRegistry,
-)(implicit ec: ExecutionContext)
+    persistentEntityRegistry: PersistentEntityRegistry
+)(implicit ec: ExecutionContext, timeout: Timeout)
     extends LagompbServiceImplComponent {
 
   /**
@@ -207,8 +204,8 @@ abstract class LagompbServiceImplWithKafka(
     clusterSharding: ClusterSharding,
     persistentEntityRegistry: PersistentEntityRegistry,
     aggregate: LagompbAggregate[_]
-)(implicit ec: ExecutionContext)
-    extends LagompbRestServiceImpl(clusterSharding, persistentEntityRegistry)(ec)
+)(implicit ec: ExecutionContext, timeout: Timeout)
+    extends LagompbRestServiceImpl(clusterSharding, persistentEntityRegistry)(ec, timeout)
     with LagompbServiceWithKafka {
 
   final override def aggregateRoot: LagompbAggregate[_] = aggregate
@@ -284,8 +281,8 @@ abstract class LagompbServiceImpl(
     clusterSharding: ClusterSharding,
     persistentEntityRegistry: PersistentEntityRegistry,
     aggregate: LagompbAggregate[_]
-)(implicit ec: ExecutionContext)
-    extends LagompbRestServiceImpl(clusterSharding, persistentEntityRegistry)(ec)
+)(implicit ec: ExecutionContext, timeout: Timeout)
+    extends LagompbRestServiceImpl(clusterSharding, persistentEntityRegistry)(ec, timeout)
     with LagompbService {
   final override def aggregateRoot: LagompbAggregate[_] = aggregate
 }
@@ -312,7 +309,7 @@ trait LagompbGrpcServiceImpl extends LagompbServiceImplComponent {
       entityId: String,
       cmd: TCommand,
       data: Map[String, String]
-  )(implicit ec: ExecutionContext): Future[LagompbState[TState]] = {
+  )(implicit ec: ExecutionContext, timeout: Timeout): Future[LagompbState[TState]] = {
     super
       .sendCommand[TCommand, TState](clusterSharding, entityId, cmd, data)
       .transform {
@@ -347,7 +344,7 @@ trait LagompbGrpcServiceImpl extends LagompbServiceImplComponent {
       clusterSharding: ClusterSharding,
       cmd: TCommand,
       data: Map[String, String]
-  )(implicit ec: ExecutionContext): Future[LagompbState[TState]] = {
+  )(implicit ec: ExecutionContext, timeout: Timeout): Future[LagompbState[TState]] = {
 
     cmd.companion.scalaDescriptor.fields
       .find(field => field.getOptions.extension(ExtensionsProto.command).exists(_.entityId))

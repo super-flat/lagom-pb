@@ -1,6 +1,7 @@
 package lagompb
 
 import akka.cluster.sharding.typed.scaladsl.Entity
+import akka.util.Timeout
 import com.lightbend.lagom.scaladsl.api.ServiceLocator
 import com.lightbend.lagom.scaladsl.broker.kafka.LagomKafkaComponents
 import com.lightbend.lagom.scaladsl.persistence.jdbc.JdbcPersistenceComponents
@@ -14,6 +15,7 @@ import play.filters.cors.CORSComponents
 import play.filters.csrf.CSRFComponents
 import play.filters.headers.SecurityHeadersComponents
 import play.filters.hosts.AllowedHostsComponents
+import scala.concurrent.duration._
 
 abstract class LagompbApplication(context: LagomApplicationContext)
     extends LagomApplication(context)
@@ -26,11 +28,13 @@ abstract class LagompbApplication(context: LagomApplicationContext)
     with AllowedHostsComponents
     with CSRFComponents
     with SecurityHeadersComponents {
+
   // Json Serializer registry not needed
   final override lazy val jsonSerializerRegistry: JsonSerializerRegistry =
     EmptyJsonSerializerRegistry
   // lagomServer is set by the server definition in the implementation class
   override lazy val lagomServer: LagomServer = server
+
   // set the security filters
   override val httpFilters: Seq[EssentialFilter] =
     Seq(corsFilter, allowedHostsFilter, csrfFilter, securityHeadersFilter)
@@ -54,6 +58,8 @@ abstract class LagompbApplication(context: LagomApplicationContext)
    * @return ServiceLocator
    */
   override def serviceLocator: ServiceLocator
+
+  implicit val timeout: Timeout = Timeout(config.getInt("lagompb.ask-timeout").seconds)
 
   // initialize cluster sharding
   clusterSharding.init(Entity(aggregateRoot.typeKey)(entityContext => aggregateRoot.create(entityContext)))
