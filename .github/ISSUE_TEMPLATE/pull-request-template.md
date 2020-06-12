@@ -15,7 +15,7 @@ Kindly describe the feature or issue this PR is solving.
 
 ## Developer checklist
 
-- Does not lower code coverage
+- Do not lower code coverage
 
 - Docstrings on all functions
 
