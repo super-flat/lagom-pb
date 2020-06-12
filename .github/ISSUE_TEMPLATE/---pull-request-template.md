@@ -17,6 +17,9 @@ Kindly describe the feature or issue this PR is solving.
 
 - Do not lower code coverage
 
-- Docstrings on all functions
+- Do not compromise on code quality
 
-- Compiled locally
+- Doctrings on all functions, methods, classes and objects
+
+- Compiled locally 
+
