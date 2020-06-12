@@ -11,9 +11,9 @@ assignees: ''
 
 Kindly describe the feature or issue this PR is solving.
 
-# Issue Link
+## Issue Link
 
-# Developer checklist
+## Developer checklist
 - Does not lower code coverage
 - Docstrings on all functions
 - Compiled locally
