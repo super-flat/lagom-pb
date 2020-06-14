@@ -30,10 +30,6 @@ abstract class LagompbApplication(context: LagomApplicationContext)
   //FIXME find a better way to load these ones
   LagompbProtosRegistry.registry
   LagompbProtosRegistry.typeRegistry
-  LagompbProtosRegistry.companions
-  LagompbProtosRegistry.companionsMap
-  LagompbProtosRegistry.printer
-  LagompbProtosRegistry.parser
 
   // Json Serializer registry not needed
   final override lazy val jsonSerializerRegistry: JsonSerializerRegistry =
