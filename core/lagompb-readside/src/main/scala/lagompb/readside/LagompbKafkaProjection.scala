@@ -5,10 +5,9 @@ import akka.actor.{ActorSystem => ActorSystemClassic}
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.SendProducer
 import com.google.protobuf.any
-import com.typesafe.config.Config
+import lagompb.{LagompbConfig, LagompbException}
 import lagompb.core.{KafkaEvent, MetaData, StateWrapper}
 import lagompb.extensions.ExtensionsProto
-import lagompb.{LagompbConfig, LagompbException, LagompbProtosRegistry}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}

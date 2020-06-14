@@ -2,7 +2,6 @@ package lagompb
 
 import java.util.UUID
 
-import akka.util.Timeout
 import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.testkit.ServiceTest
 import com.opentable.db.postgres.embedded.EmbeddedPostgres

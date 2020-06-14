@@ -1,7 +1,6 @@
 package lagompb
 
 import akka.util.Timeout
-import com.lightbend.lagom.scaladsl.persistence.AggregateEventTag
 import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.duration._

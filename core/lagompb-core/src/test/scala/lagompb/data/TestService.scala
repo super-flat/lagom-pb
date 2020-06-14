@@ -4,7 +4,6 @@ import java.util.UUID
 
 import akka.actor.ActorSystem
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
-import akka.util.Timeout
 import com.lightbend.lagom.scaladsl.api.{Descriptor, ServiceCall}
 import com.lightbend.lagom.scaladsl.api.Service.restCall
 import com.lightbend.lagom.scaladsl.api.transport.Method

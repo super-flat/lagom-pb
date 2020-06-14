@@ -4,10 +4,8 @@ import akka.cluster.sharding.typed.scaladsl.ClusterSharding
 import akka.grpc.GrpcServiceException
 import akka.util.Timeout
 import com.google.protobuf.any.Any
-import com.lightbend.lagom.scaladsl.api.broker.Topic
 import com.lightbend.lagom.scaladsl.api.transport.BadRequest
-import com.lightbend.lagom.scaladsl.broker.TopicProducer
-import com.lightbend.lagom.scaladsl.persistence.{EventStreamElement, PersistentEntityRegistry}
+import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import io.grpc.Status
 import lagompb.core._
 import lagompb.core.CommandReply.Reply
