@@ -19,6 +19,8 @@ import scala.util.{Failure, Success, Try}
 
 sealed trait LagompbBaseServiceImpl {
 
+  implicit val timeout: Timeout = LagompbConfig.askTimeout
+
   /**
    * aggregateRoot defines the persistent entity that will be used to handle commands
    *

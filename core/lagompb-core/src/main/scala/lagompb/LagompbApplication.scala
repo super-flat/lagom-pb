@@ -28,8 +28,6 @@ abstract class LagompbApplication(context: LagomApplicationContext)
     with CSRFComponents
     with SecurityHeadersComponents {
 
-  implicit val timeout: Timeout = LagompbConfig.askTimeout
-
   // let us load the proto companions object files
   LagompbProtosRegistry.registry
 
