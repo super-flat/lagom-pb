@@ -28,8 +28,8 @@ abstract class LagompbApplication(context: LagomApplicationContext)
     with CSRFComponents
     with SecurityHeadersComponents {
 
-  // let us load the proto companions object files
-  LagompbProtosRegistry.registry
+  // let us load the proto companions object files and parser registry
+  LagompbProtosRegistry.init()
 
   // Json Serializer registry not needed
   final override lazy val jsonSerializerRegistry: JsonSerializerRegistry =

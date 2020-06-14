@@ -24,7 +24,7 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
   private val companyUUID = "93cfb5fc-c01b-4cda-bb45-31875bafda23"
   private val replyTimeout = FiniteDuration(30, TimeUnit.SECONDS)
 
-  LagompbProtosRegistry.registry
+  LagompbProtosRegistry.init()
 
   private def randomId(): String = UUID.randomUUID().toString
 
