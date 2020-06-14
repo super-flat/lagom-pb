@@ -10,6 +10,7 @@ import io.grpc.Status
 import lagompb.core._
 import lagompb.core.CommandReply.Reply
 import lagompb.extensions.ExtensionsProto
+import org.slf4j.{Logger, LoggerFactory}
 import scalapb.GeneratedMessage
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -117,6 +118,8 @@ abstract class LagompbServiceImpl(
     extends LagompbBaseServiceImpl
     with LagompbService {
 
+  final val log: Logger = LoggerFactory.getLogger(getClass)
+
   /**
    * Sends command to the aggregate root. The command must have the aggregate entity id set.
    * When the entity id is not set a BadRequest is sent to the api
@@ -140,6 +143,7 @@ abstract class LagompbServiceImpl(
           .sendCommand[TCommand, TState](clusterSharding, entityId, cmd, data)
           .transform {
             case Failure(exception) =>
+              log.error("", exception)
               exception match {
                 case e: LagompbException =>
                   Failure(InternalServerError(e.getMessage))
@@ -172,6 +176,7 @@ abstract class LagompbServiceImpl(
       .sendCommand[TCommand, TState](clusterSharding, entityId, cmd, data)
       .transform {
         case Failure(exception) =>
+          log.error("", exception)
           exception match {
             case e: LagompbException =>
               Failure(InternalServerError(e.getMessage))
