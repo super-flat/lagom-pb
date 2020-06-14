@@ -54,11 +54,13 @@ sealed trait GenericSerializers[T <: GeneratedMessage] {
     acceptedMessageProtocols match {
       case Nil => serializerJson
       case protocols =>
-        protocols.collectFirst {
-          case MessageProtocol(Some("application/x-protobuf"), _, _) =>
-            serializerProtobuf
-          case _ => serializerJson
-        }.orNull
+        protocols
+          .collectFirst {
+            case MessageProtocol(Some("application/x-protobuf"), _, _) =>
+              serializerProtobuf
+            case _ => serializerJson
+          }
+          .getOrElse(serializerJson)
     }
   }
 }
