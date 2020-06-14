@@ -16,7 +16,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class LagompbServiceImplSpec extends LagompbSpec {
   val companyId: String = UUID.randomUUID().toString
-  implicit val timeout: Timeout = LagompbConfig.askTimeout
 
   val any: Any = Any()
     .withTypeUrl("type.googleapis.com/lagompb.TestState")

@@ -37,7 +37,7 @@ class TestServiceImpl(
     clusterSharding: ClusterSharding,
     persistentEntityRegistry: PersistentEntityRegistry,
     aggregate: LagompbAggregate[TestState]
-)(implicit ec: ExecutionContext, timeout: Timeout)
+)(implicit ec: ExecutionContext)
     extends LagompbServiceImpl(clusterSharding, persistentEntityRegistry, aggregate)
     with TestService {
 
