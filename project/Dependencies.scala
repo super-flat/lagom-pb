@@ -45,6 +45,7 @@ object Dependencies {
     val embeddedPostgresVersion = "0.13.3"
     val embeddedKafkaVersion = "2.5.0"
     val akkaProjectionVersion = "0.2"
+    val akkaJdbcPersistenceVersion = "4.0.0"
   }
 
   object Compile {
@@ -98,6 +99,8 @@ object Dependencies {
 
     val akkaProjectionEventSourced: ModuleID =
       "com.lightbend.akka" %% "akka-projection-eventsourced" % Versions.akkaProjectionVersion
+
+    val akkaJdbcPersistence = "com.lightbend.akka" %% "akka-persistence-jdbc" % Versions.akkaJdbcPersistenceVersion
   }
 
   object Runtime {
