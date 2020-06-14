@@ -13,12 +13,12 @@ import scala.util.{Failure, Success, Try}
 object LagompbProtosRegistry {
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  private[lagompb] lazy val registry: Seq[GeneratedFileObject] = load()
+  private[lagompb] val registry: Seq[GeneratedFileObject] = load()
 
   /**
    * scalapb generated message companions list
    */
-  private[lagompb] lazy val companions: Vector[GeneratedMessageCompanion[_ <: GeneratedMessage]] = {
+  private[lagompb] val companions: Vector[GeneratedMessageCompanion[_ <: GeneratedMessage]] = {
     registry
       .foldLeft[Vector[scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]]](Vector.empty)({
         (s, fileObject) =>
@@ -29,33 +29,23 @@ object LagompbProtosRegistry {
   /**
    * Creates a map between the generated message typeUrl and the appropriate message companion
    */
-  private[lagompb] lazy val companionsMap
-      : Map[String, scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]] =
+  private[lagompb] val companionsMap: Map[String, scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]] =
     companions
       .map(companion => (companion.scalaDescriptor.fullName, companion))
       .toMap
 
-  private[lagompb] lazy val typeRegistry: TypeRegistry =
+  private[lagompb] val typeRegistry: TypeRegistry =
     registry
       .foldLeft(TypeRegistry.empty)({ (reg, fileObject) =>
         reg.addFile(fileObject)
       })
 
-  private[lagompb] lazy val parser: Parser =
+  private[lagompb] val parser: Parser =
     new Parser().withTypeRegistry(typeRegistry)
 
-  private[lagompb] lazy val printer: Printer =
+  private[lagompb] val printer: Printer =
     new Printer().includingDefaultValueFields
       .withTypeRegistry(typeRegistry)
-
-  def init(): Unit = {
-    registry
-    typeRegistry
-    parser
-    printer
-    companions
-    companionsMap
-  }
 
   /**
    * Gets the maybe scalapb GeneratedMessageCompanion object defining an Any protobuf message

@@ -30,7 +30,6 @@ class LagompbServiceImplSpec extends LagompbSpec {
 
   protected override def beforeAll(): Unit = {
     embeddedPostgres.start()
-    LagompbProtosRegistry.init()
   }
 
   protected override def afterAll(): Unit = {}

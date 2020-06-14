@@ -10,7 +10,7 @@ import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 class LagompbProtosRegistrySpec extends LagompbSpec {
 
   "Loading GeneratedFileObject" should {
-    LagompbProtosRegistry.init()
+
     "succeed" in {
       val fos = LagompbProtosRegistry.registry
       fos.size should be >= 1

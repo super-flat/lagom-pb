@@ -15,6 +15,7 @@ import play.filters.cors.CORSComponents
 import play.filters.csrf.CSRFComponents
 import play.filters.headers.SecurityHeadersComponents
 import play.filters.hosts.AllowedHostsComponents
+import com.softwaremill.macwire.wire
 
 abstract class LagompbApplication(context: LagomApplicationContext)
     extends LagomApplication(context)
@@ -27,9 +28,6 @@ abstract class LagompbApplication(context: LagomApplicationContext)
     with AllowedHostsComponents
     with CSRFComponents
     with SecurityHeadersComponents {
-
-  // let us load the proto companions object files and parser registry
-  LagompbProtosRegistry.init()
 
   // Json Serializer registry not needed
   final override lazy val jsonSerializerRegistry: JsonSerializerRegistry =
