@@ -1,7 +1,6 @@
 package lagompb
 
 import akka.cluster.sharding.typed.scaladsl.Entity
-import akka.util.Timeout
 import com.lightbend.lagom.scaladsl.api.ServiceLocator
 import com.lightbend.lagom.scaladsl.broker.kafka.LagomKafkaComponents
 import com.lightbend.lagom.scaladsl.persistence.jdbc.JdbcPersistenceComponents
@@ -15,7 +14,6 @@ import play.filters.cors.CORSComponents
 import play.filters.csrf.CSRFComponents
 import play.filters.headers.SecurityHeadersComponents
 import play.filters.hosts.AllowedHostsComponents
-import com.softwaremill.macwire.wire
 
 abstract class LagompbApplication(context: LagomApplicationContext)
     extends LagomApplication(context)
@@ -28,6 +26,13 @@ abstract class LagompbApplication(context: LagomApplicationContext)
     with AllowedHostsComponents
     with CSRFComponents
     with SecurityHeadersComponents {
+
+  LagompbProtosRegistry.registry
+  LagompbProtosRegistry.typeRegistry
+  LagompbProtosRegistry.companions
+  LagompbProtosRegistry.companionsMap
+  LagompbProtosRegistry.printer
+  LagompbProtosRegistry.parser
 
   // Json Serializer registry not needed
   final override lazy val jsonSerializerRegistry: JsonSerializerRegistry =
