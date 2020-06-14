@@ -17,7 +17,7 @@ import com.github.ghik.silencer.silent
 import com.google.protobuf.any
 import com.lightbend.lagom.scaladsl.persistence.AggregateEventTag
 import com.typesafe.config.Config
-import lagompb.{LagompbEvent, LagompbException, LagompbProtosRegistry}
+import lagompb.{LagompbConfig, LagompbEvent, LagompbException, LagompbProtosRegistry}
 import lagompb.core.{EventWrapper, MetaData}
 import org.slf4j.{Logger, LoggerFactory}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
@@ -27,11 +27,9 @@ import slick.jdbc.PostgresProfile
 
 import scala.concurrent.ExecutionContext
 
-@silent abstract class LagompbProjection[TState <: scalapb.GeneratedMessage](
-    config: Config,
-    actorSystem: ActorSystemClassic
-)(implicit ec: ExecutionContext)
-    extends SlickHandler[EventEnvelope[LagompbEvent]] {
+@silent abstract class LagompbProjection[TState <: scalapb.GeneratedMessage](actorSystem: ActorSystemClassic)(implicit
+    ec: ExecutionContext
+) extends SlickHandler[EventEnvelope[LagompbEvent]] {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
 
@@ -42,7 +40,7 @@ import scala.concurrent.ExecutionContext
   // The implementation class needs to set the akka.projection.slick config for the offset database
   protected val dbConfig: DatabaseConfig[PostgresProfile] =
     DatabaseConfig.forConfig("akka.projection.slick", actorSystem.settings.config)
-  protected val baseTag: String = config.getString("lagompb.events.tagname")
+  protected val baseTag: String = LagompbConfig.eventsConfig.tagName
 
   /**
    * aggregate state. it is a generated scalapb message extending the LagompbState trait
