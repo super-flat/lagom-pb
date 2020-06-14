@@ -65,6 +65,13 @@ abstract class LagompbApplication(context: LagomApplicationContext)
    */
   override def serviceLocator: ServiceLocator
 
+  def selectShard(numShards: Int, entityId: String): Int = {
+    Math.abs(entityId.hashCode) % numShards
+  }
+
   // initialize cluster sharding
-  clusterSharding.init(Entity(aggregateRoot.typeKey)(entityContext => aggregateRoot.create(entityContext)))
+  clusterSharding.init(Entity(aggregateRoot.typeKey)(entityContext => {
+    val shardIndex = selectShard(LagompbConfig.eventsConfig.numShards, entityContext.entityId)
+    aggregateRoot.create(entityContext, shardIndex)
+  }))
 }

@@ -8,7 +8,6 @@ import akka.cluster.sharding.typed.scaladsl.{EntityContext, EntityTypeKey}
 import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.{Effect, EventSourcedBehavior, ReplyEffect, RetentionCriteria}
 import com.google.protobuf.any.Any
-import com.lightbend.lagom.scaladsl.persistence.AkkaTaggerAdapter
 import lagompb.core._
 import lagompb.core.CommandHandlerResponse.HandlerResponse.{Empty, FailedResponse, SuccessResponse}
 import lagompb.core.SuccessCommandHandlerResponse.Response.{Event, NoEvent}
@@ -47,12 +46,12 @@ abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
    */
   def stateCompanion: scalapb.GeneratedMessageCompanion[TState]
 
-  final def create(entityContext: EntityContext[LagompbCommand]): Behavior[LagompbCommand] = {
+  final def create(entityContext: EntityContext[LagompbCommand], shardIndex: Int): Behavior[LagompbCommand] = {
     val persistenceId: PersistenceId =
       PersistenceId(entityContext.entityTypeKey.name, entityContext.entityId)
-
+    val selectedTag: String = LagompbConfig.allEventTags(shardIndex)
     create(persistenceId)
-      .withTagger(AkkaTaggerAdapter.fromLagom(entityContext, LagompbEvent.Tag))
+      .withTagger(_ => Set(selectedTag))
       .withRetention(
         RetentionCriteria
           .snapshotEvery(
@@ -70,9 +69,9 @@ abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
    */
   private[lagompb] def create(
       persistenceId: PersistenceId
-  ): EventSourcedBehavior[LagompbCommand, LagompbEvent, StateWrapper] =
+  ): EventSourcedBehavior[LagompbCommand, EventWrapper, StateWrapper] =
     EventSourcedBehavior
-      .withEnforcedReplies[LagompbCommand, LagompbEvent, StateWrapper](
+      .withEnforcedReplies[LagompbCommand, EventWrapper, StateWrapper](
         persistenceId = persistenceId,
         emptyState = initialState,
         commandHandler = genericCommandHandler,
@@ -90,13 +89,8 @@ abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
    * @param priorState the current state
    * @param event      the event wrapper
    */
-  private[lagompb] def genericEventHandler(priorState: StateWrapper, event: LagompbEvent): StateWrapper = {
-    event match {
-      case ev: EventWrapper =>
-        priorState.update(_.meta := ev.getMeta, _.state := ev.getResultingState)
-      case _ =>
-        throw new LagompbException(s"unable to handle event ${event.getClass.getName}")
-    }
+  private[lagompb] def genericEventHandler(priorState: StateWrapper, event: EventWrapper): StateWrapper = {
+    priorState.update(_.meta := event.getMeta, _.state := event.getResultingState)
   }
 
   /**
@@ -110,7 +104,7 @@ abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
   final def genericCommandHandler(
       stateWrapper: StateWrapper,
       cmd: LagompbCommand
-  ): ReplyEffect[LagompbEvent, StateWrapper] = {
+  ): ReplyEffect[EventWrapper, StateWrapper] = {
 
     // parse nested state
     Try {
@@ -149,7 +143,7 @@ abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
                   case Event(event: Any) =>
                     LagompbProtosRegistry
                       .getCompanion(event)
-                      .fold[ReplyEffect[LagompbEvent, StateWrapper]](
+                      .fold[ReplyEffect[EventWrapper, StateWrapper]](
                         Effect.reply(cmd.replyTo)(
                           CommandReply()
                             .withFailedReply(

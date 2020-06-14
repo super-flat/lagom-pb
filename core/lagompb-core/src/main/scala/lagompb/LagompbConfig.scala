@@ -1,6 +1,7 @@
 package lagompb
 
 import akka.util.Timeout
+import com.lightbend.lagom.scaladsl.persistence.AggregateEventTag
 import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.duration._
@@ -31,5 +32,10 @@ object LagompbConfig {
       tagName = config.getString(s"$LP.events.tagname"),
       numShards = config.getInt("akka.cluster.sharding.number-of-shards")
     )
+  }
+
+  def allEventTags: Vector[String] = {
+    (for (shardNo <- 0 until LagompbConfig.eventsConfig.numShards)
+      yield s"${LagompbConfig.eventsConfig.tagName}$shardNo").toVector
   }
 }

@@ -103,17 +103,21 @@ sealed trait LagompbBaseServiceImpl {
 }
 
 /**
- * LagompbRestServiceImpl for the REST api implementation
+ * LagompbServiceImpl abstract class.
+ *
+ * It must be implemented by any lagom REST based service
  *
  * @param clusterSharding          the cluster sharding
  * @param persistentEntityRegistry the persistence entity registry
  * @param ec                       the execution context
  */
-sealed abstract class LagompbRestServiceImpl(
-    clusterSharding: ClusterSharding,
-    persistentEntityRegistry: PersistentEntityRegistry
+abstract class LagompbServiceImpl(
+    val clusterSharding: ClusterSharding,
+    val persistentEntityRegistry: PersistentEntityRegistry,
+    val aggregate: LagompbAggregate[_]
 )(implicit ec: ExecutionContext)
-    extends LagompbBaseServiceImpl {
+    extends LagompbBaseServiceImpl
+    with LagompbService {
 
   /**
    * Sends command to the aggregate root. The command must have the aggregate entity id set.
@@ -180,101 +184,6 @@ sealed abstract class LagompbRestServiceImpl(
         case Success(value) => Success(value)
       }
   }
-}
-
-/**
- * LagompbServiceImplWithKafka trait.
- *
- * It must be implemented by any lagom REST service with message broker features.
- * Automatically the domain events are wrapped in a ServiceEvent and push to a kafka topic
- * created automatically when not yet created.
- *
- * @param clusterSharding          the cluster sharding
- * @param persistentEntityRegistry the persistence entity registry
- * @param ec                       the execution context
- */
-abstract class LagompbServiceImplWithKafka(
-    val clusterSharding: ClusterSharding,
-    val persistentEntityRegistry: PersistentEntityRegistry,
-    val aggregate: LagompbAggregate[_]
-)(implicit ec: ExecutionContext)
-    extends LagompbRestServiceImpl(clusterSharding, persistentEntityRegistry)(ec)
-    with LagompbServiceWithKafka {
-
-  final override def aggregateRoot: LagompbAggregate[_] = aggregate
-
-  /** handle ServiceEvent topic
-   *
-   * @return the ServiceEvent topic handler
-   */
-  final override def kafkaEvents: Topic[KafkaEvent] =
-    TopicProducer.taggedStreamWithOffset(LagompbEvent.Tag) { (tag, fromOffset) =>
-      persistentEntityRegistry
-        .eventStream(tag, fromOffset)
-        .map(ev => (transformEvent(ev), ev.offset))
-    }
-
-  private def transformEvent(ev: EventStreamElement[LagompbEvent]): KafkaEvent = {
-    ev.event match {
-      case EventWrapper(Some(anyEvent: Any), Some(state: Any), Some(metaData: MetaData)) =>
-        Try {
-          LagompbProtosRegistry
-            .getCompanion(anyEvent)
-            .flatMap(comp => {
-              comp.scalaDescriptor.fields
-                .find(
-                  field =>
-                    field.getOptions
-                      .extension(ExtensionsProto.kafka)
-                      .exists(_.partitionKey)
-                )
-                .map(fd => {
-                  KafkaEvent()
-                    .withEvent(anyEvent)
-                    .withState(StateWrapper().withMeta(metaData).withState(state))
-                    .withPartitionKey(
-                      comp
-                        .parseFrom(anyEvent.value.toByteArray)
-                        .getField(fd)
-                        .as[String]
-                    )
-                    .withServiceName(serviceName)
-                })
-            })
-        } match {
-          case Failure(exception) =>
-            throw new LagompbException(s"companion not found for ${anyEvent.typeUrl}. reason: ${exception.getMessage}")
-          case Success(result: Option[KafkaEvent]) =>
-            result match {
-              case Some(value: KafkaEvent) =>
-                value
-              case None =>
-                throw new LagompbException(s"unable to transform event ${anyEvent.typeUrl} for kafka")
-            }
-        }
-      case _ =>
-        throw new LagompbException(s"unknown event received ${ev.event.getClass.getName}")
-    }
-  }
-
-}
-
-/**
- * LagompbServiceImpl abstract class.
- *
- * It must be implemented by any lagom REST based service
- *
- * @param clusterSharding          the cluster sharding
- * @param persistentEntityRegistry the persistence entity registry
- * @param ec                       the execution context
- */
-abstract class LagompbServiceImpl(
-    val clusterSharding: ClusterSharding,
-    val persistentEntityRegistry: PersistentEntityRegistry,
-    val aggregate: LagompbAggregate[_]
-)(implicit ec: ExecutionContext)
-    extends LagompbRestServiceImpl(clusterSharding, persistentEntityRegistry)(ec)
-    with LagompbService {
 
   final override def aggregateRoot: LagompbAggregate[_] = aggregate
 }

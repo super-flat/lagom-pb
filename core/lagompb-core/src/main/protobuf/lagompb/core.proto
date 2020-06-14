@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package lagompb;
 
-import "scalapb/scalapb.proto";
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
@@ -76,7 +75,6 @@ message StateWrapper {
 // EventWrapper is an event wrapper that holds both the
 // event and the corresponding aggregate root state.
 message EventWrapper {
-    option (scalapb.message).extends = "lagompb.LagompbEvent";
     // the event emitted
     google.protobuf.Any event = 1;
     // the state obtained from processing the event

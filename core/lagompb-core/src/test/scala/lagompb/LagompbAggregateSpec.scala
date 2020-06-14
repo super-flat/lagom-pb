@@ -283,11 +283,5 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
       )
     }
 
-    "generic event handler handles wrong event" in {
-
-      val aggregate =
-        new TestAggregate(null, new TestCommandHandler(null), new TestEventHandler(null))
-      an[LagompbException] shouldBe thrownBy(aggregate.genericEventHandler(null, WrongEventTagger.defaultInstance))
-    }
   }
 }
