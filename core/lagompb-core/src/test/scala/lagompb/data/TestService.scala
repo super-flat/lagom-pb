@@ -4,34 +4,31 @@ import java.util.UUID
 
 import akka.actor.ActorSystem
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
+import com.lightbend.lagom.scaladsl.api.{Descriptor, ServiceCall}
 import com.lightbend.lagom.scaladsl.api.Service.restCall
 import com.lightbend.lagom.scaladsl.api.transport.Method
-import com.lightbend.lagom.scaladsl.api.{Descriptor, ServiceCall}
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
-import com.lightbend.lagom.scaladsl.server.{LagomApplicationContext, LagomServer, LocalServiceLocator}
-import com.softwaremill.macwire.wire
+import lagompb.{LagompbAggregate, LagompbSerializer, LagompbService, LagompbServiceImpl, LagompbState}
 import lagompb.tests.{TestCmd, TestState}
-import lagompb.{
-  LagompbAggregate,
-  LagompbApplication,
-  LagompbCommandHandler,
-  LagompbEventHandler,
-  LagompbService,
-  LagompbServiceImpl,
-  LagompbState
-}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 import scala.concurrent.ExecutionContext
 
 trait TestService extends LagompbService {
+
   def testHello: ServiceCall[TestCmd, TestState]
 
   /**
    * routes define the various routes handled by the service.
    *
    */
-  override def routes: Seq[Descriptor.Call[_, _]] = Seq(restCall(Method.POST, "/api/tests", testHello _))
+  override def routes: Seq[Descriptor.Call[_, _]] =
+    Seq(
+      restCall(Method.POST, "/api/tests", testHello _)(
+        new LagompbSerializer[TestCmd](),
+        new LagompbSerializer[TestState]()
+      )
+    )
 }
 
 class TestServiceImpl(
@@ -57,24 +54,4 @@ class TestServiceImpl(
         .map((rst: LagompbState[TestState]) => rst.state)
     }
   }
-}
-
-class TestApplication(context: LagomApplicationContext) extends LagompbApplication(context) with LocalServiceLocator {
-
-  def eventHandler: LagompbEventHandler[TestState] = wire[TestEventHandler]
-
-  def commandHandler: LagompbCommandHandler[TestState] =
-    wire[TestCommandHandler]
-
-  override def aggregateRoot: LagompbAggregate[_] = aggregate
-
-  def aggregate: LagompbAggregate[TestState] = wire[TestAggregate]
-
-  /** server helps define the lagom server. Please refer to the lagom doc
-   *
-   * @example
-   * override val server: LagomServer = serverFor[TestService](wire[TestServiceImpl])
-   */
-  override def server: LagomServer =
-    serverFor[TestService](wire[TestServiceImpl])
 }

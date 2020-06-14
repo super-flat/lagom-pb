@@ -15,11 +15,8 @@ import akka.projection.slick.{SlickHandler, SlickProjection}
 import akka.Done
 import com.github.ghik.silencer.silent
 import com.google.protobuf.any
-import com.lightbend.lagom.scaladsl.persistence.AggregateEventTag
-import com.typesafe.config.Config
-import lagompb.{LagompbEvent, LagompbException}
+import lagompb.{LagompbConfig, LagompbException, LagompbProtosRegistry}
 import lagompb.core.{EventWrapper, MetaData}
-import lagompb.util.LagompbProtosCompanions
 import org.slf4j.{Logger, LoggerFactory}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.basic.DatabaseConfig
@@ -28,20 +25,20 @@ import slick.jdbc.PostgresProfile
 
 import scala.concurrent.ExecutionContext
 
-@silent abstract class LagompbProjection[TState <: scalapb.GeneratedMessage](
-    config: Config,
-    actorSystem: ActorSystemClassic
-)(implicit ec: ExecutionContext)
-    extends SlickHandler[EventEnvelope[LagompbEvent]] {
+@silent abstract class LagompbProjection[TState <: scalapb.GeneratedMessage](actorSystem: ActorSystemClassic)(implicit
+    ec: ExecutionContext
+) extends SlickHandler[EventEnvelope[EventWrapper]] {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
+
   protected val actorSystemTyped: ActorSystem[_] = {
     actorSystem.toTyped
   }
+
   // The implementation class needs to set the akka.projection.slick config for the offset database
   protected val dbConfig: DatabaseConfig[PostgresProfile] =
     DatabaseConfig.forConfig("akka.projection.slick", actorSystem.settings.config)
-  protected val baseTag: String = config.getString("lagompb.events.tagname")
+  protected val baseTag: String = LagompbConfig.eventsConfig.tagName
 
   /**
    * aggregate state. it is a generated scalapb message extending the LagompbState trait
@@ -63,8 +60,8 @@ import scala.concurrent.ExecutionContext
   def init(): Unit = {
     ShardedDaemonProcess(actorSystemTyped).init[ProjectionBehavior.Command](
       name = projectionName,
-      numberOfInstances = LagompbEvent.Tag.allTags.size,
-      behaviorFactory = n => ProjectionBehavior(setExactlyOnceProjection(AggregateEventTag.shardTag(baseTag, n))),
+      numberOfInstances = LagompbConfig.allEventTags.size,
+      behaviorFactory = n => ProjectionBehavior(setExactlyOnceProjection(s"$baseTag$n")),
       settings = ShardedDaemonProcessSettings(actorSystemTyped),
       stopMessage = Some(ProjectionBehavior.Stop)
     )
@@ -73,12 +70,17 @@ import scala.concurrent.ExecutionContext
   /**
    * Build the projection instance based upon the event tag
    *
-   * @param tag the event tag
+   * @param tagName the event tag
    * @return the projection instance
    */
-  protected def setExactlyOnceProjection(tag: String): SlickProjection[EventEnvelope[LagompbEvent]] =
+  protected def setExactlyOnceProjection(tagName: String): SlickProjection[EventEnvelope[EventWrapper]] =
     SlickProjection
-      .exactlyOnce(projectionId = ProjectionId(projectionName, tag), setSourceProvider(tag), dbConfig, handler = this)
+      .exactlyOnce(
+        projectionId = ProjectionId(projectionName, tagName),
+        setSourceProvider(tagName),
+        dbConfig,
+        handler = this
+      )
 
   /**
    * Set the Event Sourced Provider per tag
@@ -86,9 +88,9 @@ import scala.concurrent.ExecutionContext
    * @param tag the event tag
    * @return the event sourced provider
    */
-  protected def setSourceProvider(tag: String): SourceProvider[Offset, EventEnvelope[LagompbEvent]] =
+  protected def setSourceProvider(tag: String): SourceProvider[Offset, EventEnvelope[EventWrapper]] =
     EventSourcedProvider
-      .eventsByTag[LagompbEvent](actorSystemTyped, readJournalPluginId = JdbcReadJournal.Identifier, tag)
+      .eventsByTag[EventWrapper](actorSystemTyped, readJournalPluginId = JdbcReadJournal.Identifier, tag)
 
   /**
    * handles the actual event unmarshalled from the event wrapper
@@ -106,10 +108,10 @@ import scala.concurrent.ExecutionContext
       meta: MetaData
   ): DBIO[Done]
 
-  final override def process(envelope: EventEnvelope[LagompbEvent]): DBIO[Done] = {
+  final override def process(envelope: EventEnvelope[EventWrapper]): DBIO[Done] = {
     envelope.event match {
       case EventWrapper(Some(event: any.Any), Some(resultingState), Some(meta)) =>
-        LagompbProtosCompanions
+        LagompbProtosRegistry
           .getCompanion(event) match {
           case Some(comp) =>
             handleEvent(comp, event, resultingState, meta)

@@ -2,10 +2,10 @@ package lagompb.data
 
 import akka.actor.ActorSystem
 import com.google.protobuf.any.Any
-import lagompb.core.CommandHandlerResponse.HandlerResponse
-import lagompb.core._
-import lagompb.tests._
 import lagompb.{LagompbCommand, LagompbCommandHandler}
+import lagompb.core._
+import lagompb.core.CommandHandlerResponse.HandlerResponse
+import lagompb.tests._
 
 import scala.util.Try
 

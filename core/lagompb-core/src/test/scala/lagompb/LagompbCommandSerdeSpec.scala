@@ -2,8 +2,8 @@ package lagompb
 
 import akka.actor.testkit.typed.scaladsl.TestProbe
 import lagompb.core.CommandReply
-import lagompb.tests.TestCmd
 import lagompb.testkit.LagompbActorTestKit
+import lagompb.tests.TestCmd
 
 class LagompbCommandSerdeSpec extends LagompbActorTestKit(s"""
     akka {

@@ -2,10 +2,10 @@ package lagompb
 
 import java.util.UUID
 
-import lagompb.data.TestEventHandler
 import lagompb.core.MetaData
-import lagompb.tests.{TestEvent, TestState, WrongEvent}
+import lagompb.data.TestEventHandler
 import lagompb.testkit.LagompbSpec
+import lagompb.tests.{TestEvent, TestState, WrongEvent}
 
 class LagompbEventHandlerSpec extends LagompbSpec {
   "BaseEventHandler implementation" must {

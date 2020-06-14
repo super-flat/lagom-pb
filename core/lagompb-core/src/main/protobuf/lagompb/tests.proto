@@ -45,7 +45,6 @@ message NoCmd {
 }
 
 message WrongEventTagger {
-    option (scalapb.message).extends = "lagompb.LagompbEvent";
 }
 
 message TestEvent {

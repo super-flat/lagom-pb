@@ -7,8 +7,8 @@ import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.api.deser.MessageSerializer
 import com.lightbend.lagom.scaladsl.api.transport.MessageProtocol
 import lagompb.core.{KafkaEvent, MetaData, StateWrapper}
-import lagompb.tests.{TestEvent, TestState}
 import lagompb.testkit.LagompbSpec
+import lagompb.tests.{TestEvent, TestState}
 
 class LagompbKafkaSerdeSpec extends LagompbSpec {
   val serviceEventSerializer: LagompbKafkaSerde = new LagompbKafkaSerde

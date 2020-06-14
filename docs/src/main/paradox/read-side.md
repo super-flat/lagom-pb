@@ -4,7 +4,6 @@ Read Side helps define how the events persisted by the Aggregate root are proces
 
 Lagom-pb offers two types of read side implementation:
 
-* [lagom based read side](#lagom-based-read-side)
 * [akka projection based read side](#akka-projection-based-read-side)
 
 To be able to implement the readSide the following dependency is required:
@@ -14,17 +13,6 @@ To be able to implement the readSide the following dependency is required:
   artifact="lagompb-readside_2.13"
   version="0.1.0"
 }
-
-## Lagom based read side
-
-At the moment to implement the lagom based read side, **_only one_** of the following classes can be implemented:
-
-* `lagompb.LagompbSlickRead` for a slick based implementation. The **_event_** and the **_resulting state_** is made available 
-for processing. The offsets are stored in postgres database since the only supported persistence storage at the moment is postgres.
-* `lagompb.LagompbJdbcRead` for JDBC based implementation.
-
-The only limitation with any lagom based read side is that you can only have one implementation which does not give the
-freedom of having multiple read side ti handle different events based upon the business rule. See @link:[Issue #34](https://github.com/lagom/lagom/issues/1346) { open=new }
 
 ## Akka Projection based read side
 

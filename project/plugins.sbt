@@ -12,3 +12,4 @@ libraryDependencies += "com.lightbend.play" %% "play-grpc-generators" % "0.8.2"
 addSbtPlugin("org.jmotor.sbt" % "sbt-dependency-updates" % "1.2.2")
 addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.4.0")
 addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.3")
+addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")

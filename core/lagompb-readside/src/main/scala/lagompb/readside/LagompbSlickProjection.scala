@@ -3,7 +3,6 @@ package lagompb.readside
 import akka.Done
 import akka.actor.{ActorSystem => ActorSystemClassic}
 import com.google.protobuf.any
-import com.typesafe.config.Config
 import lagompb.core.MetaData
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.dbio.{DBIO, DBIOAction}
@@ -21,16 +20,13 @@ import scala.util.{Failure, Success, Try}
  * Please bear in mind that the akka.projection.slick is required to be set in the configuration file.
  *
  * @see https://doc.akka.io/docs/akka-projection/current/slick.html#configuration
- * @param config      the configuration instance
  * @param actorSystem the actor system
  * @param ec          the execution context
  * @tparam TState the aggregate state type
  */
-abstract class LagompbSlickProjection[TState <: scalapb.GeneratedMessage](
-    config: Config,
-    actorSystem: ActorSystemClassic
-)(implicit ec: ExecutionContext)
-    extends LagompbProjection[TState](config, actorSystem) {
+abstract class LagompbSlickProjection[TState <: scalapb.GeneratedMessage](actorSystem: ActorSystemClassic)(implicit
+    ec: ExecutionContext
+) extends LagompbProjection[TState](actorSystem) {
 
   final override def handleEvent(
       comp: GeneratedMessageCompanion[_ <: GeneratedMessage],

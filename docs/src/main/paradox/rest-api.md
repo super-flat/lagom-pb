@@ -30,11 +30,12 @@ Example:
 
 ```scala
 import akka.NotUsed
-import com.lightbend.lagom.scaladsl.api.Service.restCall
-import com.lightbend.lagom.scaladsl.api.transport.Method
 import com.lightbend.lagom.scaladsl.api.{Descriptor, ServiceCall}
+import com.lightbend.lagom.scaladsl.api.Service.restCall
+import com.lightbend.lagom.scaladsl.api.deser.MessageSerializer
+import com.lightbend.lagom.scaladsl.api.transport.Method
 import io.superflat.protobuf.account.apis.{ApiResponse, OpenAccountRequest, ReceiveMoneyRequest, TransferMoneyRequest}
-import lagompb.LagompbService
+import lagompb.{LagompbSerializer, LagompbService}
 
 trait AccountService extends LagompbService {
 
@@ -44,12 +45,25 @@ trait AccountService extends LagompbService {
   def getAccount(accountId: String): ServiceCall[NotUsed, ApiResponse]
 
   override val routes: Seq[Descriptor.Call[_, _]] = Seq(
-    restCall(Method.POST, "/api/accounts", openAccount _),
-    restCall(Method.PATCH, "/api/accounts/:accountId/transfer", transferMoney _),
-    restCall(Method.PATCH, "/api/accounts/:accountId/receive", receiveMoney _),
-    restCall(Method.GET, "/api/accounts/:accountId", getAccount _)
+    restCall(Method.POST, "/api/accounts", openAccount _)(
+      new LagompbSerializer[OpenAccountRequest](),
+      new LagompbSerializer[ApiResponse]()
+    ),
+    restCall(Method.PATCH, "/api/accounts/:accountId/transfer", transferMoney _)(
+      new LagompbSerializer[TransferMoneyRequest](),
+      new LagompbSerializer[ApiResponse]()
+    ),
+    restCall(Method.PATCH, "/api/accounts/:accountId/receive", receiveMoney _)(
+      new LagompbSerializer[ReceiveMoneyRequest](),
+      new LagompbSerializer[ApiResponse]()
+    ),
+    restCall(Method.GET, "/api/accounts/:accountId", getAccount _)(
+      MessageSerializer.NotUsedMessageSerializer,
+      new LagompbSerializer[ApiResponse]()
+    )
   )
 }
+
 ```
 
 _**Note: The api service definition must be done in a separate sbt module(recommended way). So a lagom-pb/lagom service requires at least two sbt modules in an sdbt multi-modules project.**_

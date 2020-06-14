@@ -21,11 +21,12 @@ object InternalServerError {
   def apply(message: String) =
     new InternalServerError(ErrorCode, new ExceptionMessage(classOf[InternalServerError].getSimpleName, message), null)
 
-  def apply(cause: Throwable) = new InternalServerError(
-    ErrorCode,
-    new ExceptionMessage(classOf[InternalServerError].getSimpleName, cause.getMessage),
-    cause
-  )
+  def apply(cause: Throwable) =
+    new InternalServerError(
+      ErrorCode,
+      new ExceptionMessage(classOf[InternalServerError].getSimpleName, cause.getMessage),
+      cause
+    )
 }
 
 /**

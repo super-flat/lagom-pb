@@ -5,10 +5,9 @@ import akka.actor.{ActorSystem => ActorSystemClassic}
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.SendProducer
 import com.google.protobuf.any
-import com.typesafe.config.Config
+import lagompb.{LagompbConfig, LagompbException}
 import lagompb.core.{KafkaEvent, MetaData, StateWrapper}
 import lagompb.extensions.ExtensionsProto
-import lagompb.LagompbException
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
@@ -20,16 +19,13 @@ import scala.concurrent.ExecutionContext
 /**
  * Helps push snapshots and journal events to kafka
  *
- * @param config the configuration instance
  * @param actorSystem the actor system
  * @param ec the execution context
  * @tparam TState the aggregate state type
  */
-abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage](
-    config: Config,
-    actorSystem: ActorSystemClassic
-)(implicit ec: ExecutionContext)
-    extends LagompbProjection[TState](config, actorSystem) {
+abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage](actorSystem: ActorSystemClassic)(implicit
+    ec: ExecutionContext
+) extends LagompbProjection[TState](actorSystem) {
 
   // The implementation class needs to set the akka.kafka.producer settings in the config file as well
   // as the lagompb.kafka-projections
@@ -74,7 +70,7 @@ abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage](
                     .getField(fd)
                     .as[String]
                 )
-                .withServiceName(config.getString("lagompb.service-name"))
+                .withServiceName(LagompbConfig.serviceName)
                 .toByteArray
             )
           )

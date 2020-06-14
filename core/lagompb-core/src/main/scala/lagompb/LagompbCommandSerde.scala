@@ -3,12 +3,11 @@ package lagompb
 import java.nio.charset.StandardCharsets
 
 import akka.actor.ExtendedActorSystem
-import akka.actor.typed.scaladsl.adapter._
 import akka.actor.typed.{ActorRef, ActorRefResolver}
+import akka.actor.typed.scaladsl.adapter._
 import akka.serialization.SerializerWithStringManifest
 import com.google.protobuf.any.Any
 import lagompb.core.{CommandReply, CommandWrapper}
-import lagompb.util.LagompbProtosCompanions
 import org.slf4j.{Logger, LoggerFactory}
 
 /**
@@ -19,10 +18,11 @@ sealed class LagompbCommandSerde(val system: ExtendedActorSystem) extends Serial
 
   // construct a map of type_url -> companion object parser
   final lazy val msgMap: Map[String, Array[Byte] => scalapb.GeneratedMessage] =
-    LagompbProtosCompanions.companions
+    LagompbProtosRegistry.companions
       .map(companion => (companion.scalaDescriptor.fullName, (s: Array[Byte]) => companion.parseFrom(s)))
       .toMap
   final val LagomPbCommandManifest: String = classOf[LagompbCommand].getName
+
   private final val log: Logger =
     LoggerFactory.getLogger(classOf[LagompbCommandSerde])
   private val actorRefResolver = ActorRefResolver(system.toTyped)

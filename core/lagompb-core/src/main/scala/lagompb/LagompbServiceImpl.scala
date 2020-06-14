@@ -4,26 +4,20 @@ import akka.cluster.sharding.typed.scaladsl.ClusterSharding
 import akka.grpc.GrpcServiceException
 import akka.util.Timeout
 import com.google.protobuf.any.Any
-import com.lightbend.lagom.scaladsl.api.broker.Topic
 import com.lightbend.lagom.scaladsl.api.transport.BadRequest
-import com.lightbend.lagom.scaladsl.broker.TopicProducer
-import com.lightbend.lagom.scaladsl.persistence.{EventStreamElement, PersistentEntityRegistry}
+import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import io.grpc.Status
-import lagompb.core.CommandReply.Reply
 import lagompb.core._
+import lagompb.core.CommandReply.Reply
 import lagompb.extensions.ExtensionsProto
-import lagompb.util.{LagompbCommon, LagompbProtosCompanions}
-import org.slf4j.{Logger, LoggerFactory}
 import scalapb.GeneratedMessage
 
-import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-sealed trait LagompbServiceImplComponent {
-  final val log: Logger = LoggerFactory.getLogger(getClass)
+sealed trait LagompbBaseServiceImpl {
 
-  implicit val timeout: Timeout = Timeout(LagompbCommon.config.getInt("lagompb.ask-timeout").seconds)
+  implicit val timeout: Timeout = LagompbConfig.askTimeout
 
   /**
    * aggregateRoot defines the persistent entity that will be used to handle commands
@@ -94,8 +88,6 @@ sealed trait LagompbServiceImplComponent {
   private[lagompb] def parseAny[TState <: scalapb.GeneratedMessage](data: Any): TState = {
     val typeUrl: String = data.typeUrl.split('/').lastOption.getOrElse("")
 
-    log.debug(s"Aggregate State: $typeUrl")
-
     if (aggregateStateCompanion.scalaDescriptor.fullName.equals(typeUrl)) {
       Try {
         data.unpack(aggregateStateCompanion).asInstanceOf[TState]
@@ -109,17 +101,21 @@ sealed trait LagompbServiceImplComponent {
 }
 
 /**
- * LagompbRestServiceImpl for the REST api implementation
+ * LagompbServiceImpl abstract class.
+ *
+ * It must be implemented by any lagom REST based service
  *
  * @param clusterSharding          the cluster sharding
  * @param persistentEntityRegistry the persistence entity registry
  * @param ec                       the execution context
  */
-sealed abstract class LagompbRestServiceImpl(
-    clusterSharding: ClusterSharding,
-    persistentEntityRegistry: PersistentEntityRegistry,
+abstract class LagompbServiceImpl(
+    val clusterSharding: ClusterSharding,
+    val persistentEntityRegistry: PersistentEntityRegistry,
+    val aggregate: LagompbAggregate[_]
 )(implicit ec: ExecutionContext)
-    extends LagompbServiceImplComponent {
+    extends LagompbBaseServiceImpl
+    with LagompbService {
 
   /**
    * Sends command to the aggregate root. The command must have the aggregate entity id set.
@@ -144,8 +140,6 @@ sealed abstract class LagompbRestServiceImpl(
           .sendCommand[TCommand, TState](clusterSharding, entityId, cmd, data)
           .transform {
             case Failure(exception) =>
-              log.error("[Rest SendCommand] failed", exception)
-
               exception match {
                 case e: LagompbException =>
                   Failure(InternalServerError(e.getMessage))
@@ -178,8 +172,6 @@ sealed abstract class LagompbRestServiceImpl(
       .sendCommand[TCommand, TState](clusterSharding, entityId, cmd, data)
       .transform {
         case Failure(exception) =>
-          log.error("[Rest SendCommand] failed", exception)
-
           exception match {
             case e: LagompbException =>
               Failure(InternalServerError(e.getMessage))
@@ -190,110 +182,14 @@ sealed abstract class LagompbRestServiceImpl(
         case Success(value) => Success(value)
       }
   }
-}
 
-/**
- * LagompbServiceImplWithKafka trait.
- *
- * It must be implemented by any lagom REST service with message broker features.
- * Automatically the domain events are wrapped in a ServiceEvent and push to a kafka topic
- * created automatically when not yet created.
- *
- * @param clusterSharding          the cluster sharding
- * @param persistentEntityRegistry the persistence entity registry
- * @param ec                       the execution context
- */
-abstract class LagompbServiceImplWithKafka(
-    clusterSharding: ClusterSharding,
-    persistentEntityRegistry: PersistentEntityRegistry,
-    aggregate: LagompbAggregate[_]
-)(implicit ec: ExecutionContext)
-    extends LagompbRestServiceImpl(clusterSharding, persistentEntityRegistry)(ec)
-    with LagompbServiceWithKafka {
-
-  final override def aggregateRoot: LagompbAggregate[_] = aggregate
-
-  /** handle ServiceEvent topic
-   *
-   * @return the ServiceEvent topic handler
-   */
-  final override def kafkaEvents: Topic[KafkaEvent] =
-    TopicProducer.taggedStreamWithOffset(LagompbEvent.Tag) { (tag, fromOffset) =>
-      persistentEntityRegistry
-        .eventStream(tag, fromOffset)
-        .map(ev => (transformEvent(ev), ev.offset))
-    }
-
-  private def transformEvent(ev: EventStreamElement[LagompbEvent]): KafkaEvent = {
-    ev.event match {
-      case EventWrapper(Some(anyEvent: Any), Some(state: Any), Some(metaData: MetaData)) =>
-        Try {
-          log.debug(s"Aggregate Event type Url: ${anyEvent.typeUrl}")
-
-          LagompbProtosCompanions
-            .getCompanion(anyEvent)
-            .flatMap(comp => {
-              comp.scalaDescriptor.fields
-                .find(
-                  field =>
-                    field.getOptions
-                      .extension(ExtensionsProto.kafka)
-                      .exists(_.partitionKey)
-                )
-                .map(fd => {
-                  KafkaEvent()
-                    .withEvent(anyEvent)
-                    .withState(StateWrapper().withMeta(metaData).withState(state))
-                    .withPartitionKey(
-                      comp
-                        .parseFrom(anyEvent.value.toByteArray)
-                        .getField(fd)
-                        .as[String]
-                    )
-                    .withServiceName(serviceName)
-                })
-            })
-        } match {
-          case Failure(exception) =>
-            throw new LagompbException(s"companion not found for ${anyEvent.typeUrl}. reason: ${exception.getMessage}")
-          case Success(result: Option[KafkaEvent]) =>
-            result match {
-              case Some(value: KafkaEvent) =>
-                log.debug("[Lagompb]: event has been persisted into kafka successfully")
-                value
-              case None =>
-                throw new LagompbException(s"unable to transform event ${anyEvent.typeUrl} for kafka")
-            }
-        }
-      case _ =>
-        throw new LagompbException(s"unknown event received ${ev.event.getClass.getName}")
-    }
-  }
-}
-
-/**
- * LagompbServiceImpl abstract class.
- *
- * It must be implemented by any lagom REST based service
- *
- * @param clusterSharding          the cluster sharding
- * @param persistentEntityRegistry the persistence entity registry
- * @param ec                       the execution context
- */
-abstract class LagompbServiceImpl(
-    clusterSharding: ClusterSharding,
-    persistentEntityRegistry: PersistentEntityRegistry,
-    aggregate: LagompbAggregate[_]
-)(implicit ec: ExecutionContext)
-    extends LagompbRestServiceImpl(clusterSharding, persistentEntityRegistry)(ec)
-    with LagompbService {
   final override def aggregateRoot: LagompbAggregate[_] = aggregate
 }
 
 /**
  * LagompbGrpcServiceImpl
  */
-trait LagompbGrpcServiceImpl extends LagompbServiceImplComponent {
+trait LagompbGrpcServiceImpl extends LagompbBaseServiceImpl {
 
   /**
    * Sends command to the aggregate root. The command must have the aggregate entity id set.
@@ -317,8 +213,6 @@ trait LagompbGrpcServiceImpl extends LagompbServiceImplComponent {
       .sendCommand[TCommand, TState](clusterSharding, entityId, cmd, data)
       .transform {
         case Failure(exception) =>
-          log.error("[Grpc SendCommand] failed", exception)
-
           exception match {
             case e: LagompbException =>
               Failure(new GrpcServiceException(status = Status.INTERNAL.withDescription(e.getMessage)))
@@ -364,8 +258,6 @@ trait LagompbGrpcServiceImpl extends LagompbServiceImplComponent {
           .sendCommand[TCommand, TState](clusterSharding, entityId, cmd, data)
           .transform {
             case Failure(exception) =>
-              log.error("[Grpc SendCommand] failed", exception)
-
               exception match {
                 case e: LagompbException =>
                   Failure(new GrpcServiceException(status = Status.INTERNAL.withDescription(e.getMessage)))

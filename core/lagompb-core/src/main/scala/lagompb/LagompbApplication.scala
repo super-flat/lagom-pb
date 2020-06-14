@@ -26,11 +26,21 @@ abstract class LagompbApplication(context: LagomApplicationContext)
     with AllowedHostsComponents
     with CSRFComponents
     with SecurityHeadersComponents {
+
+  LagompbProtosRegistry.registry
+  LagompbProtosRegistry.typeRegistry
+  LagompbProtosRegistry.companions
+  LagompbProtosRegistry.companionsMap
+  LagompbProtosRegistry.printer
+  LagompbProtosRegistry.parser
+
   // Json Serializer registry not needed
   final override lazy val jsonSerializerRegistry: JsonSerializerRegistry =
     EmptyJsonSerializerRegistry
+
   // lagomServer is set by the server definition in the implementation class
   override lazy val lagomServer: LagomServer = server
+
   // set the security filters
   override val httpFilters: Seq[EssentialFilter] =
     Seq(corsFilter, allowedHostsFilter, csrfFilter, securityHeadersFilter)
@@ -55,6 +65,13 @@ abstract class LagompbApplication(context: LagomApplicationContext)
    */
   override def serviceLocator: ServiceLocator
 
+  def selectShard(numShards: Int, entityId: String): Int = {
+    Math.abs(entityId.hashCode) % numShards
+  }
+
   // initialize cluster sharding
-  clusterSharding.init(Entity(aggregateRoot.typeKey)(entityContext => aggregateRoot.create(entityContext)))
+  clusterSharding.init(Entity(aggregateRoot.typeKey)(entityContext => {
+    val shardIndex = selectShard(LagompbConfig.eventsConfig.numShards, entityContext.entityId)
+    aggregateRoot.create(entityContext, shardIndex)
+  }))
 }
