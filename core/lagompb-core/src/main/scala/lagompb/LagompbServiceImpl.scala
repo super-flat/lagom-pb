@@ -280,7 +280,7 @@ abstract class LagompbServiceImpl(
 /**
  * LagompbGrpcServiceImpl
  */
-trait LagompbGrpcServiceImpl extends LagompbServiceImpl {
+trait LagompbGrpcServiceImpl extends LagompbBaseServiceImpl {
 
   /**
    * Sends command to the aggregate root. The command must have the aggregate entity id set.
