@@ -23,12 +23,7 @@ trait TestService extends LagompbService {
    *
    */
   override def routes: Seq[Descriptor.Call[_, _]] =
-    Seq(
-      restCall(Method.POST, "/api/tests", testHello _)(
-        new LagompbSerializer[TestCmd](),
-        new LagompbSerializer[TestState]()
-      )
-    )
+    Seq(restCall(Method.POST, "/api/tests", testHello _))
 }
 
 class TestServiceImpl(

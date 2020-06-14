@@ -1,6 +1,7 @@
 package lagompb
 
 import com.lightbend.lagom.scaladsl.api.{Descriptor, Service}
+import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 /**
  * Must be implemented by any lagom api without message broker integration
@@ -9,6 +10,9 @@ trait LagompbService extends Service {
 
   protected val serviceName: String =
     LagompbConfig.serviceName
+
+  implicit def messageSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]: LagompbSerializer[A] =
+    new LagompbSerializer[A]
 
   final override def descriptor: Descriptor = {
     import Service._

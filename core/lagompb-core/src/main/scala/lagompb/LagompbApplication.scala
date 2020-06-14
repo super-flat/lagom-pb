@@ -27,6 +27,7 @@ abstract class LagompbApplication(context: LagomApplicationContext)
     with CSRFComponents
     with SecurityHeadersComponents {
 
+  //FIXME find a better way to load these ones
   LagompbProtosRegistry.registry
   LagompbProtosRegistry.typeRegistry
   LagompbProtosRegistry.companions
