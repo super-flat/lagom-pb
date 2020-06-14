@@ -3,10 +3,10 @@ package lagompb
 import java.util.UUID
 
 import com.google.protobuf.any.Any
-import lagompb.data.TestCommandHandler
 import lagompb.core._
-import lagompb.tests.{NoCmd, TestCmd, TestEvent, TestState}
+import lagompb.data.TestCommandHandler
 import lagompb.testkit.LagompbSpec
+import lagompb.tests.{NoCmd, TestCmd, TestEvent, TestState}
 
 import scala.util.Try
 

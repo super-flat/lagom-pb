@@ -17,9 +17,8 @@ import com.github.ghik.silencer.silent
 import com.google.protobuf.any
 import com.lightbend.lagom.scaladsl.persistence.AggregateEventTag
 import com.typesafe.config.Config
-import lagompb.{LagompbEvent, LagompbException}
+import lagompb.{LagompbEvent, LagompbException, LagompbProtosRegistry}
 import lagompb.core.{EventWrapper, MetaData}
-import lagompb.util.LagompbProtosCompanions
 import org.slf4j.{Logger, LoggerFactory}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.basic.DatabaseConfig
@@ -35,9 +34,11 @@ import scala.concurrent.ExecutionContext
     extends SlickHandler[EventEnvelope[LagompbEvent]] {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
+
   protected val actorSystemTyped: ActorSystem[_] = {
     actorSystem.toTyped
   }
+
   // The implementation class needs to set the akka.projection.slick config for the offset database
   protected val dbConfig: DatabaseConfig[PostgresProfile] =
     DatabaseConfig.forConfig("akka.projection.slick", actorSystem.settings.config)
@@ -109,7 +110,7 @@ import scala.concurrent.ExecutionContext
   final override def process(envelope: EventEnvelope[LagompbEvent]): DBIO[Done] = {
     envelope.event match {
       case EventWrapper(Some(event: any.Any), Some(resultingState), Some(meta)) =>
-        LagompbProtosCompanions
+        LagompbProtosRegistry
           .getCompanion(event) match {
           case Some(comp) =>
             handleEvent(comp, event, resultingState, meta)

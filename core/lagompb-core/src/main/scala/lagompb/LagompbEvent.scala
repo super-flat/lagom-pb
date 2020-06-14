@@ -6,7 +6,6 @@ import com.lightbend.lagom.scaladsl.persistence.{
   AggregateEventTag,
   AggregateEventTagger
 }
-import lagompb.util.LagompbCommon
 
 /**
  * LagomPbEvent used by lagom to tag events in the cluster
@@ -18,8 +17,5 @@ trait LagompbEvent extends AggregateEvent[LagompbEvent] with scalapb.GeneratedMe
 object LagompbEvent {
 
   val Tag: AggregateEventShards[LagompbEvent] =
-    AggregateEventTag.sharded[LagompbEvent](
-      LagompbCommon.config.getString("lagompb.events.tagname"),
-      LagompbCommon.config.getInt("akka.cluster.sharding.number-of-shards")
-    )
+    AggregateEventTag.sharded[LagompbEvent](LagompbConfig.eventsConfig.tagName, LagompbConfig.eventsConfig.numShards)
 }

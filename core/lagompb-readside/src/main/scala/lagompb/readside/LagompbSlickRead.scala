@@ -5,9 +5,9 @@ import com.github.ghik.silencer.silent
 import com.lightbend.lagom.scaladsl.persistence.{AggregateEventTag, ReadSideProcessor}
 import com.lightbend.lagom.scaladsl.persistence.slick.SlickReadSide
 import com.typesafe.config.Config
-import lagompb.{LagompbEvent, LagompbException}
+import lagompb.{LagompbEvent, LagompbException, LagompbProtosRegistry}
 import lagompb.core.{EventWrapper, MetaData}
-import lagompb.util.LagompbProtosCompanions
+
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.dbio.{DBIO, DBIOAction}
 
@@ -36,7 +36,7 @@ import scala.util.{Failure, Success, Try}
       .build()
 
   private def handle(eventWrapper: EventWrapper): DBIO[Done] = {
-    LagompbProtosCompanions
+    LagompbProtosRegistry
       .getCompanion(eventWrapper.getEvent)
       .fold[DBIO[Done]](
         DBIOAction.failed(new LagompbException(s"[Lagompb] unable to parse event ${eventWrapper.getEvent.typeUrl}"))

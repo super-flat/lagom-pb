@@ -9,11 +9,9 @@ import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.{Effect, EventSourcedBehavior, ReplyEffect, RetentionCriteria}
 import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.persistence.AkkaTaggerAdapter
-import com.typesafe.config.Config
+import lagompb.core._
 import lagompb.core.CommandHandlerResponse.HandlerResponse.{Empty, FailedResponse, SuccessResponse}
 import lagompb.core.SuccessCommandHandlerResponse.Response.{Event, NoEvent}
-import lagompb.core._
-import lagompb.util.LagompbProtosCompanions
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.util.{Failure, Success, Try}
@@ -30,7 +28,6 @@ import scala.util.{Failure, Success, Try}
  */
 abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
     actorSystem: ActorSystem,
-    config: Config,
     commandHandler: LagompbCommandHandler[TState],
     eventHandler: LagompbEventHandler[TState]
 ) {
@@ -59,9 +56,8 @@ abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
       .withRetention(
         RetentionCriteria
           .snapshotEvery(
-            numberOfEvents = config.getInt("lagompb.snapshot-criteria.frequency"), // snapshotFrequency
-            keepNSnapshots = config
-              .getInt("lagompb.snapshot-criteria.retention") //snapshotRetention
+            numberOfEvents = LagompbConfig.snapshotCriteria.frequency, // snapshotFrequency
+            keepNSnapshots = LagompbConfig.snapshotCriteria.retention //snapshotRetention
           )
       )
   }
@@ -151,7 +147,7 @@ abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
 
                   // Some event to persist
                   case Event(event: Any) =>
-                    LagompbProtosCompanions
+                    LagompbProtosRegistry
                       .getCompanion(event)
                       .fold[ReplyEffect[LagompbEvent, StateWrapper]](
                         Effect.reply(cmd.replyTo)(

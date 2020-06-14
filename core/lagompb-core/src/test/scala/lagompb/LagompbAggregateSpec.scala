@@ -7,12 +7,11 @@ import akka.actor.testkit.typed.scaladsl.TestProbe
 import akka.actor.typed.ActorRef
 import akka.persistence.typed.PersistenceId
 import com.google.protobuf.any.Any
-import com.typesafe.config.{Config, ConfigFactory}
-import lagompb.data.{TestAggregate, TestCommandHandler, TestEventHandler}
-import lagompb.core.CommandReply.Reply
 import lagompb.core._
-import lagompb.tests._
+import lagompb.core.CommandReply.Reply
+import lagompb.data.{TestAggregate, TestCommandHandler, TestEventHandler}
 import lagompb.testkit.LagompbActorTestKit
+import lagompb.tests._
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -24,7 +23,8 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
 
   private val companyUUID = "93cfb5fc-c01b-4cda-bb45-31875bafda23"
   private val replyTimeout = FiniteDuration(30, TimeUnit.SECONDS)
-  private val config: Config = ConfigFactory.load()
+
+  LagompbProtosRegistry.registry
 
   private def randomId(): String = UUID.randomUUID().toString
 
@@ -44,7 +44,8 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
       val commandSender: TestProbe[CommandReply] =
         createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate =
+        new TestAggregate(null, new TestCommandHandler(null), new TestEventHandler(null))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -75,7 +76,8 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
       val commandSender: TestProbe[CommandReply] =
         createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate =
+        new TestAggregate(null, new TestCommandHandler(null), new TestEventHandler(null))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -101,7 +103,8 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
       val commandSender: TestProbe[CommandReply] =
         createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate =
+        new TestAggregate(null, new TestCommandHandler(null), new TestEventHandler(null))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -132,7 +135,8 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
       val commandSender: TestProbe[CommandReply] =
         createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate =
+        new TestAggregate(null, new TestCommandHandler(null), new TestEventHandler(null))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -157,7 +161,8 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
       val commandSender: TestProbe[CommandReply] =
         createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate =
+        new TestAggregate(null, new TestCommandHandler(null), new TestEventHandler(null))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -183,7 +188,8 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
       val commandSender: TestProbe[CommandReply] =
         createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate =
+        new TestAggregate(null, new TestCommandHandler(null), new TestEventHandler(null))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -210,7 +216,8 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
       val commandSender: TestProbe[CommandReply] =
         createTestProbe[CommandReply]()
 
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate =
+        new TestAggregate(null, new TestCommandHandler(null), new TestEventHandler(null))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -224,7 +231,8 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
     }
 
     "handle wrong state parsing" in {
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate =
+        new TestAggregate(null, new TestCommandHandler(null), new TestEventHandler(null))
       val stateWrapper = StateWrapper().withState(
         Any()
           .withTypeUrl("type.googleapis.com/lagom.test")
@@ -236,7 +244,8 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
 
     "handle generic event handler" in {
       val companyUuid = "12234"
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate =
+        new TestAggregate(null, new TestCommandHandler(null), new TestEventHandler(null))
       val stateWrapper = StateWrapper()
         .withState(
           Any
@@ -269,16 +278,17 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
 
       val newState: StateWrapper =
         aggregate.genericEventHandler(stateWrapper, eventWrapper)
-      newState.getState shouldBe (Any.pack(
+      newState.getState shouldBe Any.pack(
         TestState()
           .withName("resulting")
           .withCompanyUuid(companyUuid)
-      ))
+      )
     }
 
     "generic event handler handles wrong event" in {
 
-      val aggregate = new TestAggregate(null, config, new TestCommandHandler(null), new TestEventHandler(null))
+      val aggregate =
+        new TestAggregate(null, new TestCommandHandler(null), new TestEventHandler(null))
       an[LagompbException] shouldBe thrownBy(aggregate.genericEventHandler(null, WrongEventTagger.defaultInstance))
     }
   }

@@ -15,7 +15,6 @@ import play.filters.cors.CORSComponents
 import play.filters.csrf.CSRFComponents
 import play.filters.headers.SecurityHeadersComponents
 import play.filters.hosts.AllowedHostsComponents
-import scala.concurrent.duration._
 
 abstract class LagompbApplication(context: LagomApplicationContext)
     extends LagomApplication(context)
@@ -29,9 +28,15 @@ abstract class LagompbApplication(context: LagomApplicationContext)
     with CSRFComponents
     with SecurityHeadersComponents {
 
+  implicit val timeout: Timeout = LagompbConfig.askTimeout
+
+  // let us load the proto companions object files
+  LagompbProtosRegistry.registry
+
   // Json Serializer registry not needed
   final override lazy val jsonSerializerRegistry: JsonSerializerRegistry =
     EmptyJsonSerializerRegistry
+
   // lagomServer is set by the server definition in the implementation class
   override lazy val lagomServer: LagomServer = server
 
@@ -58,8 +63,6 @@ abstract class LagompbApplication(context: LagomApplicationContext)
    * @return ServiceLocator
    */
   override def serviceLocator: ServiceLocator
-
-  implicit val timeout: Timeout = Timeout(config.getInt("lagompb.ask-timeout").seconds)
 
   // initialize cluster sharding
   clusterSharding.init(Entity(aggregateRoot.typeKey)(entityContext => aggregateRoot.create(entityContext)))

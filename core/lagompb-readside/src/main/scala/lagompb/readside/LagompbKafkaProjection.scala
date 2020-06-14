@@ -8,7 +8,7 @@ import com.google.protobuf.any
 import com.typesafe.config.Config
 import lagompb.core.{KafkaEvent, MetaData, StateWrapper}
 import lagompb.extensions.ExtensionsProto
-import lagompb.LagompbException
+import lagompb.{LagompbException, LagompbProtosRegistry}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}

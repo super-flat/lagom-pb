@@ -3,6 +3,7 @@ import java.time.{Instant, LocalDate, ZoneId}
 import com.google.protobuf.timestamp.Timestamp
 
 package object lagompb {
+
   implicit class Timestamps(timestamp: Timestamp) {
 
     /**
@@ -40,6 +41,7 @@ package object lagompb {
         .toLocalDate
     }
   }
+
   implicit class Instants(instant: Instant) {
 
     /** converts a java Instant date to a google protocol buffer timestamp
