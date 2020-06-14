@@ -12,7 +12,7 @@ object CoverageWhitelist {
     "lagompb.testkit.*",
     "lagompb.readside.*",
     "lagompb.LagompbEvent",
-    "lagompb.LagompbServiceImplComponent",
+    "lagompb.LagompbBaseServiceImpl",
     "lagompb.LagompbRestServiceImpl",
     "lagompb.LagompbGrpcServiceImpl",
     "lagompb.LagompbServiceImpl",
