@@ -4,8 +4,7 @@ import com.google.protobuf.any.Any
 import org.reflections.Reflections
 import org.slf4j.{Logger, LoggerFactory}
 import scalapb.{GeneratedFileObject, GeneratedMessage, GeneratedMessageCompanion}
-import scalapb_json.TypeRegistry
-import scalapb_playjson.{Parser, Printer}
+import scalapb.json4s.{Parser, Printer, TypeRegistry}
 
 import scala.jdk.CollectionConverters._
 import scala.reflect.runtime.universe
