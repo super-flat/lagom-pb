@@ -7,6 +7,7 @@
 ![GitHub contributors](https://img.shields.io/github/contributors/super-flat/lagom-pb)
 ![GitHub last commit](https://img.shields.io/github/last-commit/super-flat/lagom-pb)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.superflat/lagompb-core_2.13/badge.svg)]((https://maven-badges.herokuapp.com/maven-central/io.superflat/lagompb-core_2.13))
+[![Snapshot Artifacts][Badge-SonatypeSnapshots]][Link-SonatypeSnapshots]
 
 Scala shared code for [lagom](https://www.lagomframework.com/documentation/1.6.x/scala/Home.html) development using protocol buffer.
 
@@ -49,3 +50,6 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 
 [http://www.apache.org/licenses/LICENSE-2.0]
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+
+[Link-SonatypeSnapshots]: https://oss.sonatype.org/content/repositories/snapshots/io/superflat/lagompb-core_2.13/ "Sonatype Snapshots"
+[Badge-SonatypeSnapshots]: https://img.shields.io/nexus/s/https/oss.sonatype.org/io.superflat/lagompb-core_2.13.svg "Sonatype Snapshots"
