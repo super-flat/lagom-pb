@@ -37,6 +37,7 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
   }
 
   "LagompbAggregate Implementation" should {
+
     "handle command as expected" in {
       // Let us create the sender of commands
       val commandSender: TestProbe[CommandReply] =
@@ -69,6 +70,7 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
         case _ => fail("unexpected message type")
       }
     }
+
     "handle invalid command as expected" in {
       // Let us create the sender of commands
       val commandSender: TestProbe[CommandReply] =
@@ -96,6 +98,7 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
         case _ => fail("unexpected message type")
       }
     }
+
     "received command and persist no event" in {
       // Let us create the sender of commands
       val commandSender: TestProbe[CommandReply] =
@@ -128,6 +131,7 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
         case _ => fail("unexpected message type")
       }
     }
+
     "received command and return unhandled response" in {
       // Let us create the sender of commands
       val commandSender: TestProbe[CommandReply] =
@@ -154,6 +158,7 @@ class LagompbAggregateSpec extends LagompbActorTestKit(s"""
         case _ => fail("unexpected message type")
       }
     }
+
     "received command and return unhandled success response" in {
       // Let us create the sender of commands
       val commandSender: TestProbe[CommandReply] =

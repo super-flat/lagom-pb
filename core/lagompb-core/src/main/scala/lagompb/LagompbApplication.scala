@@ -15,17 +15,31 @@ import play.filters.csrf.CSRFComponents
 import play.filters.headers.SecurityHeadersComponents
 import play.filters.hosts.AllowedHostsComponents
 
-abstract class LagompbApplication(context: LagomApplicationContext)
-    extends LagomApplication(context)
-    with JdbcPersistenceComponents
-    with SlickPersistenceComponents
-    with HikariCPComponents
-    with LagomKafkaComponents
-    with AhcWSComponents
+sealed trait LagompbApplicationComponents
+    extends AhcWSComponents
     with CORSComponents
     with AllowedHostsComponents
     with CSRFComponents
-    with SecurityHeadersComponents {
+    with SecurityHeadersComponents
+
+sealed trait LagompbPostgresPersistenceComponents
+    extends JdbcPersistenceComponents
+    with SlickPersistenceComponents
+    with HikariCPComponents
+    with LagomKafkaComponents
+
+/**
+ * LagompbApplication an abstract class that will be implemented to define the lagom application that needs
+ * akka persistence for journal and snapshot
+ *
+ * @param context the lagom application context
+ */
+abstract class LagompbApplication(context: LagomApplicationContext)
+    extends LagomApplication(context)
+    with LagompbPostgresPersistenceComponents
+    with LagompbApplicationComponents {
+
+  // $COVERAGE-OFF$
 
   //FIXME find a better way to load these ones
   LagompbProtosRegistry.registry
@@ -50,13 +64,15 @@ abstract class LagompbApplication(context: LagomApplicationContext)
    */
   def aggregateRoot: LagompbAggregate[_]
 
-  /** server helps define the lagom server. Please refer to the lagom doc
+  /**
+   * server helps define the lagom server. Please refer to the lagom doc
    * @example
    *          override val server: LagomServer = serverFor[TestService](wire[TestServiceImpl])
    */
   def server: LagomServer
 
-  /** serviceLocator is used to enable service discovery and api gateway
+  /**
+   * serviceLocator is used to enable service discovery and api gateway
    * @see [[https://www.lagomframework.com/documentation/1.6.x/scala/ServiceLocator.html]]
    * @return ServiceLocator
    */
@@ -71,4 +87,38 @@ abstract class LagompbApplication(context: LagomApplicationContext)
     val shardIndex = selectShard(LagompbConfig.eventsConfig.numShards, entityContext.entityId)
     aggregateRoot.create(entityContext, shardIndex)
   }))
+
+  // $COVERAGE-ON$
+}
+
+/**
+ * LagompbStatelessApplication an abstract class that will be implemented to define the lagom application that does not need
+ * akka persistence. Therefore no events and state are persisted
+ *
+ * @param context the lagom application context
+ */
+abstract class LagompbStatelessApplication(context: LagomApplicationContext)
+    extends LagomApplication(context)
+    with LagompbApplicationComponents {
+
+  // $COVERAGE-OFF$
+
+  /**
+   * server helps define the lagom server. Please refer to the lagom doc
+   * @example
+   *          override val server: LagomServer = serverFor[TestService](wire[TestServiceImpl])
+   */
+  def server: LagomServer
+
+  /**
+   * serviceLocator is used to enable service discovery and api gateway
+   * @see [[https://www.lagomframework.com/documentation/1.6.x/scala/ServiceLocator.html]]
+   * @return ServiceLocator
+   */
+  override def serviceLocator: ServiceLocator
+
+  // lagomServer is set by the server definition in the implementation class
+  override lazy val lagomServer: LagomServer = server
+
+  // $COVERAGE-ON$
 }

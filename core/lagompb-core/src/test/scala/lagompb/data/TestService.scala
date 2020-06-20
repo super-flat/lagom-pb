@@ -20,7 +20,6 @@ trait TestService extends LagompbService {
 
   /**
    * routes define the various routes handled by the service.
-   *
    */
   override def routes: Seq[Descriptor.Call[_, _]] =
     Seq(restCall(Method.POST, "/api/tests", testHello _))
@@ -35,7 +34,8 @@ class TestServiceImpl(
     extends LagompbServiceImpl(clusterSharding, persistentEntityRegistry, aggregate)
     with TestService {
 
-  /** aggregate state. it is a generated scalapb message extending the LagompbState trait
+  /**
+   * aggregate state. it is a generated scalapb message extending the LagompbState trait
    *
    * @return aggregate state
    */

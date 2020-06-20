@@ -44,7 +44,8 @@ package object lagompb {
 
   implicit class Instants(instant: Instant) {
 
-    /** converts a java Instant date to a google protocol buffer timestamp
+    /**
+     * converts a java Instant date to a google protocol buffer timestamp
      *
      * @return Protobuf timestamp
      */

@@ -16,7 +16,8 @@ class TestApplication(context: LagomApplicationContext) extends LagompbApplicati
 
   override def aggregateRoot: LagompbAggregate[_] = aggregate
 
-  /** server helps define the lagom server. Please refer to the lagom doc
+  /**
+   * server helps define the lagom server. Please refer to the lagom doc
    *
    * @example
    * override val server: LagomServer = serverFor[TestService](wire[TestServiceImpl])

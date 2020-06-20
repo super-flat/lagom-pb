@@ -11,11 +11,14 @@ import com.lightbend.lagom.scaladsl.api.transport.{ExceptionMessage, TransportEr
  */
 final class InternalServerError(errorCode: TransportErrorCode, exceptionMessage: ExceptionMessage, cause: Throwable)
     extends TransportException(errorCode, exceptionMessage, cause) {
+  // $COVERAGE-OFF$
   def this(errorCode: TransportErrorCode, exceptionMessage: ExceptionMessage) =
     this(errorCode, exceptionMessage, null)
+  // $COVERAGE-ON$
 }
 
 object InternalServerError {
+  // $COVERAGE-OFF$
   val ErrorCode: TransportErrorCode = TransportErrorCode.InternalServerError
 
   def apply(message: String) =
@@ -27,6 +30,7 @@ object InternalServerError {
       new ExceptionMessage(classOf[InternalServerError].getSimpleName, cause.getMessage),
       cause
     )
+  // $COVERAGE-ON$
 }
 
 /**

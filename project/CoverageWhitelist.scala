@@ -14,8 +14,6 @@ object CoverageWhitelist {
     "lagompb.LagompbBaseServiceImpl",
     "lagompb.LagompbGrpcServiceImpl",
     "lagompb.LagompbServiceImpl",
-    "lagompb.LagompbServiceImplWithKafka",
-    "lagompb.LagompbServiceWithKafka",
     "lagompb.InternalServerError"
   )
 }
