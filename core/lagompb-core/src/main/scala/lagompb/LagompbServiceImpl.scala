@@ -17,7 +17,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 sealed trait LagompbBaseServiceImpl {
-
+  // $COVERAGE-OFF$
   implicit val timeout: Timeout = LagompbConfig.askTimeout
 
   /**
@@ -99,6 +99,8 @@ sealed trait LagompbBaseServiceImpl {
       }
     } else throw new LagompbException("wrong state definition")
   }
+
+  // $COVERAGE-ON$
 }
 
 /**
@@ -196,6 +198,8 @@ abstract class LagompbServiceImpl(
  */
 trait LagompbGrpcServiceImpl extends LagompbBaseServiceImpl {
 
+  // $COVERAGE-OFF$
+
   /**
    * Sends command to the aggregate root. The command must have the aggregate entity id set.
    * When the entity id is not set a INVALID_ARGUMENT is sent to the gRPC client
@@ -276,4 +280,6 @@ trait LagompbGrpcServiceImpl extends LagompbBaseServiceImpl {
           }
       })
   }
+
+  // $COVERAGE-ON$
 }
