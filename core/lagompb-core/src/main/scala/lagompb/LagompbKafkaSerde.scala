@@ -6,6 +6,9 @@ import com.lightbend.lagom.scaladsl.api.deser.MessageSerializer.{NegotiatedDeser
 import com.lightbend.lagom.scaladsl.api.transport.MessageProtocol
 import lagompb.core.KafkaEvent
 
+/**
+ * Serializer to push messages to kafka from message broker
+ */
 class LagompbKafkaSerde extends StrictMessageSerializer[KafkaEvent] {
 
   private final val serializer: NegotiatedSerializer[KafkaEvent, ByteString] = { (serviceEvent: KafkaEvent) =>
