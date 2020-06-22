@@ -3,6 +3,9 @@ language: scala
 scala:
   - 2.13.1
 
+jdk:
+  - openjdk8
+
 before_install:
   - git fetch --tags
 
