@@ -1,7 +1,8 @@
 package lagompb.readside
 
 import akka.Done
-import akka.actor.{ActorSystem => ActorSystemClassic}
+import akka.actor.typed.ActorSystem
+import akka.actor.typed.scaladsl.adapter._
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.SendProducer
 import com.google.protobuf.any
@@ -23,9 +24,10 @@ import scala.concurrent.ExecutionContext
  * @param ec the execution context
  * @tparam TState the aggregate state type
  */
-abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage](actorSystem: ActorSystemClassic)(implicit
-    ec: ExecutionContext
-) extends LagompbProjection[TState](actorSystem) {
+abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage](implicit
+    ec: ExecutionContext,
+    actorSystem: ActorSystem[_]
+) extends LagompbProjection[TState] {
 
   // The implementation class needs to set the akka.kafka.producer settings in the config file as well
   // as the lagompb.kafka-projections
@@ -36,7 +38,7 @@ abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage](actorS
   private val sendProducer = SendProducer(
     ProducerSettings(actorSystem, new StringSerializer, new ByteArraySerializer)
       .withBootstrapServers(producerConfig.bootstrapServers)
-  )(actorSystem)
+  )(actorSystem.toClassic)
 
   final override def handleEvent(
       comp: GeneratedMessageCompanion[_ <: GeneratedMessage],

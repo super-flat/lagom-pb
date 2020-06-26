@@ -1,8 +1,6 @@
 package lagompb.readside
 
-import akka.actor.{ActorSystem => ActorSystemClassic}
 import akka.actor.typed.ActorSystem
-import akka.actor.typed.scaladsl.adapter._
 import akka.cluster.sharding.typed.ShardedDaemonProcessSettings
 import akka.cluster.sharding.typed.scaladsl.ShardedDaemonProcess
 import akka.persistence.jdbc.query.scaladsl.JdbcReadJournal
@@ -10,7 +8,7 @@ import akka.persistence.query.Offset
 import akka.projection.{ProjectionBehavior, ProjectionId}
 import akka.projection.eventsourced.EventEnvelope
 import akka.projection.eventsourced.scaladsl.EventSourcedProvider
-import akka.projection.scaladsl.SourceProvider
+import akka.projection.scaladsl.{ExactlyOnceProjection, SourceProvider}
 import akka.projection.slick.{SlickHandler, SlickProjection}
 import akka.Done
 import com.github.ghik.silencer.silent
@@ -25,15 +23,12 @@ import slick.jdbc.PostgresProfile
 
 import scala.concurrent.ExecutionContext
 
-@silent abstract class LagompbProjection[TState <: scalapb.GeneratedMessage](actorSystem: ActorSystemClassic)(implicit
-    ec: ExecutionContext
+@silent abstract class LagompbProjection[TState <: scalapb.GeneratedMessage](implicit
+    ec: ExecutionContext,
+    actorSystem: ActorSystem[_]
 ) extends SlickHandler[EventEnvelope[EventWrapper]] {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
-
-  protected val actorSystemTyped: ActorSystem[_] = {
-    actorSystem.toTyped
-  }
 
   // The implementation class needs to set the akka.projection.slick config for the offset database
   protected val dbConfig: DatabaseConfig[PostgresProfile] =
@@ -58,11 +53,11 @@ import scala.concurrent.ExecutionContext
    * Initialize the projection to start fetching the events that are emitted
    */
   def init(): Unit = {
-    ShardedDaemonProcess(actorSystemTyped).init[ProjectionBehavior.Command](
+    ShardedDaemonProcess(actorSystem).init[ProjectionBehavior.Command](
       name = projectionName,
       numberOfInstances = LagompbConfig.allEventTags.size,
       behaviorFactory = n => ProjectionBehavior(setExactlyOnceProjection(s"$baseTag$n")),
-      settings = ShardedDaemonProcessSettings(actorSystemTyped),
+      settings = ShardedDaemonProcessSettings(actorSystem),
       stopMessage = Some(ProjectionBehavior.Stop)
     )
   }
@@ -73,13 +68,13 @@ import scala.concurrent.ExecutionContext
    * @param tagName the event tag
    * @return the projection instance
    */
-  protected def setExactlyOnceProjection(tagName: String): SlickProjection[EventEnvelope[EventWrapper]] =
+  protected def setExactlyOnceProjection(tagName: String): ExactlyOnceProjection[Offset, EventEnvelope[EventWrapper]] =
     SlickProjection
       .exactlyOnce(
         projectionId = ProjectionId(projectionName, tagName),
         setSourceProvider(tagName),
         dbConfig,
-        handler = this
+        handler = () => this
       )
 
   /**
@@ -90,7 +85,7 @@ import scala.concurrent.ExecutionContext
    */
   protected def setSourceProvider(tag: String): SourceProvider[Offset, EventEnvelope[EventWrapper]] =
     EventSourcedProvider
-      .eventsByTag[EventWrapper](actorSystemTyped, readJournalPluginId = JdbcReadJournal.Identifier, tag)
+      .eventsByTag[EventWrapper](actorSystem, readJournalPluginId = JdbcReadJournal.Identifier, tag)
 
   /**
    * handles the actual event unmarshalled from the event wrapper
