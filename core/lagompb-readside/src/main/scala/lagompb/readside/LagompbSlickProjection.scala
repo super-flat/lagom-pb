@@ -1,7 +1,7 @@
 package lagompb.readside
 
 import akka.Done
-import akka.actor.{ActorSystem => ActorSystemClassic}
+import akka.actor.typed.ActorSystem
 import com.google.protobuf.any
 import lagompb.core.MetaData
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
@@ -24,9 +24,10 @@ import scala.util.{Failure, Success, Try}
  * @param ec          the execution context
  * @tparam TState the aggregate state type
  */
-abstract class LagompbSlickProjection[TState <: scalapb.GeneratedMessage](actorSystem: ActorSystemClassic)(implicit
-    ec: ExecutionContext
-) extends LagompbProjection[TState](actorSystem) {
+abstract class LagompbSlickProjection[TState <: scalapb.GeneratedMessage](implicit
+    ec: ExecutionContext,
+    actorSystem: ActorSystem[_]
+) extends LagompbProjection[TState] {
 
   final override def handleEvent(
       comp: GeneratedMessageCompanion[_ <: GeneratedMessage],
