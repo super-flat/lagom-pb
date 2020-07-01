@@ -21,14 +21,16 @@ import scala.concurrent.ExecutionContext
 /**
  * Helps push snapshots and journal events to kafka
  *
+ * @param encryptor ProtoEncryption instance to use
  * @param actorSystem the actor system
  * @param ec the execution context
  * @tparam TState the aggregate state type
  */
 
-abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage](encryptor: ProtoEncryption)(implicit
+abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage](implicit
     ec: ExecutionContext,
-    actorSystem: ActorSystem[_]
+    actorSystem: ActorSystem[_],
+    encryptor: ProtoEncryption
 ) extends LagompbProjection[TState](encryptor) {
 
   // The implementation class needs to set the akka.kafka.producer settings in the config file as well

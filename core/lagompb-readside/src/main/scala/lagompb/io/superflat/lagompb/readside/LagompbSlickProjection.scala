@@ -21,13 +21,15 @@ import scala.util.{Failure, Success, Try}
  * Please bear in mind that the akka.projection.slick is required to be set in the configuration file.
  *
  * @see https://doc.akka.io/docs/akka-projection/current/slick.html#configuration
+ * @param encryptor ProtoEncryption instance to use
  * @param actorSystem the actor system
  * @param ec          the execution context
  * @tparam TState the aggregate state type
  */
-abstract class LagompbSlickProjection[TState <: scalapb.GeneratedMessage](encryptor: ProtoEncryption)(implicit
+abstract class LagompbSlickProjection[TState <: scalapb.GeneratedMessage](implicit
     ec: ExecutionContext,
-    actorSystem: ActorSystem[_]
+    actorSystem: ActorSystem[_],
+    encryptor: ProtoEncryption
 ) extends LagompbProjection[TState](encryptor) {
 
   final override def handleEvent(
