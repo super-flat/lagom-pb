@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package lagompb;
 
+option java_package = "io.superflat.lagompb.protobuf";
+
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
