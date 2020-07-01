@@ -26,7 +26,7 @@ import scala.util.{Failure, Success, Try}
  * @param ec          the execution context
  * @tparam TState the aggregate state type
  */
-abstract class LagompbSlickProjection[TState <: scalapb.GeneratedMessage](implicit
+abstract class LagompbSlickProjection[TState <: scalapb.GeneratedMessage]()(implicit
     ec: ExecutionContext,
     actorSystem: ActorSystem[_],
     encryptor: ProtoEncryption

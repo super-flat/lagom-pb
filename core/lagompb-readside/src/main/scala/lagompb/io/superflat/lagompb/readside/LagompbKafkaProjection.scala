@@ -27,7 +27,7 @@ import scala.concurrent.ExecutionContext
  * @tparam TState the aggregate state type
  */
 
-abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage](implicit
+abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage]()(implicit
     ec: ExecutionContext,
     actorSystem: ActorSystem[_],
     encryptor: ProtoEncryption
