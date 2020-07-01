@@ -59,7 +59,7 @@ abstract class LagompbApplication(context: LagomApplicationContext)
   /**
    * Defines the persistent entity that will be used to handle commands
    *
-   * @see [[lagompb.LagompbAggregate]].
+   * @see [[io.superflat.lagompb.LagompbAggregate]].
    *      Also for more info refer to the lagom doc [[https://www.lagomframework.com/documentation/1.6.x/scala/UsingAkkaPersistenceTyped.html]]
    */
   def aggregateRoot: LagompbAggregate[_]
