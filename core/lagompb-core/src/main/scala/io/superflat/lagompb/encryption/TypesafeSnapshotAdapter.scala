@@ -44,8 +44,6 @@ abstract class TypesafeSnapshotAdapter[T, U] extends SnapshotAdapter[T] {
    * @return instance of `T`
    */
   final def fromJournal(from: scala.Any): T = {
-    Try(from.asInstanceOf[U])
-      .map(safeFromJournal)
-      .get
+    safeFromJournal(from.asInstanceOf[U])
   }
 }

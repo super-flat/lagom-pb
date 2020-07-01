@@ -25,6 +25,8 @@ import slick.jdbc.PostgresProfile
 
 import scala.concurrent.ExecutionContext
 import scala.util.Try
+import scala.util.Success
+import scala.util.Failure
 
 @silent abstract class LagompbProjection[TState <: scalapb.GeneratedMessage](encryptor: ProtoEncryption)(implicit
     ec: ExecutionContext,
@@ -138,8 +140,9 @@ import scala.util.Try
         case throwable: Throwable =>
           log.error("failed to handle event", throwable)
           Try(DBIO.failed(throwable))
-
-      })
-      .get
+      }) match {
+      case Success(value) => value
+      case Failure(exception) => throw exception
+    }
   }
 }

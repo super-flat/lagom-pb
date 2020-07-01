@@ -6,8 +6,7 @@ import com.google.protobuf.ByteString
 import io.superflat.lagompb.protobuf.core.EventWrapper
 import io.superflat.lagompb.protobuf.encryption.EncryptedProto
 import io.superflat.lagompb.encryption.ProtoEncryption
-
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 /**
  * Akka persistence event adaptor that encrypts persisted events and
@@ -25,7 +24,10 @@ class EncryptedEventAdapter(encryptor: ProtoEncryption) extends EventAdapter[Eve
    * @return EncryptedProto instance
    */
   override def toJournal(e: EventWrapper): EncryptedProto = {
-    encryptor.encrypt(Any.pack(e)).get
+    encryptor.encrypt(Any.pack(e)) match {
+      case Success(value) => value
+      case Failure(exception) => throw exception
+    }
   }
 
   /**
@@ -41,8 +43,13 @@ class EncryptedEventAdapter(encryptor: ProtoEncryption) extends EventAdapter[Eve
    * @return unpacked EventWrapper
    */
   override def fromJournal(p: EncryptedProto, manifest: String): EventSeq[EventWrapper] = {
-    val someAny: Any = encryptor.decrypt(p).get
+    val someAny: Any = encryptor.decrypt(p) match {
+      case Success(value) => value
+      case Failure(exception) => throw exception
+    }
+
     val eventWrapper: EventWrapper = someAny.unpack(EventWrapper)
+
     EventSeq.single(eventWrapper)
   }
 

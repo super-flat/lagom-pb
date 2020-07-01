@@ -5,6 +5,7 @@ import io.superflat.lagompb.encryption.ProtoEncryption
 import io.superflat.lagompb.protobuf.core.StateWrapper
 import akka.persistence.typed.SnapshotAdapter
 import com.google.protobuf.any.Any
+import scala.util.{Failure, Success}
 
 /**
  * implements the TypesafeSnapshotAdapter by applying a ProtoEncryption
@@ -22,9 +23,10 @@ class EncryptedSnapshotAdapter(encryptor: ProtoEncryption)
    * @return an EncryptedProto
    */
   def safeToJournal(state: StateWrapper): EncryptedProto = {
-    encryptor
-      .encrypt(Any.pack(state))
-      .get
+    encryptor.encrypt(Any.pack(state)) match {
+      case Success(value) => value
+      case Failure(exception) => throw exception
+    }
   }
 
   /**
@@ -35,9 +37,9 @@ class EncryptedSnapshotAdapter(encryptor: ProtoEncryption)
    * @return a StateWrapper instance
    */
   def safeFromJournal(from: EncryptedProto): StateWrapper = {
-    encryptor
-      .decrypt(from)
-      .map(_.unpack[StateWrapper])
-      .get
+    encryptor.decrypt(from) match {
+      case Success(value) => value.unpack[StateWrapper]
+      case Failure(exception) => throw exception
+    }
   }
 }

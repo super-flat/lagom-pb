@@ -29,23 +29,23 @@ class EncryptedEventAdapterSpec extends LagompbSpec {
     }
 
     "throw when the encrypt throws" in {
-      val testEncryptor = new TestEncryption(shouldFail = true)
-      val e: EncryptedEventAdapter = new EncryptedEventAdapter(testEncryptor)
+      val encryptor = new TestEncryption(shouldFail = true)
+      val adapter: EncryptedEventAdapter = new EncryptedEventAdapter(encryptor)
       val event: EventWrapper = EventWrapper.defaultInstance
-      val actual: Try[EncryptedProto] = Try(e.toJournal(event))
+      val actual: Try[EncryptedProto] = Try(adapter.toJournal(event))
 
       actual.isFailure shouldBe true
-      actual.failed.get.getMessage() shouldBe testEncryptor.failureMsg
+      actual.failed.map(_.getMessage()).toOption shouldBe Some(encryptor.failureMsg)
     }
 
     "throw when the decrypt throws" in {
-      val testEncryptor = new TestEncryption(shouldFail = true)
-      val e: EncryptedEventAdapter = new EncryptedEventAdapter(testEncryptor)
+      val encryptor = new TestEncryption(shouldFail = true)
+      val adapter: EncryptedEventAdapter = new EncryptedEventAdapter(encryptor)
       val proto: EncryptedProto = EncryptedProto.defaultInstance
-      val actual: Try[EventSeq[EventWrapper]] = Try(e.fromJournal(proto, ""))
+      val actual: Try[EventSeq[EventWrapper]] = Try(adapter.fromJournal(proto, ""))
 
       actual.isFailure shouldBe true
-      actual.failed.get.getMessage() shouldBe testEncryptor.failureMsg
+      actual.failed.map(_.getMessage()).toOption shouldBe Some(encryptor.failureMsg)
     }
   }
 
