@@ -2,6 +2,8 @@ syntax = "proto2";
 
 package lagompb;
 
+option java_package = "io.superflat.lagompb.protobuf";
+
 import "google/protobuf/descriptor.proto";
 
 extend google.protobuf.FieldOptions {
