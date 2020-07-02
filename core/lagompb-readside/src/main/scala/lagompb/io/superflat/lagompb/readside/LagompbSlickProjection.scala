@@ -3,8 +3,8 @@ package io.superflat.lagompb.readside
 import akka.Done
 import akka.actor.typed.ActorSystem
 import com.google.protobuf.any
-import io.superflat.lagompb.protobuf.core.MetaData
 import io.superflat.lagompb.encryption.ProtoEncryption
+import io.superflat.lagompb.protobuf.core.MetaData
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.dbio.{DBIO, DBIOAction}
 

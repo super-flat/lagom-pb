@@ -1,10 +1,9 @@
 package io.superflat.lagompb.encryption
 
-import io.superflat.lagompb.protobuf.encryption.EncryptedProto
-import io.superflat.lagompb.encryption.ProtoEncryption
-import io.superflat.lagompb.protobuf.core.StateWrapper
-import akka.persistence.typed.SnapshotAdapter
 import com.google.protobuf.any.Any
+import io.superflat.lagompb.protobuf.core.StateWrapper
+import io.superflat.lagompb.protobuf.encryption.EncryptedProto
+
 import scala.util.{Failure, Success}
 
 /**

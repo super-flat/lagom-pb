@@ -24,7 +24,7 @@ import slick.dbio.{DBIO, DBIOAction}
 import slick.jdbc.PostgresProfile
 
 import scala.concurrent.ExecutionContext
-import scala.util.{Try ,Success, Failure}
+import scala.util.{Failure, Success, Try}
 
 @silent abstract class LagompbProjection[TState <: scalapb.GeneratedMessage](encryptor: ProtoEncryption)(implicit
     ec: ExecutionContext,

@@ -2,11 +2,10 @@ package io.superflat.lagompb.encryption
 
 import akka.persistence.typed.{EventAdapter, EventSeq}
 import com.google.protobuf.any.Any
-import com.google.protobuf.ByteString
 import io.superflat.lagompb.protobuf.core.EventWrapper
 import io.superflat.lagompb.protobuf.encryption.EncryptedProto
-import io.superflat.lagompb.encryption.ProtoEncryption
-import scala.util.{Failure, Success, Try}
+
+import scala.util.{Failure, Success}
 
 /**
  * Akka persistence event adaptor that encrypts persisted events and

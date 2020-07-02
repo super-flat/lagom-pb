@@ -3,6 +3,7 @@ package io.superflat.lagompb.encryption
 import com.google.protobuf.any.Any
 import com.google.protobuf.ByteString
 import io.superflat.lagompb.protobuf.encryption.EncryptedProto
+
 import scala.util.Try
 
 /**

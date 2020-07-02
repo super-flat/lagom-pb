@@ -1,8 +1,6 @@
 package io.superflat.lagompb.encryption
 
-import akka.persistence.typed.{EventAdapter, EventSeq, SnapshotAdapter}
-import com.google.protobuf.any.Any
-import scala.util.Try
+import akka.persistence.typed.SnapshotAdapter
 
 /**
  * Type safe base class for persistence snapshot adapter
