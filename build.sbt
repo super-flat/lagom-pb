@@ -1,4 +1,4 @@
-import lagompb.{CommonSettings, CoverageWhitelist, LagomAkka, LagomSettings, NoPublish}
+import lagompb.{CommonSettings, CoverageWhitelist, LagomAkka, LagomSettings, NoPublish, Publish}
 
 lazy val root = project
   .in(file("."))
