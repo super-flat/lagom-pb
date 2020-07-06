@@ -9,7 +9,7 @@ import io.superflat.lagompb.protobuf.core.KafkaEvent
 /**
  * Serializer to push messages to kafka from message broker
  */
-class LagompbKafkaSerde extends StrictMessageSerializer[KafkaEvent] {
+class KafkaSerializer extends StrictMessageSerializer[KafkaEvent] {
 
   private final val serializer: NegotiatedSerializer[KafkaEvent, ByteString] = { (serviceEvent: KafkaEvent) =>
     {

@@ -30,17 +30,17 @@ import scala.util.{Failure, Success, Try}
  * @param eventHandler   the events handler
  * @tparam TState the scala type of the aggregate state
  */
-abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
+abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
     actorSystem: ActorSystem,
-    commandHandler: LagompbCommandHandler[TState],
-    eventHandler: LagompbEventHandler[TState],
-    protoEncryptor: ProtoEncryption = NoEncryption
+    commandHandler: CommandHandler[TState],
+    eventHandler: EventHandler[TState],
+    protoEncryption: ProtoEncryption = NoEncryption
 ) {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
 
-  final val typeKey: EntityTypeKey[LagompbCommand] =
-    EntityTypeKey[LagompbCommand](aggregateName)
+  final val typeKey: EntityTypeKey[Command] =
+    EntityTypeKey[Command](aggregateName)
 
   /**
    * Defines the aggregate name. The `aggregateName` must be unique
@@ -52,17 +52,17 @@ abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
    */
   def stateCompanion: scalapb.GeneratedMessageCompanion[TState]
 
-  final def create(entityContext: EntityContext[LagompbCommand], shardIndex: Int): Behavior[LagompbCommand] = {
+  final def create(entityContext: EntityContext[Command], shardIndex: Int): Behavior[Command] = {
     val persistenceId: PersistenceId =
       PersistenceId(entityContext.entityTypeKey.name, entityContext.entityId)
-    val selectedTag: String = LagompbConfig.allEventTags(shardIndex)
+    val selectedTag: String = ConfigReader.allEventTags(shardIndex)
     create(persistenceId)
       .withTagger(_ => Set(selectedTag))
       .withRetention(
         RetentionCriteria
           .snapshotEvery(
-            numberOfEvents = LagompbConfig.snapshotCriteria.frequency, // snapshotFrequency
-            keepNSnapshots = LagompbConfig.snapshotCriteria.retention //snapshotRetention
+            numberOfEvents = ConfigReader.snapshotCriteria.frequency, // snapshotFrequency
+            keepNSnapshots = ConfigReader.snapshotCriteria.retention //snapshotRetention
           )
       )
   }
@@ -73,18 +73,16 @@ abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
    *
    * @param persistenceId the aggregate persistence Id
    */
-  private[lagompb] def create(
-      persistenceId: PersistenceId
-  ): EventSourcedBehavior[LagompbCommand, EventWrapper, StateWrapper] =
+  private[lagompb] def create(persistenceId: PersistenceId): EventSourcedBehavior[Command, EventWrapper, StateWrapper] =
     EventSourcedBehavior
-      .withEnforcedReplies[LagompbCommand, EventWrapper, StateWrapper](
+      .withEnforcedReplies[Command, EventWrapper, StateWrapper](
         persistenceId = persistenceId,
         emptyState = initialState,
         commandHandler = genericCommandHandler,
         eventHandler = genericEventHandler
       )
-      .eventAdapter(new EncryptedEventAdapter(protoEncryptor))
-      .snapshotAdapter(new EncryptedSnapshotAdapter(protoEncryptor))
+      .eventAdapter(new EncryptedEventAdapter(protoEncryption))
+      .snapshotAdapter(new EncryptedSnapshotAdapter(protoEncryption))
 
   private def initialState: StateWrapper =
     StateWrapper()
@@ -109,10 +107,7 @@ abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
    * @param stateWrapper state wrapper
    * @param cmd          the command to process
    */
-  final def genericCommandHandler(
-      stateWrapper: StateWrapper,
-      cmd: LagompbCommand
-  ): ReplyEffect[EventWrapper, StateWrapper] = {
+  final def genericCommandHandler(stateWrapper: StateWrapper, cmd: Command): ReplyEffect[EventWrapper, StateWrapper] = {
 
     // parse nested state
     Try {
@@ -122,7 +117,7 @@ abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
         val errMsg: String = s"state parser failure, ${exception.getMessage}"
         log.error(errMsg, exception)
 
-        throw new LagompbException(errMsg)
+        throw new GlobalException(errMsg)
 
       case Success(state) =>
         log.debug(s"[LagomPb] plugin data ${cmd.data} is valid...")
@@ -149,7 +144,7 @@ abstract class LagompbAggregate[TState <: scalapb.GeneratedMessage](
 
                   // Some event to persist
                   case Event(event: Any) =>
-                    LagompbProtosRegistry
+                    ProtosRegistry
                       .getCompanion(event)
                       .fold[ReplyEffect[EventWrapper, StateWrapper]](
                         Effect.reply(cmd.replyTo)(

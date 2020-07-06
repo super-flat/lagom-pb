@@ -2,19 +2,19 @@ package io.superflat.lagompb.data
 
 import com.lightbend.lagom.scaladsl.server.{LagomApplicationContext, LagomServer, LocalServiceLocator}
 import com.softwaremill.macwire.wire
-import io.superflat.lagompb.{LagompbAggregate, LagompbApplication, LagompbCommandHandler, LagompbEventHandler}
+import io.superflat.lagompb.{AggregateRoot, BaseApplication, CommandHandler, EventHandler}
 import io.superflat.lagompb.protobuf.tests.TestState
 
-class TestApplication(context: LagomApplicationContext) extends LagompbApplication(context) with LocalServiceLocator {
+class TestApplication(context: LagomApplicationContext) extends BaseApplication(context) with LocalServiceLocator {
 
-  def eventHandler: LagompbEventHandler[TestState] = wire[TestEventHandler]
+  def eventHandler: EventHandler[TestState] = wire[TestEventHandler]
 
-  def commandHandler: LagompbCommandHandler[TestState] =
+  def commandHandler: CommandHandler[TestState] =
     wire[TestCommandHandler]
 
-  def aggregate: LagompbAggregate[TestState] = wire[TestAggregate]
+  def aggregate: AggregateRoot[TestState] = wire[TestAggregateRoot]
 
-  override def aggregateRoot: LagompbAggregate[_] = aggregate
+  override def aggregateRoot: AggregateRoot[_] = aggregate
 
   /**
    * server helps define the lagom server. Please refer to the lagom doc

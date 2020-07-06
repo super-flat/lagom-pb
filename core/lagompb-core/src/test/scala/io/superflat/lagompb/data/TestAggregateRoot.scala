@@ -1,15 +1,15 @@
 package io.superflat.lagompb.data
 
 import akka.actor.ActorSystem
-import io.superflat.lagompb.{LagompbAggregate, LagompbCommandHandler, LagompbEventHandler}
+import io.superflat.lagompb.{AggregateRoot, CommandHandler, EventHandler}
 import io.superflat.lagompb.protobuf.tests.TestState
 import scalapb.GeneratedMessageCompanion
 
-final class TestAggregate(
+final class TestAggregateRoot(
     actorSystem: ActorSystem,
-    commandHandler: LagompbCommandHandler[TestState],
-    eventHandler: LagompbEventHandler[TestState]
-) extends LagompbAggregate[TestState](actorSystem, commandHandler, eventHandler) {
+    commandHandler: CommandHandler[TestState],
+    eventHandler: EventHandler[TestState]
+) extends AggregateRoot[TestState](actorSystem, commandHandler, eventHandler) {
 
   override def aggregateName: String = "TestAggregate"
 

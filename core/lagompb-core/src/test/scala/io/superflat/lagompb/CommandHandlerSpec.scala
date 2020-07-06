@@ -10,12 +10,12 @@ import io.superflat.lagompb.testkit.LagompbSpec
 
 import scala.util.Try
 
-class LagompbCommandHandlerSpec extends LagompbSpec {
+class CommandHandlerSpec extends LagompbSpec {
 
   val companyId: String = UUID.randomUUID().toString
   val cmdHandler = new TestCommandHandler(null)
 
-  "LagompbCommandHandler implementation" should {
+  "CommandHandler implementation" should {
     "handle valid command as expected" in {
       val testCmd = TestCmd(companyId, "test")
       val state = TestState(companyId, "state")
@@ -50,7 +50,7 @@ class LagompbCommandHandlerSpec extends LagompbSpec {
       val state = TestState(companyId, "state")
       val meta = MetaData(revisionNumber = 1)
       val result: Try[CommandHandlerResponse] =
-        cmdHandler.handle(LagompbCommand(testCmd, null, Map.empty[String, String]), state, meta)
+        cmdHandler.handle(Command(testCmd, null, Map.empty[String, String]), state, meta)
 
       result.success.value shouldBe
         CommandHandlerResponse()
@@ -65,7 +65,7 @@ class LagompbCommandHandlerSpec extends LagompbSpec {
       val state = TestState(UUID.randomUUID().toString, "state")
       val meta = MetaData(revisionNumber = 1)
       val result: Try[CommandHandlerResponse] =
-        cmdHandler.handle(LagompbCommand(testCmd, null, Map.empty[String, String]), state, meta)
+        cmdHandler.handle(Command(testCmd, null, Map.empty[String, String]), state, meta)
 
       result.success.value shouldBe
         CommandHandlerResponse()
@@ -90,7 +90,7 @@ class LagompbCommandHandlerSpec extends LagompbSpec {
       val noCmd = NoCmd()
       val meta = MetaData(revisionNumber = 1)
       cmdHandler
-        .handle(LagompbCommand(noCmd, null, Map.empty[String, String]), TestState(companyId, "state"), meta)
+        .handle(Command(noCmd, null, Map.empty[String, String]), TestState(companyId, "state"), meta)
         .success
         .value shouldBe
         CommandHandlerResponse()

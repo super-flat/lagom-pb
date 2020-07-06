@@ -10,8 +10,8 @@ import io.superflat.lagompb.protobuf.core.{KafkaEvent, MetaData, StateWrapper}
 import io.superflat.lagompb.protobuf.tests.{TestEvent, TestState}
 import io.superflat.lagompb.testkit.LagompbSpec
 
-class LagompbKafkaSerdeSpec extends LagompbSpec {
-  val serviceEventSerializer: LagompbKafkaSerde = new LagompbKafkaSerde
+class KafkaSerializerSpec extends LagompbSpec {
+  val serviceEventSerializer: KafkaSerializer = new KafkaSerializer
 
   val reqSerializer: MessageSerializer.NegotiatedSerializer[KafkaEvent, ByteString] =
     serviceEventSerializer.serializerForRequest
@@ -46,7 +46,7 @@ class LagompbKafkaSerdeSpec extends LagompbSpec {
 
   val bstr: String = event.toByteString.toStringUtf8
 
-  "KafkaSerde" must {
+  "KafkaSerializer" must {
     "serialize a Service Event request" in {
       val serialized: String = reqSerializer.serialize(event).utf8String
 

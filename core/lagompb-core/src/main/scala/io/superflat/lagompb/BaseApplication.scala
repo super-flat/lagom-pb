@@ -15,14 +15,14 @@ import play.filters.csrf.CSRFComponents
 import play.filters.headers.SecurityHeadersComponents
 import play.filters.hosts.AllowedHostsComponents
 
-sealed trait LagompbApplicationComponents
+sealed trait BaseApplicationComponents
     extends AhcWSComponents
     with CORSComponents
     with AllowedHostsComponents
     with CSRFComponents
     with SecurityHeadersComponents
 
-sealed trait LagompbPostgresPersistenceComponents
+sealed trait PostgresPersistenceComponents
     extends JdbcPersistenceComponents
     with SlickPersistenceComponents
     with HikariCPComponents
@@ -34,16 +34,16 @@ sealed trait LagompbPostgresPersistenceComponents
  *
  * @param context the lagom application context
  */
-abstract class LagompbApplication(context: LagomApplicationContext)
+abstract class BaseApplication(context: LagomApplicationContext)
     extends LagomApplication(context)
-    with LagompbPostgresPersistenceComponents
-    with LagompbApplicationComponents {
+    with PostgresPersistenceComponents
+    with BaseApplicationComponents {
 
   // $COVERAGE-OFF$
 
   //FIXME find a better way to load these ones
-  LagompbProtosRegistry.registry
-  LagompbProtosRegistry.typeRegistry
+  ProtosRegistry.registry
+  ProtosRegistry.typeRegistry
 
   // Json Serializer registry not needed
   final override lazy val jsonSerializerRegistry: JsonSerializerRegistry =
@@ -59,10 +59,10 @@ abstract class LagompbApplication(context: LagomApplicationContext)
   /**
    * Defines the persistent entity that will be used to handle commands
    *
-   * @see [[io.superflat.lagompb.LagompbAggregate]].
+   * @see [[io.superflat.lagompb.AggregateRoot]].
    *      Also for more info refer to the lagom doc [[https://www.lagomframework.com/documentation/1.6.x/scala/UsingAkkaPersistenceTyped.html]]
    */
-  def aggregateRoot: LagompbAggregate[_]
+  def aggregateRoot: AggregateRoot[_]
 
   /**
    * server helps define the lagom server. Please refer to the lagom doc
@@ -84,7 +84,7 @@ abstract class LagompbApplication(context: LagomApplicationContext)
 
   // initialize cluster sharding
   clusterSharding.init(Entity(aggregateRoot.typeKey)(entityContext => {
-    val shardIndex = selectShard(LagompbConfig.eventsConfig.numShards, entityContext.entityId)
+    val shardIndex = selectShard(ConfigReader.eventsConfig.numShards, entityContext.entityId)
     aggregateRoot.create(entityContext, shardIndex)
   }))
 
@@ -97,9 +97,9 @@ abstract class LagompbApplication(context: LagomApplicationContext)
  *
  * @param context the lagom application context
  */
-abstract class LagompbStatelessApplication(context: LagomApplicationContext)
+abstract class BaseStatelessApplication(context: LagomApplicationContext)
     extends LagomApplication(context)
-    with LagompbApplicationComponents {
+    with BaseApplicationComponents {
 
   // $COVERAGE-OFF$
 

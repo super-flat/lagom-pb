@@ -2,17 +2,17 @@ package io.superflat.lagompb.data
 
 import akka.actor.ActorSystem
 import com.google.protobuf.any.Any
-import io.superflat.lagompb.{LagompbCommand, LagompbCommandHandler}
+import io.superflat.lagompb.{Command, CommandHandler}
 import io.superflat.lagompb.protobuf.core._
 import io.superflat.lagompb.protobuf.core.CommandHandlerResponse.HandlerResponse
 import io.superflat.lagompb.protobuf.tests._
 
 import scala.util.Try
 
-class TestCommandHandler(actorSystem: ActorSystem) extends LagompbCommandHandler[TestState](actorSystem) {
+class TestCommandHandler(actorSystem: ActorSystem) extends CommandHandler[TestState](actorSystem) {
 
   override def handle(
-      command: LagompbCommand,
+      command: Command,
       currentState: TestState,
       currentEventMeta: MetaData
   ): Try[CommandHandlerResponse] = {

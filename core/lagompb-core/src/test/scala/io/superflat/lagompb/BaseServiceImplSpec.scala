@@ -13,7 +13,7 @@ import io.superflat.lagompb.testkit.LagompbSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class LagompbServiceImplSpec extends LagompbSpec {
+class BaseServiceImplSpec extends LagompbSpec {
   val companyId: String = UUID.randomUUID().toString
 
   val any: Any =
@@ -31,12 +31,12 @@ class LagompbServiceImplSpec extends LagompbSpec {
 
   protected override def afterAll(): Unit = {}
 
-  "LagompbService implementation" should {
+  "Service implementation" should {
     "parse proto Any and return a State" in {
       val commandHandler = new TestCommandHandler(null)
       val eventHandler = new TestEventHandler(null)
       val aggregate =
-        new TestAggregate(null, commandHandler, eventHandler)
+        new TestAggregateRoot(null, commandHandler, eventHandler)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
       testImpl.parseAny[TestState](any) shouldBe
         TestState()
@@ -48,7 +48,7 @@ class LagompbServiceImplSpec extends LagompbSpec {
       val commandHandler = new TestCommandHandler(null)
       val eventHandler = new TestEventHandler(null)
       val aggregate =
-        new TestAggregate(null, commandHandler, eventHandler)
+        new TestAggregateRoot(null, commandHandler, eventHandler)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
       an[RuntimeException] shouldBe thrownBy(
         testImpl.parseAny[TestState](
@@ -63,7 +63,7 @@ class LagompbServiceImplSpec extends LagompbSpec {
       val commandHandler = new TestCommandHandler(null)
       val eventHandler = new TestEventHandler(null)
       val aggregate =
-        new TestAggregate(null, commandHandler, eventHandler)
+        new TestAggregateRoot(null, commandHandler, eventHandler)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
 
       val cmdReply = CommandReply()
@@ -76,7 +76,7 @@ class LagompbServiceImplSpec extends LagompbSpec {
             )
         )
 
-      val result: LagompbState[TestState] =
+      val result: StateAndMeta[TestState] =
         testImpl.handleLagompbCommandReply[TestState](cmdReply)
 
       result.state shouldBe
@@ -89,7 +89,7 @@ class LagompbServiceImplSpec extends LagompbSpec {
       val commandHandler = new TestCommandHandler(null)
       val eventHandler = new TestEventHandler(null)
       val aggregate =
-        new TestAggregate(null, commandHandler, eventHandler)
+        new TestAggregateRoot(null, commandHandler, eventHandler)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
       val rejected =
         CommandReply()
@@ -104,7 +104,7 @@ class LagompbServiceImplSpec extends LagompbSpec {
       val commandHandler = new TestCommandHandler(null)
       val eventHandler = new TestEventHandler(null)
       val aggregate =
-        new TestAggregate(null, commandHandler, eventHandler)
+        new TestAggregateRoot(null, commandHandler, eventHandler)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
       case class WrongReply()
       an[RuntimeException] shouldBe thrownBy(
@@ -116,7 +116,7 @@ class LagompbServiceImplSpec extends LagompbSpec {
       val commandHandler = new TestCommandHandler(null)
       val eventHandler = new TestEventHandler(null)
       val aggregate =
-        new TestAggregate(null, commandHandler, eventHandler)
+        new TestAggregateRoot(null, commandHandler, eventHandler)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
 
       testImpl
@@ -135,7 +135,7 @@ class LagompbServiceImplSpec extends LagompbSpec {
       val commandHandler = new TestCommandHandler(null)
       val eventHandler = new TestEventHandler(null)
       val aggregate =
-        new TestAggregate(null, commandHandler, eventHandler)
+        new TestAggregateRoot(null, commandHandler, eventHandler)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
       an[RuntimeException] shouldBe thrownBy(
         testImpl.parseState[TestState](

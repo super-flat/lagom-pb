@@ -1,11 +1,11 @@
 package io.superflat.lagompb.data
 
 import akka.actor.ActorSystem
-import io.superflat.lagompb.LagompbEventHandler
+import io.superflat.lagompb.EventHandler
 import io.superflat.lagompb.protobuf.core.MetaData
 import io.superflat.lagompb.protobuf.tests.{TestEvent, TestState}
 
-class TestEventHandler(actorSystem: ActorSystem) extends LagompbEventHandler[TestState](actorSystem) {
+class TestEventHandler(actorSystem: ActorSystem) extends EventHandler[TestState](actorSystem) {
 
   override def handle(event: scalapb.GeneratedMessage, currentState: TestState, eventMeta: MetaData): TestState = {
     event match {
