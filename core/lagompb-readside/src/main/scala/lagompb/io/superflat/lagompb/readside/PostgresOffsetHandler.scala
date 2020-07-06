@@ -123,7 +123,7 @@ import scala.util.{Failure, Success, Try}
   final override def process(envelope: EventEnvelope[EncryptedProto]): DBIO[Done] = {
 
     encryption
-    // decrypt the message into an Any
+      // decrypt the message into an Any
       .decrypt(envelope.event)
       // unpack into the EventWrapper
       .map(_.unpack(EventWrapper))

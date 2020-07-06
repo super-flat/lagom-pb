@@ -52,7 +52,7 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
 
   override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef =
     manifest match {
-      case commandManifest =>
+      case `commandManifest` =>
         val wrapper: CommandWrapper = CommandWrapper.parseFrom(bytes)
         val actorRefStr: String =
           new String(wrapper.actorRef.toByteArray, StandardCharsets.UTF_8)
