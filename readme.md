@@ -24,7 +24,7 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 
 - Pure testable functions for events and commands handlers.
 
-- Easy definition of api service descriptors either with message broker api or without.
+- Easy definition of api service descriptors.
 
 - Easy implementation of api service either with message broker api or without.
 
