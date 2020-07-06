@@ -11,33 +11,29 @@ service to be implemented.
 
 ## Api Service Definition
 
-Lagom-pb offers two interfaces that help define the lagom api service: 
+Lagom-pb offers an interface that helps define the lagom api service which is : `io.superflat.lagompb.BaseService`.
 
-* `lagompb.LagompbServiceWithKafka` it comes bundled with the lagom message broker api to allow publishing aggregate events and snapshots into a kafka topic. 
-The kafka topic is automatically created on behalf of the service using the following format `<service_name>.events`. 
-The `<service_name>` must be set via the environment variable `SERVICE_NAME`.
-This will require setting up kafka configuration. We will talk about how to configure a lagom-pb based app.
-* `lagompb.LagompbService` Aggregate events are not pushed to kafka. However, one can make use of @ref:[Read Side](read-side.md#akka-projection-based-read-side)
-to spawn an instance of `lagompb.LagompbKafkaProjection` to push events and snapshots to kafka.
-
-With both trait there is only one thing to define:
-
-* the api routes
 
 _**The api service definition must be a scala trait.**_
 
 Example:
 
 ```scala
+package io.superflat.lagompb.samples.account.api
+
 import akka.NotUsed
 import com.lightbend.lagom.scaladsl.api.{Descriptor, ServiceCall}
 import com.lightbend.lagom.scaladsl.api.Service.restCall
-import com.lightbend.lagom.scaladsl.api.deser.MessageSerializer
 import com.lightbend.lagom.scaladsl.api.transport.Method
-import io.superflat.protobuf.account.apis.{ApiResponse, OpenAccountRequest, ReceiveMoneyRequest, TransferMoneyRequest}
-import lagompb.{LagompbSerializer, LagompbService}
+import io.superflat.lagompb.samples.protobuf.account.apis.{
+  ApiResponse,
+  OpenAccountRequest,
+  ReceiveMoneyRequest,
+  TransferMoneyRequest
+}
+import io.superflat.lagompb.BaseService
 
-trait AccountService extends LagompbService {
+trait AccountService extends BaseService {
 
   def openAccount: ServiceCall[OpenAccountRequest, ApiResponse]
   def transferMoney(accountId: String): ServiceCall[TransferMoneyRequest, ApiResponse]
@@ -45,32 +41,18 @@ trait AccountService extends LagompbService {
   def getAccount(accountId: String): ServiceCall[NotUsed, ApiResponse]
 
   override val routes: Seq[Descriptor.Call[_, _]] = Seq(
-    restCall(Method.POST, "/api/accounts", openAccount _)(
-      new LagompbSerializer[OpenAccountRequest](),
-      new LagompbSerializer[ApiResponse]()
-    ),
-    restCall(Method.PATCH, "/api/accounts/:accountId/transfer", transferMoney _)(
-      new LagompbSerializer[TransferMoneyRequest](),
-      new LagompbSerializer[ApiResponse]()
-    ),
-    restCall(Method.PATCH, "/api/accounts/:accountId/receive", receiveMoney _)(
-      new LagompbSerializer[ReceiveMoneyRequest](),
-      new LagompbSerializer[ApiResponse]()
-    ),
-    restCall(Method.GET, "/api/accounts/:accountId", getAccount _)(
-      MessageSerializer.NotUsedMessageSerializer,
-      new LagompbSerializer[ApiResponse]()
-    )
+    restCall(Method.POST, "/api/accounts", openAccount _),
+    restCall(Method.PATCH, "/api/accounts/:accountId/transfer", transferMoney _),
+    restCall(Method.PATCH, "/api/accounts/:accountId/receive", receiveMoney _),
+    restCall(Method.GET, "/api/accounts/:accountId", getAccount _)
   )
 }
-
 ```
 
 _**Note: The api service definition must be done in a separate sbt module(recommended way). So a lagom-pb/lagom service requires at least two sbt modules in an sdbt multi-modules project.**_
 
 ## Api Service implementation
-Once the api service is defined, we can implement the api service by extending the `lagompb.LagompbServiceImpl`. 
-If we are dealing with an api service with message broker or `lagompb.LagompbServiceImplWithKafka` mixed in with the api definition trait [See api definition section](#api-service-definition).
+Once the api service is defined, we can implement the api service by extending the `io.superflat.lagompb.BaseServiceImpl` mixed in with the api definition trait [See api definition section](#api-service-definition).
 
 ## Application Loader
 
@@ -79,12 +61,14 @@ The application loader defines how your lagom-pb/lagom based application should 
 * the development mode (for local development)
 * the production mode
 
-To define the application loader, we must _**first**_ define the application by extending the `lagompb.LagompbApplication`. 
-Once the application is implemented then we can define the application loader by extending the `lagompb.LagomApplicationLoader`.
+To define the application loader, we must _**first**_ define the application by extending the `io.superflat.lagompb.BaseApplication`. 
+Once the application is implemented then we can define the application loader by extending the `com.lightbend.lagom.scaladsl.server.LagomApplicationLoader`.
 
 Example:
 
 ```scala
+package io.superflat.lagompb.samples.account
+
 import com.lightbend.lagom.scaladsl.akka.discovery.AkkaDiscoveryComponents
 import com.lightbend.lagom.scaladsl.api.Descriptor
 import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
@@ -95,31 +79,32 @@ import com.lightbend.lagom.scaladsl.server.{
   LagomServer
 }
 import com.softwaremill.macwire.wire
-import io.superflat.account.api.AccountService
-import io.superflat.protobuf.account.state.BankAccount
-import lagompb.{LagompbAggregate, LagompbApplication, LagompbCommandHandler, LagompbEventHandler}
+import io.superflat.lagompb.{AggregateRoot, BaseApplication, CommandHandler, EventHandler}
+import io.superflat.lagompb.encryption.{NoEncryption, ProtoEncryption}
+import io.superflat.lagompb.samples.account.api.AccountService
+import io.superflat.lagompb.samples.protobuf.account.state.BankAccount
 
-abstract class AccountApplication(context: LagomApplicationContext) extends LagompbApplication(context) {
+abstract class AccountApplication(context: LagomApplicationContext) extends BaseApplication(context) {
   // Let us hook in the readSide Processor
   lazy val accountRepository: AccountRepository =
     wire[AccountRepository]
 
+  // wire up the various event and command handler
+  lazy val eventHandler: EventHandler[BankAccount] = wire[AccountEventHandler]
+  lazy val commandHandler: CommandHandler[BankAccount] = wire[AccountCommandHandler]
+  lazy val aggregate: AggregateRoot[BankAccount] = wire[AccountAggregate]
+  lazy val encryption: ProtoEncryption = NoEncryption
   lazy val accountProjection: AccountReadProjection = wire[AccountReadProjection]
+
+  override def aggregateRoot: AggregateRoot[_] = aggregate
+
+  override def server: LagomServer =
+    serverFor[AccountService](wire[AccountServiceImpl])
+      .additionalRouter(wire[AccountGrpcServiceImpl])
   lazy val accountKafkaProjection: AccountKafkaProjection = wire[AccountKafkaProjection]
 
   accountProjection.init()
   accountKafkaProjection.init()
-
-  // wire up the various event and command handler
-  lazy val eventHandler: LagompbEventHandler[BankAccount] = wire[AccountEventHandler]
-  lazy val commandHandler: LagompbCommandHandler[BankAccount] = wire[AccountCommandHandler]
-  lazy val aggregate: LagompbAggregate[BankAccount] = wire[AccountAggregate]
-
-  override def aggregateRoot: LagompbAggregate[_] = aggregate
-
-  override def server: LagomServer =
-    serverFor[AccountService](wire[AccountServiceImpl])
-      .additionalRouter(wire[AccountGrpcServiceImpl]) // gRPC service integration
 }
 
 class AccountApplicationLoader extends LagomApplicationLoader {

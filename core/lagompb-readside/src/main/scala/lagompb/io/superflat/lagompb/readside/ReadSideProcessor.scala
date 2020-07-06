@@ -15,7 +15,7 @@ import scala.util.{Failure, Success, Try}
  * ReadSideProcessor helps implement multiple readSide processors where the offsets are
  * persisted postgres. One of the greatest advantage is one can process events emitted differently by
  * spawning different type of [[ReadSideProcessor]] to handle them.
- * Each instance must be registered in the [[io.superflat.lagompb.BaseApplication]] implementation via
+ * Each instance must be registered in the application via
  * the dependency injection and the init method called
  *
  * Please bear in mind that the akka.projection.slick is required to be set in the configuration file.

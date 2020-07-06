@@ -21,7 +21,7 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
     ProtosRegistry.companions
       .map(companion => (companion.scalaDescriptor.fullName, (s: Array[Byte]) => companion.parseFrom(s)))
       .toMap
-  final val CommandManifest: String = classOf[Command].getName
+  final val commandManifest: String = classOf[Command].getName
 
   private final val log: Logger =
     LoggerFactory.getLogger(classOf[CommandSerializer])
@@ -52,7 +52,7 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
 
   override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef =
     manifest match {
-      case CommandManifest =>
+      case commandManifest =>
         val wrapper: CommandWrapper = CommandWrapper.parseFrom(bytes)
         val actorRefStr: String =
           new String(wrapper.actorRef.toByteArray, StandardCharsets.UTF_8)
