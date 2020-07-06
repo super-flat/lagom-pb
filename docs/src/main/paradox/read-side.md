@@ -25,14 +25,16 @@ This is the recommended way
 The solution to the limitation of the lagom based read side is the integration of akka projection. The following classes can be extended
 to implement a read side processor.
 
-* `lagompb.LagompbSlickProjection` The **_event_** and the **_resulting state_** is made available for processing. The read offsets are stored in postgres database.
-* `lagompb.LagompbKafkaProjection` This is used to send the **_event_**, and the **_resulting state_** into kafka as serialized protocol buffer message.
+* `io.superflat.lagompb.readside.ReadSideProcessor` The **_event_** and the **_resulting state_** is made available for processing. The read offsets are stored in postgres database.
+* `io.superflat.lagompb.readside.KafkaProjection` This is used to send the **_event_**, and the **_resulting state_** into kafka as serialized protocol buffer message.
 The following protocol buffer messages are used to persist the messages to kafka:
 
 ```proto
 syntax = "proto3";
 
-package lagompb.protobuf;
+package lagompb;
+
+option java_package = "io.superflat.lagompb.protobuf";
 
 import "google/protobuf/any.proto";
 

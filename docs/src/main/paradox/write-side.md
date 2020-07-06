@@ -75,7 +75,7 @@ message BankAccount {
 ## Commands handler
 Commands handler is the meat of the aggregate. They encode the business rules of your entity/aggregate and act as a guardian of the aggregate/entity consistency. 
 Commands handler must first validate that the incoming command can be applied to the current model state. 
-The implementation of a command handler must extend the `lagompb.LagompbCommandHandler[TState]` where `TState` is the generated scala case class from the state proto definition. See [state section](#state)
+The implementation of a command handler must extend the `io.superflat.lagompb.CommandHandler[TState]` where `TState` is the generated scala case class from the state proto definition. See [state section](#state)
 
 The only function to override is `handle(command: LagompbCommand, state: TState, stateMeta: StateMeta): Try[CommandHandlerResponse]`.
 
@@ -101,21 +101,22 @@ There are only four attributes to override:
 Example:
 
 ```scala
+package io.superflat.lagompb.samples.account
+
 import akka.actor.ActorSystem
 import io.superflat.lagompb.{AggregateRoot, CommandHandler, EventHandler}
-import io.superflat.lagompb.protobuf.tests.TestState
+import io.superflat.lagompb.samples.protobuf.account.state.BankAccount
 import scalapb.GeneratedMessageCompanion
 
-final class TestAggregateRoot(
+final class AccountAggregate(
     actorSystem: ActorSystem,
-    commandHandler: CommandHandler[TestState],
-    eventHandler: EventHandler[TestState]
-) extends AggregateRoot[TestState](actorSystem, commandHandler, eventHandler) {
+    commandHandler: CommandHandler[BankAccount],
+    eventHandler: EventHandler[BankAccount]
+) extends AggregateRoot[BankAccount](actorSystem, commandHandler, eventHandler) {
 
-  override def aggregateName: String = "TestAggregate"
+  override def aggregateName: String = "Account"
 
-  override def stateCompanion: GeneratedMessageCompanion[TestState] = TestState
+  override def stateCompanion: GeneratedMessageCompanion[BankAccount] = BankAccount
 }
-
 ```
 
