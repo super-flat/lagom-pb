@@ -5,17 +5,17 @@ import io.superflat.lagompb.protobuf.core.CommandReply
 import io.superflat.lagompb.protobuf.tests.TestCmd
 import io.superflat.lagompb.testkit.LagompbActorTestKit
 
-class LagompbCommandSerdeSpec extends LagompbActorTestKit(s"""
+class CommandSerializerSpec extends LagompbActorTestKit(s"""
     akka {
       actor {
         serialize-messages = on
         serializers {
           proto = "akka.remote.serialization.ProtobufSerializer"
-          cmdSerializer = "io.superflat.lagompb.LagompbCommandSerde"
+          cmdSerializer = "io.superflat.lagompb.CommandSerializer"
         }
         serialization-bindings {
           "scalapb.GeneratedMessage" = proto
-          "io.superflat.lagompb.LagompbCommand" = cmdSerializer
+          "io.superflat.lagompb.Command" = cmdSerializer
         }
       }
     }
@@ -27,6 +27,6 @@ class LagompbCommandSerdeSpec extends LagompbActorTestKit(s"""
     val command = TestCmd(companyUUID, "John Ross")
     val data =
       Map("audit|employeeUuid" -> "1223", "audit|createdAt" -> "2020-04-17")
-    serializationTestKit.verifySerialization(LagompbCommand(command, probe.ref, data))
+    serializationTestKit.verifySerialization(Command(command, probe.ref, data))
   }
 }

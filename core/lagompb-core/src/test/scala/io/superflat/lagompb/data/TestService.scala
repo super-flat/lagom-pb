@@ -8,13 +8,13 @@ import com.lightbend.lagom.scaladsl.api.{Descriptor, ServiceCall}
 import com.lightbend.lagom.scaladsl.api.Service.restCall
 import com.lightbend.lagom.scaladsl.api.transport.Method
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
-import io.superflat.lagompb.{LagompbAggregate, LagompbService, LagompbServiceImpl, LagompbState}
+import io.superflat.lagompb.{AggregateRoot, BaseService, BaseServiceImpl, StateAndMeta}
 import io.superflat.lagompb.protobuf.tests.{TestCmd, TestState}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 import scala.concurrent.ExecutionContext
 
-trait TestService extends LagompbService {
+trait TestService extends BaseService {
 
   def testHello: ServiceCall[TestCmd, TestState]
 
@@ -29,9 +29,9 @@ class TestServiceImpl(
     sys: ActorSystem,
     clusterSharding: ClusterSharding,
     persistentEntityRegistry: PersistentEntityRegistry,
-    aggregate: LagompbAggregate[TestState]
+    aggregate: AggregateRoot[TestState]
 )(implicit ec: ExecutionContext)
-    extends LagompbServiceImpl(clusterSharding, persistentEntityRegistry, aggregate)
+    extends BaseServiceImpl(clusterSharding, persistentEntityRegistry, aggregate)
     with TestService {
 
   /**
@@ -46,7 +46,7 @@ class TestServiceImpl(
       val companyId: String = UUID.randomUUID().toString
       val cmd = req.update(_.companyUuid := companyId)
       sendCommand[TestCmd, TestState](cmd)
-        .map((rst: LagompbState[TestState]) => rst.state)
+        .map((rst: StateAndMeta[TestState]) => rst.state)
     }
   }
 }

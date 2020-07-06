@@ -12,24 +12,24 @@ import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
 /**
- * LagompbSlickProjection helps implement multiple readSide processors where the offsets are
+ * ReadSideProcessor helps implement multiple readSide processors where the offsets are
  * persisted postgres. One of the greatest advantage is one can process events emitted differently by
- * spawning different type of [[LagompbSlickProjection]] to handle them.
- * Each instance must be registered in the LagompbApplication via
+ * spawning different type of [[ReadSideProcessor]] to handle them.
+ * Each instance must be registered in the application via
  * the dependency injection and the init method called
  *
  * Please bear in mind that the akka.projection.slick is required to be set in the configuration file.
  *
  * @see https://doc.akka.io/docs/akka-projection/current/slick.html#configuration
- * @param encryptor ProtoEncryption instance to use
+ * @param encryption ProtoEncryption instance to use
  * @param actorSystem the actor system
  * @param ec          the execution context
  * @tparam TState the aggregate state type
  */
-abstract class LagompbSlickProjection[TState <: scalapb.GeneratedMessage](encryptor: ProtoEncryption)(implicit
+abstract class ReadSideProcessor[TState <: scalapb.GeneratedMessage](encryption: ProtoEncryption)(implicit
     ec: ExecutionContext,
     actorSystem: ActorSystem[_]
-) extends LagompbProjection[TState](encryptor) {
+) extends PostgresOffsetHandler[TState](encryption) {
 
   final override def handleEvent(
       comp: GeneratedMessageCompanion[_ <: GeneratedMessage],

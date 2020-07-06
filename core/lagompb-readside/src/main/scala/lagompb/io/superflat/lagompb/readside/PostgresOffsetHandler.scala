@@ -13,7 +13,7 @@ import akka.projection.slick.{SlickHandler, SlickProjection}
 import akka.Done
 import com.github.ghik.silencer.silent
 import com.google.protobuf.any
-import io.superflat.lagompb.{LagompbConfig, LagompbException, LagompbProtosRegistry}
+import io.superflat.lagompb.{ConfigReader, GlobalException, ProtosRegistry}
 import io.superflat.lagompb.encryption.{DecryptPermanentFailure, ProtoEncryption}
 import io.superflat.lagompb.protobuf.core.{EventWrapper, MetaData}
 import io.superflat.lagompb.protobuf.encryption.EncryptedProto
@@ -26,7 +26,18 @@ import slick.jdbc.PostgresProfile
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
-@silent abstract class LagompbProjection[TState <: scalapb.GeneratedMessage](encryptor: ProtoEncryption)(implicit
+/**
+ * PostgresOffsetHandler helps manage akka projections offsets in postgres whether events are persisted
+ * in an RDBMS or in Kafka.
+ *
+ * Please bear in mind that the akka.projection.slick is required to be set in the configuration file.
+ *
+ * @param encryption  the encryption handler
+ * @param ec          the execution context
+ * @param actorSystem the typed actor system
+ * @tparam TState the aggregate state type param
+ */
+@silent abstract class PostgresOffsetHandler[TState <: scalapb.GeneratedMessage](encryption: ProtoEncryption)(implicit
     ec: ExecutionContext,
     actorSystem: ActorSystem[_]
 ) extends SlickHandler[EventEnvelope[EncryptedProto]] {
@@ -36,7 +47,7 @@ import scala.util.{Failure, Success, Try}
   // The implementation class needs to set the akka.projection.slick config for the offset database
   protected val dbConfig: DatabaseConfig[PostgresProfile] =
     DatabaseConfig.forConfig("akka.projection.slick", actorSystem.settings.config)
-  protected val baseTag: String = LagompbConfig.eventsConfig.tagName
+  protected val baseTag: String = ConfigReader.eventsConfig.tagName
 
   /**
    * aggregate state. it is a generated scalapb message extending the LagompbState trait
@@ -58,7 +69,7 @@ import scala.util.{Failure, Success, Try}
   def init(): Unit = {
     ShardedDaemonProcess(actorSystem).init[ProjectionBehavior.Command](
       name = projectionName,
-      numberOfInstances = LagompbConfig.allEventTags.size,
+      numberOfInstances = ConfigReader.allEventTags.size,
       behaviorFactory = n => ProjectionBehavior(setExactlyOnceProjection(s"$baseTag$n")),
       settings = ShardedDaemonProcessSettings(actorSystem),
       stopMessage = Some(ProjectionBehavior.Stop)
@@ -96,10 +107,10 @@ import scala.util.{Failure, Success, Try}
   /**
    * handles the actual event unmarshalled from the event wrapper
    *
-   * @param comp the companion object of the event unmarshalled
-   * @param event the actual event
+   * @param comp           the companion object of the event unmarshalled
+   * @param event          the actual event
    * @param resultingState the resulting state
-   * @param meta the meta data
+   * @param meta           the meta data
    * @return
    */
   def handleEvent(
@@ -111,7 +122,7 @@ import scala.util.{Failure, Success, Try}
 
   final override def process(envelope: EventEnvelope[EncryptedProto]): DBIO[Done] = {
 
-    encryptor
+    encryption
     // decrypt the message into an Any
       .decrypt(envelope.event)
       // unpack into the EventWrapper
@@ -119,16 +130,16 @@ import scala.util.{Failure, Success, Try}
       // handle happy path decryption
       .map({
         case EventWrapper(Some(event: any.Any), Some(resultingState), Some(meta)) =>
-          LagompbProtosRegistry.getCompanion(event) match {
+          ProtosRegistry.getCompanion(event) match {
             case Some(comp) =>
               handleEvent(comp, event, resultingState, meta)
 
             case None =>
-              DBIOAction.failed(new LagompbException(s"companion not found for ${event.typeUrl}"))
+              DBIOAction.failed(new GlobalException(s"companion not found for ${event.typeUrl}"))
           }
 
         case _ =>
-          DBIO.failed(new LagompbException(s"[Lagompb] unknown event received ${envelope.event.getClass.getName}"))
+          DBIO.failed(new GlobalException(s"[Lagompb] unknown event received ${envelope.event.getClass.getName}"))
       })
       .recoverWith({
         case DecryptPermanentFailure(reason) =>

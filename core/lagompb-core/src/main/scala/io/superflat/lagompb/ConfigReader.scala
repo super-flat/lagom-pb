@@ -9,7 +9,7 @@ final case class SnapshotCriteria(frequency: Int, retention: Int)
 
 final case class EventsConfig(tagName: String, numShards: Int)
 
-object LagompbConfig {
+object ConfigReader {
   private lazy val config: Config = ConfigFactory.load()
   private val LP = "lagompb"
 
@@ -34,7 +34,7 @@ object LagompbConfig {
   }
 
   def allEventTags: Vector[String] = {
-    (for (shardNo <- 0 until LagompbConfig.eventsConfig.numShards)
-      yield s"${LagompbConfig.eventsConfig.tagName}$shardNo").toVector
+    (for (shardNo <- 0 until ConfigReader.eventsConfig.numShards)
+      yield s"${ConfigReader.eventsConfig.tagName}$shardNo").toVector
   }
 }

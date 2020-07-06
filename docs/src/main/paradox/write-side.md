@@ -75,21 +75,21 @@ message BankAccount {
 ## Commands handler
 Commands handler is the meat of the aggregate. They encode the business rules of your entity/aggregate and act as a guardian of the aggregate/entity consistency. 
 Commands handler must first validate that the incoming command can be applied to the current model state. 
-The implementation of a command handler must extend the `lagompb.LagompbCommandHandler[TState]` where `TState` is the generated scala case class from the state proto definition. See [state section](#state)
+The implementation of a command handler must extend the `io.superflat.lagompb.CommandHandler[TState]` where `TState` is the generated scala case class from the state proto definition. See [state section](#state)
 
 The only function to override is `handle(command: LagompbCommand, state: TState, stateMeta: StateMeta): Try[CommandHandlerResponse]`.
 
 ## Events handler
 Event handlers **_mutate the state_** of the Aggregate by applying the events to it. 
 Event handlers must be pure functions. This allows them to be tested without the need of the whole akka system.
-Events handler must extend the `lagompb.LagompbEventHandler[TState] must be extended where `TState` is the generated scala case class from the state proto definition. 
+Events handler must extend the `io.superflat.lagompb.EventHandler[TState] must be extended where `TState` is the generated scala case class from the state proto definition. 
 
 The only function to override is `handle(event: scalapb.GeneratedMessage, state: TState): TState`. 
 As one can see the event handler makes available the current state of the aggregate/entity.
 
 ## Aggregate Root
 The aggregate root or model is defined in terms of **_Commands_**, **_Events_**, and **_State_** in the world of ES/CQRS and that has been the approach taken into lagom-pb. 
-The aggregate root must extend the `lagompb.LagompbAggregate[TState]` where `TState` is the generated scala case class from the state proto definition. See [state section](#state).
+The aggregate root must extend the `io.superflat.lagompb.AggregateRoot[TState]` where `TState` is the generated scala case class from the state proto definition. See [state section](#state).
 
 There are only four attributes to override:
 
@@ -101,25 +101,22 @@ There are only four attributes to override:
 Example:
 
 ```scala
+package io.superflat.lagompb.samples.account
+
 import akka.actor.ActorSystem
-import lagompb.LagompbAggregate
-import lagompb.LagompbCommandHandler
-import lagompb.LagompbEventHandler
-import lagompb.tests.TestState
+import io.superflat.lagompb.{AggregateRoot, CommandHandler, EventHandler}
+import io.superflat.lagompb.samples.protobuf.account.state.BankAccount
 import scalapb.GeneratedMessageCompanion
-import com.typesafe.config.Config
 
-final class TestAggregate(
+final class AccountAggregate(
     actorSystem: ActorSystem,
-    config: Config,
-    commandHandler: LagompbCommandHandler[TestState],
-    eventHandler: LagompbEventHandler[TestState]
-) extends LagompbAggregate[TestState](actorSystem, config, commandHandler, eventHandler) {
+    commandHandler: CommandHandler[BankAccount],
+    eventHandler: EventHandler[BankAccount]
+) extends AggregateRoot[BankAccount](actorSystem, commandHandler, eventHandler) {
 
-  override def aggregateName: String = "TestAggregate"
+  override def aggregateName: String = "Account"
 
-  override def stateCompanion: GeneratedMessageCompanion[TestState] = TestState
+  override def stateCompanion: GeneratedMessageCompanion[BankAccount] = BankAccount
 }
-
 ```
 

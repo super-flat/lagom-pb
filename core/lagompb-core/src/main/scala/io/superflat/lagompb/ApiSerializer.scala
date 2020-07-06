@@ -6,7 +6,10 @@ import com.lightbend.lagom.scaladsl.api.deser.MessageSerializer.{NegotiatedDeser
 import com.lightbend.lagom.scaladsl.api.transport.MessageProtocol
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
-class LagompbSerializer[T <: GeneratedMessage: GeneratedMessageCompanion]
+/**
+ * ApiSerializer helps serialize json REST payload into protobuf messages and vice versa.
+ */
+class ApiSerializer[T <: GeneratedMessage: GeneratedMessageCompanion]
     extends StrictMessageSerializer[T]
     with GenericSerializers[T] {
 
@@ -27,7 +30,7 @@ sealed trait GenericSerializers[T <: GeneratedMessage] {
       override def protocol: MessageProtocol =
         MessageProtocol(Some("application/json"))
       override def serialize(message: T): ByteString = {
-        ByteString(LagompbProtosRegistry.printer.print(message))
+        ByteString(ProtosRegistry.printer.print(message))
       }
     }
   }
@@ -46,7 +49,7 @@ sealed trait GenericSerializers[T <: GeneratedMessage] {
   def deserializer(implicit T: GeneratedMessageCompanion[T]): NegotiatedDeserializer[T, ByteString] = {
     (wire: ByteString) =>
       {
-        LagompbProtosRegistry.parser.fromJsonString(wire.utf8String)
+        ProtosRegistry.parser.fromJsonString(wire.utf8String)
       }
   }
 

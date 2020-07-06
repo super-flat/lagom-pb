@@ -14,24 +14,24 @@ import org.slf4j.{Logger, LoggerFactory}
  * LagomPbCommandSerializer
  * It is used internally by lagom-common to serialize commands and replies
  */
-sealed class LagompbCommandSerde(val system: ExtendedActorSystem) extends SerializerWithStringManifest {
+sealed class CommandSerializer(val system: ExtendedActorSystem) extends SerializerWithStringManifest {
 
   // construct a map of type_url -> companion object parser
   final lazy val msgMap: Map[String, Array[Byte] => scalapb.GeneratedMessage] =
-    LagompbProtosRegistry.companions
+    ProtosRegistry.companions
       .map(companion => (companion.scalaDescriptor.fullName, (s: Array[Byte]) => companion.parseFrom(s)))
       .toMap
-  final val LagomPbCommandManifest: String = classOf[LagompbCommand].getName
+  final val commandManifest: String = classOf[Command].getName
 
   private final val log: Logger =
-    LoggerFactory.getLogger(classOf[LagompbCommandSerde])
+    LoggerFactory.getLogger(classOf[CommandSerializer])
   private val actorRefResolver = ActorRefResolver(system.toTyped)
 
   override def manifest(o: AnyRef): String = o.getClass.getName
 
   override def toBinary(o: AnyRef): Array[Byte] = {
     o match {
-      case LagompbCommand(cmd, actorRef, pluginData) =>
+      case Command(cmd, actorRef, pluginData) =>
         val actorBytes: Array[Byte] = actorRefResolver
           .toSerializationFormat(actorRef)
           .getBytes(StandardCharsets.UTF_8)
@@ -44,7 +44,7 @@ sealed class LagompbCommandSerde(val system: ExtendedActorSystem) extends Serial
           .withData(pluginData)
           .toByteArray
 
-      case _ => throw new LagompbException("requires LagomPbCommand")
+      case _ => throw new GlobalException("requires LagomPbCommand")
     }
   }
 
@@ -52,25 +52,25 @@ sealed class LagompbCommandSerde(val system: ExtendedActorSystem) extends Serial
 
   override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef =
     manifest match {
-      case LagomPbCommandManifest =>
+      case `commandManifest` =>
         val wrapper: CommandWrapper = CommandWrapper.parseFrom(bytes)
         val actorRefStr: String =
           new String(wrapper.actorRef.toByteArray, StandardCharsets.UTF_8)
         val ref: ActorRef[CommandReply] =
           actorRefResolver.resolveActorRef[CommandReply](actorRefStr)
 
-        wrapper.command.fold(throw new LagompbException("requires LagompbCommand"))(any => {
+        wrapper.command.fold(throw new GlobalException("requires LagompbCommand"))(any => {
           log.debug(s"deserializing Command #[${any.typeUrl}]")
 
           msgMap
             .get(any.typeUrl.split('/').lastOption.getOrElse(""))
-            .fold(throw new LagompbException(s"unable to deserialize command ${any.typeUrl}. "))(mesg => {
+            .fold(throw new GlobalException(s"unable to deserialize command ${any.typeUrl}. "))(mesg => {
 
               val protoCmd: scalapb.GeneratedMessage =
                 mesg(any.value.toByteArray)
-              LagompbCommand(protoCmd, ref, wrapper.data)
+              Command(protoCmd, ref, wrapper.data)
             })
         })
-      case _ => throw new LagompbException("Wrong LagompbCommand manifest....")
+      case _ => throw new GlobalException("Wrong LagompbCommand manifest....")
     }
 }

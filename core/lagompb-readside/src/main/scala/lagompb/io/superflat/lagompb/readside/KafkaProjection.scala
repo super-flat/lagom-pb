@@ -6,7 +6,7 @@ import akka.actor.typed.scaladsl.adapter._
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.SendProducer
 import com.google.protobuf.any
-import io.superflat.lagompb.{LagompbConfig, LagompbException}
+import io.superflat.lagompb.{ConfigReader, GlobalException}
 import io.superflat.lagompb.encryption.ProtoEncryption
 import io.superflat.lagompb.protobuf.core.{KafkaEvent, MetaData, StateWrapper}
 import io.superflat.lagompb.protobuf.extensions.ExtensionsProto
@@ -19,24 +19,23 @@ import slick.dbio.{DBIO, DBIOAction}
 import scala.concurrent.ExecutionContext
 
 /**
- * Helps push snapshots and journal events to kafka
+ * Helps handle readSide processor by pushing persisted events to kafka and storing the offsets
+ * in postgres.
  *
- * @param encryptor ProtoEncryption instance to use
+ * @param encryption ProtoEncryption instance to use
  * @param actorSystem the actor system
  * @param ec the execution context
  * @tparam TState the aggregate state type
  */
 
-abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage](encryptor: ProtoEncryption)(implicit
+abstract class KafkaProjection[TState <: scalapb.GeneratedMessage](encryption: ProtoEncryption)(implicit
     ec: ExecutionContext,
     actorSystem: ActorSystem[_]
-) extends LagompbProjection[TState](encryptor) {
+) extends PostgresOffsetHandler[TState](encryption) {
 
   // The implementation class needs to set the akka.kafka.producer settings in the config file as well
   // as the lagompb.kafka-projections
-  val producerConfig: LagompbProducerConfig = LagompbProducerConfig(
-    actorSystem.settings.config.getConfig(" lagompb.projection.kafka")
-  )
+  val producerConfig: KafkaConfig = KafkaConfig(actorSystem.settings.config.getConfig(" lagompb.projection.kafka"))
 
   private val sendProducer = SendProducer(
     ProducerSettings(actorSystem, new StringSerializer, new ByteArraySerializer)
@@ -75,7 +74,7 @@ abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage](encryp
                     .getField(fd)
                     .as[String]
                 )
-                .withServiceName(LagompbConfig.serviceName)
+                .withServiceName(ConfigReader.serviceName)
                 .toByteArray
             )
           )
@@ -93,7 +92,7 @@ abstract class LagompbKafkaProjection[TState <: scalapb.GeneratedMessage](encryp
         DBIO.from(result)
 
       case None =>
-        DBIOAction.failed(new LagompbException(s"No partition key field is defined for event ${event.typeUrl}"))
+        DBIOAction.failed(new GlobalException(s"No partition key field is defined for event ${event.typeUrl}"))
     }
   }
 }

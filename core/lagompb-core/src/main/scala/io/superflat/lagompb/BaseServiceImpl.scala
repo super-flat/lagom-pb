@@ -16,17 +16,17 @@ import scalapb.GeneratedMessage
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-sealed trait LagompbBaseServiceImpl {
+sealed trait SharedBaseServiceImpl {
   // $COVERAGE-OFF$
-  implicit val timeout: Timeout = LagompbConfig.askTimeout
+  implicit val timeout: Timeout = ConfigReader.askTimeout
 
   /**
    * aggregateRoot defines the persistent entity that will be used to handle commands
    *
-   * @see [[io.superflat.lagompb.LagompbAggregate]].
+   * @see [[io.superflat.lagompb.AggregateRoot]].
    *      Also for more info refer to the lagom doc [[https://www.lagomframework.com/documentation/1.6.x/scala/UsingAkkaPersistenceTyped.html]]
    */
-  def aggregateRoot: LagompbAggregate[_]
+  def aggregateRoot: AggregateRoot[_]
 
   /**
    * aggregate state. it is a generated scalapb message extending the LagompbState trait
@@ -51,39 +51,39 @@ sealed trait LagompbBaseServiceImpl {
       entityUuid: String,
       cmd: TCommand,
       data: Map[String, String]
-  )(implicit ec: ExecutionContext): Future[LagompbState[TState]] = {
+  )(implicit ec: ExecutionContext): Future[StateAndMeta[TState]] = {
     clusterSharding
       .entityRefFor(aggregateRoot.typeKey, entityUuid)
-      .ask[CommandReply](replyTo => LagompbCommand(cmd, replyTo, data))
+      .ask[CommandReply](replyTo => Command(cmd, replyTo, data))
       .map((value: CommandReply) => handleLagompbCommandReply[TState](value))
   }
 
   private[lagompb] def handleLagompbCommandReply[TState <: scalapb.GeneratedMessage](
       commandReply: CommandReply
-  ): LagompbState[TState] = {
+  ): StateAndMeta[TState] = {
     commandReply.reply match {
       case Reply.SuccessfulReply(successReply) =>
         parseState[TState](successReply.getStateWrapper)
       case Reply.FailedReply(failureReply) =>
         failureReply.cause match {
           case FailureCause.ValidationError =>
-            throw new LagompbInvalidCommandException(failureReply.reason)
+            throw new InvalidCommandException(failureReply.reason)
           case FailureCause.InternalError =>
-            throw new LagompbException(failureReply.reason)
-          case _ => throw new LagompbException("reason unknown")
+            throw new GlobalException(failureReply.reason)
+          case _ => throw new GlobalException("reason unknown")
         }
       case _ =>
-        throw new LagompbException(s"unknown LagompbCommandReply ${commandReply.reply.getClass.getName}")
+        throw new GlobalException(s"unknown LagompbCommandReply ${commandReply.reply.getClass.getName}")
     }
   }
 
   private[lagompb] def parseState[TState <: scalapb.GeneratedMessage](
       stateWrapper: StateWrapper
-  ): LagompbState[TState] = {
+  ): StateAndMeta[TState] = {
     val meta: MetaData = stateWrapper.getMeta
     val state: Any = stateWrapper.getState
     val parsed: TState = parseAny[TState](state)
-    LagompbState[TState](parsed, meta)
+    StateAndMeta[TState](parsed, meta)
   }
 
   private[lagompb] def parseAny[TState <: scalapb.GeneratedMessage](data: Any): TState = {
@@ -94,17 +94,17 @@ sealed trait LagompbBaseServiceImpl {
         data.unpack(aggregateStateCompanion).asInstanceOf[TState]
       } match {
         case Failure(exception) =>
-          throw new LagompbException(exception.getMessage)
+          throw new GlobalException(exception.getMessage)
         case Success(value) => value
       }
-    } else throw new LagompbException("wrong state definition")
+    } else throw new GlobalException("wrong state definition")
   }
 
   // $COVERAGE-ON$
 }
 
 /**
- * LagompbServiceImpl abstract class.
+ * BaseServiceImpl abstract class.
  *
  * It must be implemented by any lagom REST based service
  *
@@ -112,13 +112,13 @@ sealed trait LagompbBaseServiceImpl {
  * @param persistentEntityRegistry the persistence entity registry
  * @param ec                       the execution context
  */
-abstract class LagompbServiceImpl(
+abstract class BaseServiceImpl(
     val clusterSharding: ClusterSharding,
     val persistentEntityRegistry: PersistentEntityRegistry,
-    val aggregate: LagompbAggregate[_]
+    val aggregate: AggregateRoot[_]
 )(implicit ec: ExecutionContext)
-    extends LagompbBaseServiceImpl
-    with LagompbService {
+    extends SharedBaseServiceImpl
+    with BaseService {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
 
@@ -130,16 +130,16 @@ abstract class LagompbServiceImpl(
    * @param data the additional data to send
    * @tparam TCommand the command scala type
    * @tparam TState   the actual state scala type
-   * @return the [[io.superflat.lagompb.LagompbState]] containing the actual state and the event meta
+   * @return the [[io.superflat.lagompb.StateAndMeta]] containing the actual state and the event meta
    */
   final def sendCommand[TCommand <: GeneratedMessage, TState <: scalapb.GeneratedMessage](
       cmd: TCommand,
       data: Map[String, String] = Map.empty
-  ): Future[LagompbState[TState]] = {
+  ): Future[StateAndMeta[TState]] = {
 
     cmd.companion.scalaDescriptor.fields
       .find(field => field.getOptions.extension(ExtensionsProto.command).exists(_.entityId))
-      .fold[Future[LagompbState[TState]]](Future.failed(BadRequest("command does not have entity key set.")))(fd => {
+      .fold[Future[StateAndMeta[TState]]](Future.failed(BadRequest("command does not have entity key set.")))(fd => {
         val entityId: String = cmd.getField(fd).as[String]
         super
           .sendCommand[TCommand, TState](clusterSharding, entityId, cmd, data)
@@ -147,9 +147,9 @@ abstract class LagompbServiceImpl(
             case Failure(exception) =>
               log.error("", exception)
               exception match {
-                case e: LagompbException =>
+                case e: GlobalException =>
                   Failure(InternalServerError(e.getMessage))
-                case e: LagompbInvalidCommandException =>
+                case e: InvalidCommandException =>
                   Failure(BadRequest(e.getMessage))
                 case _ => Failure(InternalServerError(""))
               }
@@ -167,22 +167,22 @@ abstract class LagompbServiceImpl(
    * @param data     the additional data to send
    * @tparam TCommand the command scala type
    * @tparam TState   the actual state scala type
-   * @return the [[io.superflat.lagompb.LagompbState]] containing the actual state and the event meta
+   * @return the [[io.superflat.lagompb.StateAndMeta]] containing the actual state and the event meta
    */
   final def sendCommand[TCommand <: GeneratedMessage, TState <: scalapb.GeneratedMessage](
       entityId: String,
       cmd: TCommand,
       data: Map[String, String]
-  ): Future[LagompbState[TState]] = {
+  ): Future[StateAndMeta[TState]] = {
     super
       .sendCommand[TCommand, TState](clusterSharding, entityId, cmd, data)
       .transform {
         case Failure(exception) =>
           log.error("", exception)
           exception match {
-            case e: LagompbException =>
+            case e: GlobalException =>
               Failure(InternalServerError(e.getMessage))
-            case e: LagompbInvalidCommandException =>
+            case e: InvalidCommandException =>
               Failure(BadRequest(e.getMessage))
             case _ => Failure(InternalServerError(""))
           }
@@ -190,13 +190,13 @@ abstract class LagompbServiceImpl(
       }
   }
 
-  final override def aggregateRoot: LagompbAggregate[_] = aggregate
+  final override def aggregateRoot: AggregateRoot[_] = aggregate
 }
 
 /**
- * LagompbGrpcServiceImpl
+ * BaseGrpcServiceImpl
  */
-trait LagompbGrpcServiceImpl extends LagompbBaseServiceImpl {
+trait BaseGrpcServiceImpl extends SharedBaseServiceImpl {
 
   // $COVERAGE-OFF$
 
@@ -210,23 +210,23 @@ trait LagompbGrpcServiceImpl extends LagompbBaseServiceImpl {
    * @param data            the additional data to send
    * @tparam TCommand the command scala type
    * @tparam TState   the actual state scala type
-   * @return the [[io.superflat.lagompb.LagompbState]] containing the actual state and the state meta
+   * @return the [[io.superflat.lagompb.StateAndMeta]] containing the actual state and the state meta
    */
   final override def sendCommand[TCommand <: GeneratedMessage, TState <: scalapb.GeneratedMessage](
       clusterSharding: ClusterSharding,
       entityId: String,
       cmd: TCommand,
       data: Map[String, String]
-  )(implicit ec: ExecutionContext): Future[LagompbState[TState]] = {
+  )(implicit ec: ExecutionContext): Future[StateAndMeta[TState]] = {
     super
       .sendCommand[TCommand, TState](clusterSharding, entityId, cmd, data)
       .transform {
         case Failure(exception) =>
           exception match {
-            case e: LagompbException =>
+            case e: GlobalException =>
               Failure(new GrpcServiceException(status = Status.INTERNAL.withDescription(e.getMessage)))
             case e: GrpcServiceException => Failure(e)
-            case e: LagompbInvalidCommandException =>
+            case e: InvalidCommandException =>
               Failure(new GrpcServiceException(status = Status.INVALID_ARGUMENT.withDescription(e.getMessage)))
             case _ =>
               Failure(new GrpcServiceException(status = Status.INTERNAL))
@@ -244,17 +244,17 @@ trait LagompbGrpcServiceImpl extends LagompbBaseServiceImpl {
    * @param data            the additional data to send
    * @tparam TCommand the command scala type
    * @tparam TState   the actual state scala type
-   * @return the [[io.superflat.lagompb.LagompbState]] containing the actual state and the state meta
+   * @return the [[io.superflat.lagompb.StateAndMeta]] containing the actual state and the state meta
    */
   final def sendCommand[TCommand <: GeneratedMessage, TState <: scalapb.GeneratedMessage](
       clusterSharding: ClusterSharding,
       cmd: TCommand,
       data: Map[String, String]
-  )(implicit ec: ExecutionContext): Future[LagompbState[TState]] = {
+  )(implicit ec: ExecutionContext): Future[StateAndMeta[TState]] = {
 
     cmd.companion.scalaDescriptor.fields
       .find(field => field.getOptions.extension(ExtensionsProto.command).exists(_.entityId))
-      .fold[Future[LagompbState[TState]]](
+      .fold[Future[StateAndMeta[TState]]](
         Future.failed(
           new GrpcServiceException(
             status = Status.INVALID_ARGUMENT
@@ -268,10 +268,10 @@ trait LagompbGrpcServiceImpl extends LagompbBaseServiceImpl {
           .transform {
             case Failure(exception) =>
               exception match {
-                case e: LagompbException =>
+                case e: GlobalException =>
                   Failure(new GrpcServiceException(status = Status.INTERNAL.withDescription(e.getMessage)))
                 case e: GrpcServiceException => Failure(e)
-                case e: LagompbInvalidCommandException =>
+                case e: InvalidCommandException =>
                   Failure(new GrpcServiceException(status = Status.INVALID_ARGUMENT.withDescription(e.getMessage)))
                 case _ =>
                   Failure(new GrpcServiceException(status = Status.INTERNAL))

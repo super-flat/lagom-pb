@@ -6,13 +6,13 @@ import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 /**
  * Must be implemented by any lagom api without message broker integration
  */
-trait LagompbService extends Service {
+trait BaseService extends Service {
 
   protected val serviceName: String =
-    LagompbConfig.serviceName
+    ConfigReader.serviceName
 
-  implicit def messageSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]: LagompbSerializer[A] =
-    new LagompbSerializer[A]
+  implicit def messageSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]: ApiSerializer[A] =
+    new ApiSerializer[A]
 
   final override def descriptor: Descriptor = {
     import Service._

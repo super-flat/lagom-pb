@@ -34,16 +34,16 @@ object InternalServerError {
 }
 
 /**
- *  BaseException custom RuntimeException.
+ *  GlobalException custom RuntimeException.
  *  This is used for general exception
  *
  * @param message the exception message
  */
-final class LagompbException(message: String) extends RuntimeException(message)
+final class GlobalException(message: String) extends RuntimeException(message)
 
 /**
  * InvalidCommandException.
  * This will be used to handle invalid command exception.
  * @param message the exception message
  */
-final class LagompbInvalidCommandException(message: String) extends RuntimeException(message)
+final class InvalidCommandException(message: String) extends RuntimeException(message)

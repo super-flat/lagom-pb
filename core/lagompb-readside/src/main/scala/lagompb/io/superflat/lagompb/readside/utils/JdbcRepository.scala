@@ -1,4 +1,4 @@
-package io.superflat.lagompb.readside
+package lagompb.io.superflat.lagompb.readside.utils
 
 import java.sql.Connection
 
@@ -9,7 +9,7 @@ import scala.concurrent.Future
  *
  * @tparam T the data model type
  */
-trait LagompbJdbcRepository[T] {
+trait JdbcRepository[T] {
 
   /**
    * Creates a new record in the database

@@ -10,7 +10,7 @@ import scala.jdk.CollectionConverters._
 import scala.reflect.runtime.universe
 import scala.util.{Failure, Success, Try}
 
-object LagompbProtosRegistry {
+object ProtosRegistry {
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   private[lagompb] lazy val registry: Seq[GeneratedFileObject] = load()
@@ -63,7 +63,7 @@ object LagompbProtosRegistry {
    */
   @throws(classOf[ScalaReflectionException])
   private def load(): Seq[GeneratedFileObject] = {
-    val fileObjects: Seq[Class[_ <: GeneratedFileObject]] = new Reflections(LagompbConfig.protosPackage)
+    val fileObjects: Seq[Class[_ <: GeneratedFileObject]] = new Reflections(ConfigReader.protosPackage)
       .getSubTypesOf(classOf[scalapb.GeneratedFileObject])
       .asScala
       .toSeq
