@@ -32,13 +32,15 @@ CREATE TABLE IF NOT EXISTS read_side_offsets
 
 create table if not exists "AKKA_PROJECTION_OFFSET_STORE"
 (
-    "PROJECTION_NAME" CHAR(255)                   NOT NULL,
-    "PROJECTION_KEY"  CHAR(255)                   NOT NULL,
-    "OFFSET"          CHAR(255)                   NOT NULL,
+    "PROJECTION_NAME" VARCHAR(255)                NOT NULL,
+    "PROJECTION_KEY"  VARCHAR(255)                NOT NULL,
+    "OFFSET"          VARCHAR(255)                NOT NULL,
     "MANIFEST"        VARCHAR(4)                  NOT NULL,
     "MERGEABLE"       BOOLEAN                     NOT NULL,
     "LAST_UPDATED"    TIMESTAMP(9) WITH TIME ZONE NOT NULL
 );
+
+create index "PROJECTION_NAME_INDEX" on "AKKA_PROJECTION_OFFSET_STORE" ("PROJECTION_NAME");
 
 alter table "AKKA_PROJECTION_OFFSET_STORE"
     add constraint "PK_PROJECTION_ID" primary key ("PROJECTION_NAME", "PROJECTION_KEY");
