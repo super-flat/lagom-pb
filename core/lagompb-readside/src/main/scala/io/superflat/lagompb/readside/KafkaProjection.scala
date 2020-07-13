@@ -6,14 +6,14 @@ import akka.actor.typed.scaladsl.adapter._
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.SendProducer
 import com.google.protobuf.any
-import io.superflat.lagompb.{ConfigReader, GlobalException}
 import io.superflat.lagompb.encryption.ProtoEncryption
 import io.superflat.lagompb.protobuf.core.{KafkaEvent, MetaData, StateWrapper}
 import io.superflat.lagompb.protobuf.extensions.ExtensionsProto
+import io.superflat.lagompb.{ConfigReader, GlobalException}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
-import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import scalapb.descriptors.FieldDescriptor
+import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.dbio.{DBIO, DBIOAction}
 
 import scala.concurrent.ExecutionContext

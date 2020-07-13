@@ -1,4 +1,4 @@
-package lagompb.io.superflat.lagompb.readside.utils
+package io.superflat.lagompb.readside.utils
 
 import java.sql.Connection
 

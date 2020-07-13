@@ -1,22 +1,22 @@
 package io.superflat.lagompb.readside
 
+import akka.Done
 import akka.actor.typed.ActorSystem
 import akka.cluster.sharding.typed.ShardedDaemonProcessSettings
 import akka.cluster.sharding.typed.scaladsl.ShardedDaemonProcess
 import akka.persistence.jdbc.query.scaladsl.JdbcReadJournal
 import akka.persistence.query.Offset
-import akka.projection.{ProjectionBehavior, ProjectionId}
 import akka.projection.eventsourced.EventEnvelope
 import akka.projection.eventsourced.scaladsl.EventSourcedProvider
 import akka.projection.scaladsl.{ExactlyOnceProjection, SourceProvider}
 import akka.projection.slick.{SlickHandler, SlickProjection}
-import akka.Done
+import akka.projection.{ProjectionBehavior, ProjectionId}
 import com.github.ghik.silencer.silent
 import com.google.protobuf.any
-import io.superflat.lagompb.{ConfigReader, GlobalException, ProtosRegistry}
 import io.superflat.lagompb.encryption.{DecryptPermanentFailure, ProtoEncryption}
 import io.superflat.lagompb.protobuf.core.{EventWrapper, MetaData}
 import io.superflat.lagompb.protobuf.encryption.EncryptedProto
+import io.superflat.lagompb.{ConfigReader, GlobalException, ProtosRegistry}
 import org.slf4j.{Logger, LoggerFactory}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.basic.DatabaseConfig
