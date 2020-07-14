@@ -2,10 +2,6 @@
 
 Read Side helps define how the events persisted by the Aggregate root are processed. 
 
-Lagom-pb offers two types of read side implementation:
-
-* [akka projection based read side](#akka-projection-based-read-side)
-
 To be able to implement the readSide the following dependency is required:
 
 @@dependency[sbt,Maven] {
@@ -14,16 +10,9 @@ To be able to implement the readSide the following dependency is required:
   version="0.4.0"
 }
 
-## Akka Projection based read side
+## Implementation
 
-@@@ note
-
-This is the recommended way
-
-@@@
-
-The solution to the limitation of the lagom based read side is the integration of akka projection. The following classes can be extended
-to implement a read side processor.
+The following classes can be extended to implement a read side processor.
 
 * `io.superflat.lagompb.readside.ReadSideProcessor` The **_event_** and the **_resulting state_** is made available for processing. The read offsets are stored in postgres database.
 * `io.superflat.lagompb.readside.KafkaProjection` This is used to send the **_event_**, and the **_resulting state_** into kafka as serialized protocol buffer message.

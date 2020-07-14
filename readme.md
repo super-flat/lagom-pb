@@ -12,6 +12,8 @@ Scala shared code for [lagom](https://www.lagomframework.com/documentation/1.6.x
 This library helps write lagom microservices easily by making use of protocol buffer messages to define the es/cqrs core
 components like _**api requests/responses**_, _**grpc services**_, _**events**_, _**commands**_ and _**state**_.
 
+[Documentation](https://super-flat.github.io/lagom-pb/)
+
 ## Features
 
 - Implementation of an HTTP/Json based microservice using REST interfaces by defining _**api requests and responses as protobuf messages**_.
@@ -33,6 +35,8 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 - At every event handled a snapshot of the aggregate state with the metadata are made available for the readSide.
 
 - All events, snapshots and readSide offsets are persisted to Postgres SQL.
+
+- Encryption trait to enable events and snapshots encryption.
 
 ## Sample Project
 
