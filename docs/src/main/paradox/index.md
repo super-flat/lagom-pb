@@ -22,7 +22,3 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 * [Configuration](configuration.md)
 
 @@@
-
-## Sample Project
-
-There is a demo application built on top the library that can be found here @link:[Sample](https://github.com/super-flat/lagom-pb-sample) { open=new }

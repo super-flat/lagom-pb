@@ -1,5 +1,3 @@
-package lagompb
-
 import com.lightbend.lagom.sbt.LagomImport.lagomScaladslTestKit
 import sbt.Keys.libraryDependencies
 import sbt.{plugins, AutoPlugin, Plugins}

@@ -11,7 +11,7 @@ To be able to implement the readSide the following dependency is required:
 @@dependency[sbt,Maven] {
   group="io.superflat"
   artifact="lagompb-readside_2.13"
-  version="0.1.0"
+  version="0.4.0"
 }
 
 ## Akka Projection based read side

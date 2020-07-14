@@ -1,5 +1,3 @@
-package lagompb
-
 object CoverageWhitelist {
 
   val whitelist = Seq(

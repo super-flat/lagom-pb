@@ -1,5 +1,3 @@
-import lagompb.{CommonSettings, CoverageWhitelist, LagomAkka, LagomSettings, NoPublish, Publish}
-
 lazy val root = project
   .in(file("."))
   .aggregate(`lagompb-core`, `lagompb-readside`, docs)
@@ -22,7 +20,7 @@ lazy val docs = project
         .withColor("light-blue", "blue")
         .withFavicon("")
     },
-    paradoxProperties in Compile ++= Map("snip.github_link" -> "false"),
+    paradoxProperties in Compile ++= Map("snip.github_link" -> "false", "version" -> version.value),
     git.remoteRepo := "git@github.com:super-flat/lagom-pb.git"
   )
 

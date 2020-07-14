@@ -1,5 +1,3 @@
-package lagompb
-
 import sbt.Keys.{publishArtifact, skip, _}
 import sbt.{plugins, AutoPlugin, _}
 
