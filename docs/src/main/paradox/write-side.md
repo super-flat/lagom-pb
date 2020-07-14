@@ -16,7 +16,7 @@ To be able to implement the write side the following dependency is required:
 @@dependency[sbt,Maven] {
   group="io.superflat"
   artifact="lagompb-core_2.13"
-  version="0.1.0"
+  version="0.4.0"
 }
 
 ## Commands
@@ -82,7 +82,7 @@ The only function to override is `handle(command: LagompbCommand, state: TState,
 ## Events handler
 Event handlers **_mutate the state_** of the Aggregate by applying the events to it. 
 Event handlers must be pure functions. This allows them to be tested without the need of the whole akka system.
-Events handler must extend the `io.superflat.lagompb.EventHandler[TState] must be extended where `TState` is the generated scala case class from the state proto definition. 
+Events handler must extend the `io.superflat.lagompb.EventHandler[TState]` must be extended where `TState` is the generated scala case class from the state proto definition. 
 
 The only function to override is `handle(event: scalapb.GeneratedMessage, state: TState): TState`. 
 As one can see the event handler makes available the current state of the aggregate/entity.

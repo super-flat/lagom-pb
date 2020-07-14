@@ -1,5 +1,3 @@
-package lagompb
-
 import com.lightbend.lagom.core.LagomVersion
 import sbt._
 import scalapb.compiler.Version.scalapbVersion

@@ -1,10 +1,9 @@
-package lagompb
-
+import Dependencies.Compile
+import Dependencies.Runtime
 import com.lightbend.lagom.sbt.LagomImport._
-import lagompb.Dependencies.{Compile, Runtime}
 import play.sbt.PlayImport.filters
-import sbt.{plugins, AutoPlugin, Plugins}
 import sbt.Keys.libraryDependencies
+import sbt.{plugins, AutoPlugin, Plugins}
 
 /**
  * Dependencies that will be used by any lagompb based project
