@@ -5,7 +5,7 @@ addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.1")
 addSbtPlugin("com.beautiful-scala" % "sbt-scalastyle" % "1.4.0")
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.9.19")
 addSbtPlugin("au.com.onegeek" %% "sbt-dotenv" % "2.1.192")
-addSbtPlugin("com.lightbend.akka.grpc" %% "sbt-akka-grpc" % "1.0.0")
+addSbtPlugin("com.lightbend.akka.grpc" %% "sbt-akka-grpc" % "1.0.1")
 resolvers += Resolver.bintrayRepo("playframework", "maven")
 libraryDependencies += "com.lightbend.play" %% "play-grpc-generators" % "0.8.2"
 addSbtPlugin("org.jmotor.sbt" % "sbt-dependency-updates" % "1.2.2")
