@@ -24,7 +24,7 @@ object Dependencies {
     val jwtPlayJsonVersion = "4.3.0"
     val slickMigrationApiVersion = "0.7.0"
     val scalaMockVersion = "5.0.0"
-    val kamonVersion = "2.1.3"
+    val kamonVersion = "2.1.4"
     val kanelaVersion = "1.0.5"
     val logstashLogbackVersion = "6.3"
     val silencerVersion = "1.6.0"
