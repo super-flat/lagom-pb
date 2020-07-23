@@ -10,7 +10,7 @@ object CommonSettings extends AutoPlugin {
 
   override def globalSettings =
     Seq(
-      scalaVersion := Versions.scala213,
+      scalaVersion := Versions.Scala213,
       organization := "io.superflat",
       organizationName := "Super Flat",
       startYear := Some(2020),
@@ -58,8 +58,8 @@ object CommonSettings extends AutoPlugin {
         "-P:silencer:pathFilters=.*.txt"
       ),
       libraryDependencies ++= Seq(
-        compilerPlugin(("com.github.ghik" % "silencer-plugin" % Versions.silencerVersion).cross(CrossVersion.full)),
-        ("com.github.ghik" % "silencer-lib" % Versions.silencerVersion % Provided).cross(CrossVersion.full)
+        compilerPlugin(("com.github.ghik" % "silencer-plugin" % Versions.SilencerVersion).cross(CrossVersion.full)),
+        ("com.github.ghik" % "silencer-lib" % Versions.SilencerVersion % Provided).cross(CrossVersion.full)
       ),
       resolvers ++= Seq(Resolver.jcenterRepo),
       scalafmtOnCompile := true
