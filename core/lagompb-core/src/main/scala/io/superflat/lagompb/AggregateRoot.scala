@@ -77,17 +77,18 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
     EventSourcedBehavior
       .withEnforcedReplies[Command, EventWrapper, StateWrapper](
         persistenceId = persistenceId,
-        emptyState = initialState,
+        emptyState =
+          initialState(persistenceId.id.substring(persistenceId.id.indexOf(PersistenceId.DefaultSeparator) + 1)),
         commandHandler = genericCommandHandler,
         eventHandler = genericEventHandler
       )
       .eventAdapter(new EncryptedEventAdapter(protoEncryption))
       .snapshotAdapter(new EncryptedSnapshotAdapter(protoEncryption))
 
-  private def initialState: StateWrapper =
+  private def initialState(entityId: String): StateWrapper =
     StateWrapper()
       .withState(Any.pack(stateCompanion.defaultInstance))
-      .withMeta(MetaData.defaultInstance)
+      .withMeta(MetaData.defaultInstance.withEntityId(entityId))
 
   /**
    * unpacks the nested state in the event, throws away prior state
@@ -120,7 +121,7 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
         throw new GlobalException(errMsg)
 
       case Success(state) =>
-        log.debug(s"[LagomPb] plugin data ${cmd.data} is valid...")
+        log.debug(s"[Lagompb] plugin data ${cmd.data} is valid...")
 
         commandHandler.handle(cmd, state, stateWrapper.getMeta) match {
 
@@ -163,6 +164,9 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
                           .withRevisionNumber(stateWrapper.getMeta.revisionNumber + 1)
                           .withRevisionDate(Instant.now().toTimestamp)
                           .withData(cmd.data)
+                          .withEntityId(
+                            stateWrapper.getMeta.entityId
+                          ) // the priorState will always have the entityId set in its meta even for the initial state
 
                         // let us the event handler
                         val resultingState: TState = eventHandler

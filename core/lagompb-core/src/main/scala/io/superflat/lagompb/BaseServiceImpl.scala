@@ -39,7 +39,7 @@ sealed trait SharedBaseServiceImpl {
    * sends commands to the aggregate root and return a future of the aggregate state given a entity Id
    * the given entity Id is obtained the cluster shard.
    *
-   * @param entityUuid the entity Id added or retrieved from the shard
+   * @param entityId the entity Id added or retrieved from the shard
    * @param cmd        the command to send to the aggregate. It is a scalapb generated case class from the command
    *                   protocol buffer message definition
    * @param data       additional data that need to be set in the state meta
@@ -48,12 +48,12 @@ sealed trait SharedBaseServiceImpl {
    */
   def sendCommand[TCommand <: scalapb.GeneratedMessage, TState <: scalapb.GeneratedMessage](
       clusterSharding: ClusterSharding,
-      entityUuid: String,
+      entityId: String,
       cmd: TCommand,
       data: Map[String, String]
   )(implicit ec: ExecutionContext): Future[StateAndMeta[TState]] = {
     clusterSharding
-      .entityRefFor(aggregateRoot.typeKey, entityUuid)
+      .entityRefFor(aggregateRoot.typeKey, entityId)
       .ask[CommandReply](replyTo => Command(cmd, replyTo, data))
       .map((value: CommandReply) => handleLagompbCommandReply[TState](value))
   }

@@ -44,7 +44,7 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
           .withData(pluginData)
           .toByteArray
 
-      case _ => throw new GlobalException("requires LagomPbCommand")
+      case _ => throw new GlobalException("requires Command")
     }
   }
 
@@ -59,7 +59,7 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
         val ref: ActorRef[CommandReply] =
           actorRefResolver.resolveActorRef[CommandReply](actorRefStr)
 
-        wrapper.command.fold(throw new GlobalException("requires LagompbCommand"))(any => {
+        wrapper.command.fold(throw new GlobalException("requires Command"))(any => {
           log.debug(s"deserializing Command #[${any.typeUrl}]")
 
           msgMap
@@ -71,6 +71,6 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
               Command(protoCmd, ref, wrapper.data)
             })
         })
-      case _ => throw new GlobalException("Wrong LagompbCommand manifest....")
+      case _ => throw new GlobalException("Wrong Command manifest....")
     }
 }
