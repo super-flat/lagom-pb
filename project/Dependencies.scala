@@ -26,7 +26,7 @@ object Dependencies {
     val ScalaMockVersion = "5.0.0"
     val KamonVersion = "2.1.4"
     val KanelaVersion = "1.0.5"
-    val LogstashLogbackVersion = "6.3"
+    val LogstashLogbackVersion = "6.4"
     val SilencerVersion = "1.6.0"
     val AkkaGrpcRuntimeVersion = "1.0.1"
     val AkkaVersion: String = "2.6.8"
