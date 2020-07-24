@@ -1,5 +1,3 @@
-package lagompb
-
 import com.lightbend.lagom.core.LagomVersion
 import sbt._
 import scalapb.compiler.Version.scalapbVersion
@@ -14,117 +12,117 @@ object Dependencies {
    * Versions number
    */
   object Versions {
-    val scala213 = "2.13.1"
-    val macwireVersion = "2.3.3"
-    val scalaTestVersion = "3.1.2"
-    val playJsonDerivedCodecsVersion = "7.0.0"
-    val akkaDiscoveryKubernetesApiVersion = "1.0.7"
-    val postgresDriverVersion = "42.2.12"
-    val akkaManagementVersion = "1.0.7"
-    val akkaManagementClusterBootstrapVersion = "1.0.7"
-    val akkaManagementClusterHttpVersion = "1.0.7"
-    val jwtPlayJsonVersion = "4.3.0"
-    val slickMigrationApiVersion = "0.7.0"
-    val scalaMockVersion = "4.4.0"
-    val kamonVersion = "2.1.0"
-    val kanelaVersion = "1.0.5"
-    val logstashLogbackVersion = "6.4"
-    val silencerVersion = "1.6.0"
-    val akkaGrpcRuntimeVersion = "0.8.4"
-    val akkaVersion: String = "2.6.5"
-    val h2Version = "1.4.200"
-    val janinoVersion = "3.1.2"
-    val scalapbJson4sVersion = "0.10.1"
-    val playGrpcRuntimeVersion = "0.8.2"
-    val reflectionsVersion = "0.9.12"
-    val scalaClassFinderVersion = "1.5.1"
-    val apacheCommonValidatorVersion = "1.6"
-    val googleRe2jVersion = "1.3"
-    val googleProtobufUtilVersion = "3.11.4"
-    val commonProtoVersion = "1.17.0-0"
-    val embeddedPostgresVersion = "0.13.3"
-    val embeddedKafkaVersion = "2.5.0"
-    val akkaProjectionVersion = "0.2"
-    val scalapbPlayJsonVersion = "0.12.0"
+    val Scala213 = "2.13.1"
+    val MacwireVersion = "2.3.7"
+    val ScalaTestVersion = "3.2.0"
+    val PlayJsonDerivedCodecsVersion = "7.0.0"
+    val AkkaDiscoveryKubernetesApiVersion = "1.0.8"
+    val PostgresDriverVersion = "42.2.14"
+    val AkkaManagementVersion = "1.0.8"
+    val AkkaManagementClusterBootstrapVersion = "1.0.8"
+    val AkkaManagementClusterHttpVersion = "1.0.8"
+    val JwtPlayJsonVersion = "4.3.0"
+    val SlickMigrationApiVersion = "0.7.0"
+    val ScalaMockVersion = "5.0.0"
+    val KamonVersion = "2.1.4"
+    val KanelaVersion = "1.0.5"
+    val LogstashLogbackVersion = "6.3"
+    val SilencerVersion = "1.6.0"
+    val AkkaGrpcRuntimeVersion = "1.0.1"
+    val AkkaVersion: String = "2.6.8"
+    val H2Version = "1.4.200"
+    val JaninoVersion = "3.1.2"
+    val ScalapbJson4sVersion = "0.10.1"
+    val PlayGrpcRuntimeVersion = "0.8.2"
+    val ReflectionsVersion = "0.9.12"
+    val ScalaClassFinderVersion = "1.5.1"
+    val ApacheCommonValidatorVersion = "1.6"
+    val GoogleRe2jVersion = "1.4"
+    val GoogleProtobufUtilVersion = "3.12.2"
+    val ScalapbCommonProtoVersion = "1.18.0-0"
+    val EmbeddedPostgresVersion = "0.13.3"
+    val EmbeddedKafkaVersion = "2.5.0"
+    val AkkaProjectionVersion = "0.3"
   }
 
   object Compile {
-    val macwire: ModuleID = "com.softwaremill.macwire" %% "macros" % Versions.macwireVersion
+    val Macwire: ModuleID = "com.softwaremill.macwire" %% "macros" % Versions.MacwireVersion
 
-    val playJsonDerivedCodecs
-      : ModuleID = "org.julienrf" %% "play-json-derived-codecs" % Versions.playJsonDerivedCodecsVersion
+    val PlayJsonDerivedCodecs: ModuleID =
+      "org.julienrf" %% "play-json-derived-codecs" % Versions.PlayJsonDerivedCodecsVersion
 
-    val lagomScaladslAkkaDiscovery
-      : ModuleID = "com.lightbend.lagom" %% "lagom-scaladsl-akka-discovery-service-locator" % LagomVersion.current
+    val LagomScaladslAkkaDiscovery: ModuleID =
+      "com.lightbend.lagom" %% "lagom-scaladsl-akka-discovery-service-locator" % LagomVersion.current
 
-    val akkaKubernetesDiscoveryApi
-      : ModuleID = "com.lightbend.akka.discovery" %% "akka-discovery-kubernetes-api" % Versions.akkaDiscoveryKubernetesApiVersion
-    val postgresDriver: ModuleID = "org.postgresql" % "postgresql" % Versions.postgresDriverVersion
+    val AkkaKubernetesDiscoveryApi: ModuleID =
+      "com.lightbend.akka.discovery" %% "akka-discovery-kubernetes-api" % Versions.AkkaDiscoveryKubernetesApiVersion
+    val postgresDriver: ModuleID = "org.postgresql" % "postgresql" % Versions.PostgresDriverVersion
 
-    val akkaServiceLocator
-      : ModuleID = "com.lightbend.lagom" %% "lagom-scaladsl-akka-discovery-service-locator" % LagomVersion.current
-    val akkaManagement: ModuleID = "com.lightbend.akka.management" %% "akka-management" % Versions.akkaManagementVersion
+    val AkkaServiceLocator: ModuleID =
+      "com.lightbend.lagom" %% "lagom-scaladsl-akka-discovery-service-locator" % LagomVersion.current
+    val akkaManagement: ModuleID = "com.lightbend.akka.management" %% "akka-management" % Versions.AkkaManagementVersion
 
-    val akkaManagementClusterBootstrap
-      : ModuleID = "com.lightbend.akka.management" %% "akka-management-cluster-bootstrap" % Versions.akkaManagementClusterBootstrapVersion
+    val AkkaManagementClusterBootstrap: ModuleID =
+      "com.lightbend.akka.management" %% "akka-management-cluster-bootstrap" % Versions.AkkaManagementClusterBootstrapVersion
 
-    val akkaManagementClusterHttp
-      : ModuleID = "com.lightbend.akka.management" %% "akka-management-cluster-http" % Versions.akkaManagementClusterHttpVersion
-    val jwtPlayJson: ModuleID = "com.pauldijou" %% "jwt-play-json" % Versions.jwtPlayJsonVersion
-    val slickMigrationApi: ModuleID = "io.github.nafg" %% "slick-migration-api" % Versions.slickMigrationApiVersion
-    val kamonBundle: ModuleID = "io.kamon" %% "kamon-bundle" % Versions.kamonVersion
-    val kamonPrometheus: ModuleID = "io.kamon" %% "kamon-prometheus" % Versions.kamonVersion
-    val kamonZipkin: ModuleID = "io.kamon" %% "kamon-zipkin" % Versions.kamonVersion
-    val kamonJaeger: ModuleID = "io.kamon" %% "kamon-jaeger" % Versions.kamonVersion
-    val kanela: ModuleID = "io.kamon" % "kanela-agent" % Versions.kanelaVersion
+    val AkkaManagementClusterHttp: ModuleID =
+      "com.lightbend.akka.management" %% "akka-management-cluster-http" % Versions.AkkaManagementClusterHttpVersion
+    val JwtPlayJson: ModuleID = "com.pauldijou" %% "jwt-play-json" % Versions.JwtPlayJsonVersion
+    val SlickMigrationApi: ModuleID = "io.github.nafg" %% "slick-migration-api" % Versions.SlickMigrationApiVersion
+    val KamonBundle: ModuleID = "io.kamon" %% "kamon-bundle" % Versions.KamonVersion
+    val KamonPrometheus: ModuleID = "io.kamon" %% "kamon-prometheus" % Versions.KamonVersion
+    val KamonZipkin: ModuleID = "io.kamon" %% "kamon-zipkin" % Versions.KamonVersion
+    val KamonJaeger: ModuleID = "io.kamon" %% "kamon-jaeger" % Versions.KamonVersion
+    val Kanela: ModuleID = "io.kamon" % "kanela-agent" % Versions.KanelaVersion
 
-    val logstashLogback
-      : ModuleID = "net.logstash.logback" % "logstash-logback-encoder" % Versions.logstashLogbackVersion
-    val h2Driver: ModuleID = "com.h2database" % "h2" % Versions.h2Version
-    val janino: ModuleID = "org.codehaus.janino" % "janino" % Versions.janinoVersion
-    val scalapbJson4s: ModuleID = "com.thesamet.scalapb" %% "scalapb-json4s" % Versions.scalapbJson4sVersion
-    val reflections: ModuleID = "org.reflections" % "reflections" % Versions.reflectionsVersion
-    val scalaClassFinder: ModuleID = "org.clapper" %% "classutil" % Versions.scalaClassFinderVersion
+    val LogstashLogback: ModuleID =
+      "net.logstash.logback" % "logstash-logback-encoder" % Versions.LogstashLogbackVersion
+    val H2Driver: ModuleID = "com.h2database" % "h2" % Versions.H2Version
+    val Janino: ModuleID = "org.codehaus.janino" % "janino" % Versions.JaninoVersion
+    val ScalapbJson4s: ModuleID = "com.thesamet.scalapb" %% "scalapb-json4s" % Versions.ScalapbJson4sVersion
+    val Reflections: ModuleID = "org.reflections" % "reflections" % Versions.ReflectionsVersion
+    val ScalaClassFinder: ModuleID = "org.clapper" %% "classutil" % Versions.ScalaClassFinderVersion
 
-    val apacheCommonValidator
-      : ModuleID = "commons-validator" % "commons-validator" % Versions.apacheCommonValidatorVersion
-    val googleRe2j: ModuleID = "com.google.re2j" % "re2j" % Versions.googleRe2jVersion
-    val googleProtobufUtil: ModuleID = "com.google.protobuf" % "protobuf-java-util" % Versions.googleProtobufUtilVersion
+    val ApacheCommonValidator: ModuleID =
+      "commons-validator" % "commons-validator" % Versions.ApacheCommonValidatorVersion
+    val GoogleRe2j: ModuleID = "com.google.re2j" % "re2j" % Versions.GoogleRe2jVersion
+    val GoogleProtobufUtil: ModuleID = "com.google.protobuf" % "protobuf-java-util" % Versions.GoogleProtobufUtilVersion
 
-    val commonProtos
-      : ModuleID = "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % Versions.commonProtoVersion
-    val akkaProjectionCore: ModuleID = "com.lightbend.akka" %% "akka-projection-core" % Versions.akkaProjectionVersion
-    val akkaProjectionSlick: ModuleID = "com.lightbend.akka" %% "akka-projection-slick" % Versions.akkaProjectionVersion
-    val akkaProjectionKafka: ModuleID = "com.lightbend.akka" %% "akka-projection-kafka" % Versions.akkaProjectionVersion
+    val ScalapbCommonProtos: ModuleID =
+      "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % Versions.ScalapbCommonProtoVersion
+    val AkkaProjectionCore: ModuleID = "com.lightbend.akka" %% "akka-projection-core" % Versions.AkkaProjectionVersion
+    val AkkaProjectionSlick: ModuleID = "com.lightbend.akka" %% "akka-projection-slick" % Versions.AkkaProjectionVersion
+    val AkkaProjectionKafka: ModuleID = "com.lightbend.akka" %% "akka-projection-kafka" % Versions.AkkaProjectionVersion
 
-    val akkaProjectionEventSourced
-      : ModuleID = "com.lightbend.akka" %% "akka-projection-eventsourced" % Versions.akkaProjectionVersion
-
-    val scalapbPlayJson: ModuleID = "io.github.scalapb-json" %% "scalapb-playjson" % Versions.scalapbPlayJsonVersion
-
-    val scalapbPlayJsonMacros
-      : ModuleID = "io.github.scalapb-json" %% "scalapb-playjson-macros" % Versions.scalapbPlayJsonVersion
+    val AkkaProjectionEventSourced: ModuleID =
+      "com.lightbend.akka" %% "akka-projection-eventsourced" % Versions.AkkaProjectionVersion
   }
 
   object Runtime {
-    val scalapbRuntime: ModuleID = "com.thesamet.scalapb" %% "scalapb-runtime" % scalapbVersion % "protobuf"
-    val akkaGrpcRuntime: ModuleID = "com.lightbend.akka.grpc" %% "akka-grpc-runtime" % Versions.akkaGrpcRuntimeVersion
-    val playGrpcRuntime: ModuleID = "com.lightbend.play" %% "play-grpc-runtime" % Versions.playGrpcRuntimeVersion
-    val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % Versions.scala213
+    val ScalapbRuntime: ModuleID = "com.thesamet.scalapb" %% "scalapb-runtime" % scalapbVersion % "protobuf"
 
-    val commonProtosRuntime
-      : ModuleID = "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % Versions.commonProtoVersion % "protobuf"
+    val ScalapbValidationRuntime =
+      "com.thesamet.scalapb" %% "scalapb-validate-core" % scalapb.validate.compiler.BuildInfo.version % "protobuf"
+    val AkkaGrpcRuntime: ModuleID = "com.lightbend.akka.grpc" %% "akka-grpc-runtime" % Versions.AkkaGrpcRuntimeVersion
+    val PlayGrpcRuntime: ModuleID = "com.lightbend.play" %% "play-grpc-runtime" % Versions.PlayGrpcRuntimeVersion
+    val ScalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % Versions.Scala213
+
+    val ScalapbCommonProtosRuntime: ModuleID =
+      "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % Versions.ScalapbCommonProtoVersion % "protobuf"
   }
 
+  /**
+   * Test dependencies
+   */
   object Test {
-    val scalaTest: ModuleID = "org.scalatest" %% "scalatest" % Versions.scalaTestVersion
-    val scalaMock: ModuleID = "org.scalamock" %% "scalamock" % Versions.scalaMockVersion
-    val akkaMultiNodeTeskit: ModuleID = "com.typesafe.akka" %% "akka-multi-node-testkit" % Versions.akkaVersion
-    val akkaTestkit: ModuleID = "com.typesafe.akka" %% "akka-testkit" % Versions.akkaVersion
-    val akkaStreamTestkit: ModuleID = "com.typesafe.akka" %% "akka-stream-testkit" % Versions.akkaVersion
-    val akkaActorTeskitTyped: ModuleID = "com.typesafe.akka" %% "akka-actor-testkit-typed" % Versions.akkaVersion
-    val embeddedPostgres: ModuleID = "com.opentable.components" % "otj-pg-embedded" % Versions.embeddedPostgresVersion
-    val embeddedKafka: ModuleID = "io.github.embeddedkafka" %% "embedded-kafka" % Versions.embeddedKafkaVersion
+    val ScalaTest: ModuleID = "org.scalatest" %% "scalatest" % Versions.ScalaTestVersion
+    val ScalaMock: ModuleID = "org.scalamock" %% "scalamock" % Versions.ScalaMockVersion
+    val AkkaMultiNodeTeskit: ModuleID = "com.typesafe.akka" %% "akka-multi-node-testkit" % Versions.AkkaVersion
+    val AkkaTestkit: ModuleID = "com.typesafe.akka" %% "akka-testkit" % Versions.AkkaVersion
+    val AkkaStreamTestkit: ModuleID = "com.typesafe.akka" %% "akka-stream-testkit" % Versions.AkkaVersion
+    val AkkaActorTestkitTyped: ModuleID = "com.typesafe.akka" %% "akka-actor-testkit-typed" % Versions.AkkaVersion
+    val EmbeddedPostgres: ModuleID = "com.opentable.components" % "otj-pg-embedded" % Versions.EmbeddedPostgresVersion
+    val EmbeddedKafka: ModuleID = "io.github.embeddedkafka" %% "embedded-kafka" % Versions.EmbeddedKafkaVersion
   }
 
 }

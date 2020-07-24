@@ -1,23 +1,14 @@
-package lagompb
-
 object CoverageWhitelist {
 
   val whitelist = Seq(
     "<empty>",
-    "lagompb.core.*",
-    "lagompb.extensions.*",
-    "lagompb.options.*",
-    "lagompb.tests.*",
-    "lagompb.data.*",
-    "lagompb.testkit.*",
-    "lagompb.readside.*",
-    "lagompb.LagompbEvent",
-    "lagompb.LagompbServiceImplComponent",
-    "lagompb.LagompbRestServiceImpl",
-    "lagompb.LagompbGrpcServiceImpl",
-    "lagompb.LagompbServiceImpl",
-    "lagompb.LagompbServiceImplWithKafka",
-    "lagompb.LagompbServiceWithKafka",
-    "lagompb.InternalServerError"
+    "io.superflat.lagompb.protobuf.*",
+    "io.superflat.lagompb.data.*",
+    "io.superflat.lagompb.testkit.*",
+    "io.superflat.lagompb.readside.*",
+    "io.superflat.lagompb.BaseServiceImpl",
+    "io.superflat.lagompb.BaseGrpcServiceImpl",
+    "io.superflat.lagompb.BaseServiceImpl",
+    "io.superflat.lagompb.InternalServerError"
   )
 }

@@ -1,5 +1,3 @@
-package lagompb
-
 import com.lightbend.lagom.sbt.LagomImport.lagomScaladslTestKit
 import sbt.Keys.libraryDependencies
 import sbt.{plugins, AutoPlugin, Plugins}
@@ -14,16 +12,16 @@ object TestSettings extends AutoPlugin {
     Seq(
       libraryDependencies ++= Seq(
         lagomScaladslTestKit,
-        Dependencies.Test.scalaTest,
-        Dependencies.Test.scalaMock,
-        Dependencies.Test.akkaMultiNodeTeskit,
-        Dependencies.Test.akkaTestkit,
-        Dependencies.Test.akkaStreamTestkit,
-        Dependencies.Test.akkaActorTeskitTyped,
-        Dependencies.Compile.slickMigrationApi,
+        Dependencies.Test.ScalaTest,
+        Dependencies.Test.ScalaMock,
+        Dependencies.Test.AkkaMultiNodeTeskit,
+        Dependencies.Test.AkkaTestkit,
+        Dependencies.Test.AkkaStreamTestkit,
+        Dependencies.Test.AkkaActorTestkitTyped,
+        Dependencies.Compile.SlickMigrationApi,
         Dependencies.Compile.postgresDriver,
-        Dependencies.Compile.h2Driver,
-        Dependencies.Compile.janino
+        Dependencies.Compile.H2Driver,
+        Dependencies.Compile.Janino
       )
     )
 }

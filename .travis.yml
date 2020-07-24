@@ -3,6 +3,9 @@ language: scala
 scala:
   - 2.13.1
 
+jdk:
+  - openjdk8
+
 before_install:
   - git fetch --tags
 
@@ -17,7 +20,7 @@ jobs:
     - stage: checker
       script: sbt scalastyle
     - stage: test
-      script: sbt coverage test coverageAggregate
+      script: sbt clean coverage test coverageAggregate
       after_script:
         - bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l Scala -r target/scala-2.13/coverage-report/cobertura.xml
     - stage: release

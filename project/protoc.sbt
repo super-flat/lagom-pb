@@ -1,2 +1,3 @@
-addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.29")
-libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % "0.10.3"
+addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.34")
+libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % "0.10.7"
+libraryDependencies += "com.thesamet.scalapb" %% "scalapb-validate-codegen" % "0.1.2"
