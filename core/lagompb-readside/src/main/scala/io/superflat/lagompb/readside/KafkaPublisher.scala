@@ -67,48 +67,37 @@ abstract class KafkaPublisher[T <: scalapb.GeneratedMessage](encryption: ProtoEn
     resultingState: any.Any,
     meta: MetaData
   ): DBIO[Done] =
-    comp.scalaDescriptor.fields
-      .find(field =>
-        field.getOptions
-          .extension(ExtensionsProto.kafka)
-          .exists(_.partitionKey)
-      ) match {
+    comp.scalaDescriptor.fields.find(field =>
+      field.getOptions.extension(ExtensionsProto.kafka).exists(_.partitionKey)
+    ) match {
       case Some(fd: FieldDescriptor) =>
         // let us wrap the state and the meta data and persist to kafka
-        val result = sendProducer
-          .send(
-            new ProducerRecord(
-              producerConfig.topic,
-              comp
-                .parseFrom(event.value.toByteArray)
-                .getField(fd)
-                .as[String],
-              ProtosRegistry.printer.print(
-                KafkaEvent.defaultInstance
-                  .withEvent(event)
-                  .withState(StateWrapper().withMeta(meta).withState(resultingState))
-                  .withPartitionKey(
-                    comp
-                      .parseFrom(event.value.toByteArray)
-                      .getField(fd)
-                      .as[String]
-                  )
-                  .withServiceName(ConfigReader.serviceName)
+        DBIO.from(
+          sendProducer
+            .send(
+              new ProducerRecord(
+                producerConfig.topic,
+                comp.parseFrom(event.value.toByteArray).getField(fd).as[String],
+                ProtosRegistry.printer.print(
+                  KafkaEvent.defaultInstance
+                    .withEvent(event)
+                    .withState(StateWrapper().withMeta(meta).withState(resultingState))
+                    .withPartitionKey(comp.parseFrom(event.value.toByteArray).getField(fd).as[String])
+                    .withServiceName(ConfigReader.serviceName)
+                )
               )
             )
-          )
-          .map { recordMetadata =>
-            log.info(
-              "Published event [{}] and state [{}] to topic/partition {}/{}",
-              event.typeUrl,
-              resultingState.typeUrl,
-              producerConfig.topic,
-              recordMetadata.partition
-            )
-            Done
-          }
-
-        DBIO.from(result)
+            .map { recordMetadata =>
+              log.info(
+                "Published event [{}] and state [{}] to topic/partition {}/{}",
+                event.typeUrl,
+                resultingState.typeUrl,
+                producerConfig.topic,
+                recordMetadata.partition
+              )
+              Done
+            }
+        )
 
       case None =>
         DBIOAction.failed(new GlobalException(s"No partition key field is defined for event ${event.typeUrl}"))
