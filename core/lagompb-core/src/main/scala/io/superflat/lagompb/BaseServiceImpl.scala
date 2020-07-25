@@ -3,6 +3,7 @@ package io.superflat.lagompb
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
 import akka.grpc.GrpcServiceException
 import akka.util.Timeout
+import cats.implicits._
 import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.api.transport.BadRequest
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
@@ -87,7 +88,7 @@ sealed trait SharedBaseServiceImpl {
   private[lagompb] def parseAny[TState <: scalapb.GeneratedMessage](data: Any): TState = {
     val typeUrl: String = data.typeUrl.split('/').lastOption.getOrElse("")
 
-    if (aggregateStateCompanion.scalaDescriptor.fullName == typeUrl)
+    if (aggregateStateCompanion.scalaDescriptor.fullName === typeUrl)
       Try {
         data.unpack(aggregateStateCompanion).asInstanceOf[TState]
       } match {

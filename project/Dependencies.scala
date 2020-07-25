@@ -43,6 +43,7 @@ object Dependencies {
     val EmbeddedPostgresVersion = "0.13.3"
     val EmbeddedKafkaVersion = "2.5.0"
     val AkkaProjectionVersion = "0.3"
+    val CatsVersion = "2.1.1"
   }
 
   object Compile {
@@ -96,6 +97,8 @@ object Dependencies {
 
     val AkkaProjectionEventSourced: ModuleID =
       "com.lightbend.akka" %% "akka-projection-eventsourced" % Versions.AkkaProjectionVersion
+
+    val CatsCore = "org.typelevel" %% "cats-core" % Versions.CatsVersion
   }
 
   object Runtime {

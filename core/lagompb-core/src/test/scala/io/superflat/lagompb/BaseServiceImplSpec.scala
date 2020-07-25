@@ -28,8 +28,6 @@ class BaseServiceImplSpec extends LagompbSpec {
   override protected def beforeAll(): Unit =
     embeddedPostgres.start()
 
-  override protected def afterAll(): Unit = {}
-
   "Service implementation" should {
     "parse proto Any and return a State" in {
       val commandHandler = new TestCommandHandler(null)
