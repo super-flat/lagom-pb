@@ -139,11 +139,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
                   // No event to persist
                   case NoEvent(_) =>
                     Effect.reply(cmd.replyTo)(
-                      CommandReply()
-                        .withSuccessfulReply(
-                          SuccessfulReply()
-                            .withStateWrapper(stateWrapper)
-                        )
+                      CommandReply().withSuccessfulReply(SuccessfulReply().withStateWrapper(stateWrapper))
                     )
 
                   // Some event to persist
@@ -152,14 +148,13 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
                       .companion(event)
                       .fold[ReplyEffect[EventWrapper, StateWrapper]](
                         Effect.reply(cmd.replyTo)(
-                          CommandReply()
-                            .withFailedReply(
-                              FailedReply()
-                                .withReason(
-                                  s"[Lagompb] unable to parse event ${event.typeUrl} emitted by the command handler"
-                                )
-                                .withCause(FailureCause.InternalError)
-                            )
+                          CommandReply().withFailedReply(
+                            FailedReply()
+                              .withReason(
+                                s"[Lagompb] unable to parse event ${event.typeUrl} emitted by the command handler"
+                              )
+                              .withCause(FailureCause.InternalError)
+                          )
                         )
                       ) { comp =>
                         // let us construct the event meta prior to call the user agent
