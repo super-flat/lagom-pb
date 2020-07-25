@@ -1,13 +1,13 @@
 package io.superflat.lagompb
 
 import akka.util.ByteString
-import com.lightbend.lagom.scaladsl.api.deser.{
-  MessageSerializer,
-  StrictMessageSerializer
-}
 import com.lightbend.lagom.scaladsl.api.deser.MessageSerializer.{
   NegotiatedDeserializer,
   NegotiatedSerializer
+}
+import com.lightbend.lagom.scaladsl.api.deser.{
+  MessageSerializer,
+  StrictMessageSerializer
 }
 import com.lightbend.lagom.scaladsl.api.transport.MessageProtocol
 import io.superflat.lagompb.protobuf.core.KafkaEvent

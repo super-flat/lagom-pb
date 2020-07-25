@@ -4,13 +4,13 @@ import akka.Done
 import akka.projection.eventsourced.EventEnvelope
 import akka.projection.slick.SlickHandler
 import com.google.protobuf.any
-import io.superflat.lagompb.{GlobalException, ProtosRegistry}
 import io.superflat.lagompb.encryption.{
   DecryptPermanentFailure,
   ProtoEncryption
 }
 import io.superflat.lagompb.protobuf.core.EventWrapper
 import io.superflat.lagompb.protobuf.encryption.EncryptedProto
+import io.superflat.lagompb.{GlobalException, ProtosRegistry}
 import org.slf4j.{Logger, LoggerFactory}
 import slick.dbio.{DBIO, DBIOAction}
 
