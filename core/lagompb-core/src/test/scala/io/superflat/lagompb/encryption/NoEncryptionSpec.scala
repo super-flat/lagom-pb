@@ -1,11 +1,12 @@
 package io.superflat.lagompb.encryption
 
-import io.superflat.lagompb.testkit.LagompbSpec
-import io.superflat.lagompb.protobuf.encryption.EncryptedProto
-import com.google.protobuf.wrappers.StringValue
 import com.google.protobuf.any.Any
+import com.google.protobuf.wrappers.StringValue
 import com.google.protobuf.ByteString
-import scala.util.{Success, Try}
+import io.superflat.lagompb.protobuf.encryption.EncryptedProto
+import io.superflat.lagompb.testkit.LagompbSpec
+
+import scala.util.Success
 
 class NoEncryptionSpec extends LagompbSpec {
 

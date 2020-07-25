@@ -7,8 +7,8 @@ import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.api.transport.BadRequest
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import io.grpc.Status
-import io.superflat.lagompb.protobuf.core.CommandReply.Reply
 import io.superflat.lagompb.protobuf.core._
+import io.superflat.lagompb.protobuf.core.CommandReply.Reply
 import io.superflat.lagompb.protobuf.extensions.ExtensionsProto
 import org.slf4j.{Logger, LoggerFactory}
 import scalapb.GeneratedMessage

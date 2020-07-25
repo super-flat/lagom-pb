@@ -3,12 +3,12 @@ package io.superflat.lagompb
 import com.google.protobuf.any.Any
 import org.reflections.Reflections
 import org.slf4j.{Logger, LoggerFactory}
-import scalapb.json4s.{Parser, Printer, TypeRegistry}
 import scalapb.{
   GeneratedFileObject,
   GeneratedMessage,
   GeneratedMessageCompanion
 }
+import scalapb.json4s.{Parser, Printer, TypeRegistry}
 
 import scala.jdk.CollectionConverters._
 import scala.reflect.runtime.universe

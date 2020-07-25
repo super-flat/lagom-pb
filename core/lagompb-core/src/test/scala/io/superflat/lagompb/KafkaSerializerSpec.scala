@@ -13,13 +13,16 @@ import io.superflat.lagompb.testkit.LagompbSpec
 class KafkaSerializerSpec extends LagompbSpec {
   val serviceEventSerializer: KafkaSerializer = new KafkaSerializer
 
-  val reqSerializer: MessageSerializer.NegotiatedSerializer[KafkaEvent, ByteString] =
+  val reqSerializer
+      : MessageSerializer.NegotiatedSerializer[KafkaEvent, ByteString] =
     serviceEventSerializer.serializerForRequest
 
-  val respSerializer: MessageSerializer.NegotiatedSerializer[KafkaEvent, ByteString] =
+  val respSerializer
+      : MessageSerializer.NegotiatedSerializer[KafkaEvent, ByteString] =
     serviceEventSerializer.serializerForResponse(Seq(MessageProtocol.empty))
 
-  val deserializer: MessageSerializer.NegotiatedDeserializer[KafkaEvent, ByteString] =
+  val deserializer
+      : MessageSerializer.NegotiatedDeserializer[KafkaEvent, ByteString] =
     serviceEventSerializer.deserializer(MessageProtocol.empty)
 
   val eventId: String = UUID.randomUUID().toString

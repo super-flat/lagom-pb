@@ -1,14 +1,14 @@
 package io.superflat.lagompb.encryption
 
-import io.superflat.lagompb.encryption.{DecryptPermanentFailure, EncryptFailure, ProtoEncryption}
 import io.superflat.lagompb.protobuf.encryption.EncryptedProto
+
 import scala.util.Try
 
 /**
- * test encryption that flips booleans to show methods were run
- *
- * @param shouldFail true if encrypt/decrypt should throw
- */
+  * test encryption that flips booleans to show methods were run
+  *
+  * @param shouldFail true if encrypt/decrypt should throw
+  */
 class TestEncryption(shouldFail: Boolean = false) extends ProtoEncryption {
 
   var didEncrypt: Boolean = false
@@ -22,7 +22,9 @@ class TestEncryption(shouldFail: Boolean = false) extends ProtoEncryption {
     NoEncryption.encrypt(proto)
   }
 
-  def decrypt(encryptedProto: EncryptedProto): Try[com.google.protobuf.any.Any] = {
+  def decrypt(
+      encryptedProto: EncryptedProto
+  ): Try[com.google.protobuf.any.Any] = {
     didDecrypt = true
     if (shouldFail) throw new DecryptPermanentFailure(failureMsg)
     NoEncryption.decrypt(encryptedProto)

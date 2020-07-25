@@ -7,7 +7,11 @@ import akka.actor.testkit.typed.scaladsl.TestProbe
 import akka.actor.typed.ActorRef
 import akka.persistence.typed.PersistenceId
 import com.google.protobuf.any.Any
-import io.superflat.lagompb.data.{TestAggregateRoot, TestCommandHandler, TestEventHandler}
+import io.superflat.lagompb.data.{
+  TestAggregateRoot,
+  TestCommandHandler,
+  TestEventHandler
+}
 import io.superflat.lagompb.protobuf.core._
 import io.superflat.lagompb.protobuf.core.CommandReply.Reply
 import io.superflat.lagompb.protobuf.tests._
@@ -44,7 +48,11 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
         createTestProbe[CommandReply]()
 
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
+        new TestAggregateRoot(
+          null,
+          new TestCommandHandler(null),
+          new TestEventHandler(null)
+        )
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -77,7 +85,11 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
         createTestProbe[CommandReply]()
 
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
+        new TestAggregateRoot(
+          null,
+          new TestCommandHandler(null),
+          new TestEventHandler(null)
+        )
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -86,7 +98,11 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
       val testCmd = TestCmd("", "first test")
 
       // let us send the command to the aggregate
-      aggregateRef ! Command(testCmd, commandSender.ref, Map.empty[String, String])
+      aggregateRef ! Command(
+        testCmd,
+        commandSender.ref,
+        Map.empty[String, String]
+      )
 
       commandSender.receiveMessage(replyTimeout) match {
         case CommandReply(reply) =>
@@ -105,7 +121,11 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
         createTestProbe[CommandReply]()
 
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
+        new TestAggregateRoot(
+          null,
+          new TestCommandHandler(null),
+          new TestEventHandler(null)
+        )
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -138,7 +158,11 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
         createTestProbe[CommandReply]()
 
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
+        new TestAggregateRoot(
+          null,
+          new TestCommandHandler(null),
+          new TestEventHandler(null)
+        )
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -165,7 +189,11 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
         createTestProbe[CommandReply]()
 
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
+        new TestAggregateRoot(
+          null,
+          new TestCommandHandler(null),
+          new TestEventHandler(null)
+        )
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -179,7 +207,9 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
         case CommandReply(reply) =>
           reply match {
             case Reply.FailedReply(value) =>
-              value.reason should include("unknown command handler success response")
+              value.reason should include(
+                "unknown command handler success response"
+              )
             case _ => fail("unexpected message type")
           }
         case _ => fail("unexpected message type")
@@ -192,7 +222,11 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
         createTestProbe[CommandReply]()
 
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
+        new TestAggregateRoot(
+          null,
+          new TestCommandHandler(null),
+          new TestEventHandler(null)
+        )
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -220,7 +254,11 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
         createTestProbe[CommandReply]()
 
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
+        new TestAggregateRoot(
+          null,
+          new TestCommandHandler(null),
+          new TestEventHandler(null)
+        )
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -235,20 +273,30 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
 
     "handle wrong state parsing" in {
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
+        new TestAggregateRoot(
+          null,
+          new TestCommandHandler(null),
+          new TestEventHandler(null)
+        )
       val stateWrapper = StateWrapper().withState(
         Any()
           .withTypeUrl("type.googleapis.com/lagom.test")
           .withValue(com.google.protobuf.ByteString.copyFrom("".getBytes))
       )
 
-      an[GlobalException] shouldBe thrownBy(aggregate.genericCommandHandler(stateWrapper, null))
+      an[GlobalException] shouldBe thrownBy(
+        aggregate.genericCommandHandler(stateWrapper, null)
+      )
     }
 
     "handle generic event handler" in {
       val companyUuid = "12234"
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
+        new TestAggregateRoot(
+          null,
+          new TestCommandHandler(null),
+          new TestEventHandler(null)
+        )
       val stateWrapper = StateWrapper()
         .withState(
           Any

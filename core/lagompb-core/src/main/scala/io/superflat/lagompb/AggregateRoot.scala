@@ -19,6 +19,7 @@ import io.superflat.lagompb.encryption.{
   NoEncryption,
   ProtoEncryption
 }
+import io.superflat.lagompb.protobuf.core._
 import io.superflat.lagompb.protobuf.core.CommandHandlerResponse.HandlerResponse.{
   Empty,
   FailedResponse,
@@ -28,7 +29,6 @@ import io.superflat.lagompb.protobuf.core.SuccessCommandHandlerResponse.Response
   Event,
   NoEvent
 }
-import io.superflat.lagompb.protobuf.core._
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.util.{Failure, Success, Try}

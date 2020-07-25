@@ -1,12 +1,13 @@
 package io.superflat.lagompb.encryption
 
-import io.superflat.lagompb.testkit.LagompbSpec
+import akka.persistence.typed.EventSeq
+import com.google.protobuf.any.Any
+import com.google.protobuf.wrappers.StringValue
 import io.superflat.lagompb.protobuf.core.EventWrapper
 import io.superflat.lagompb.protobuf.encryption.EncryptedProto
-import com.google.protobuf.wrappers.StringValue
-import com.google.protobuf.any.Any
+import io.superflat.lagompb.testkit.LagompbSpec
+
 import scala.util.Try
-import akka.persistence.typed.EventSeq
 
 class EncryptedEventAdapterSpec extends LagompbSpec {
 
@@ -35,17 +36,22 @@ class EncryptedEventAdapterSpec extends LagompbSpec {
       val actual: Try[EncryptedProto] = Try(adapter.toJournal(event))
 
       actual.isFailure shouldBe true
-      actual.failed.map(_.getMessage()).toOption shouldBe Some(encryptor.failureMsg)
+      actual.failed.map(_.getMessage()).toOption shouldBe Some(
+        encryptor.failureMsg
+      )
     }
 
     "throw when the decrypt throws" in {
       val encryptor = new TestEncryption(shouldFail = true)
       val adapter: EncryptedEventAdapter = new EncryptedEventAdapter(encryptor)
       val proto: EncryptedProto = EncryptedProto.defaultInstance
-      val actual: Try[EventSeq[EventWrapper]] = Try(adapter.fromJournal(proto, ""))
+      val actual: Try[EventSeq[EventWrapper]] =
+        Try(adapter.fromJournal(proto, ""))
 
       actual.isFailure shouldBe true
-      actual.failed.map(_.getMessage()).toOption shouldBe Some(encryptor.failureMsg)
+      actual.failed.map(_.getMessage()).toOption shouldBe Some(
+        encryptor.failureMsg
+      )
     }
   }
 

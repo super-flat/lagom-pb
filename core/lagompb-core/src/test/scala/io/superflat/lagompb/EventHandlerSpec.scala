@@ -23,7 +23,9 @@ class EventHandlerSpec extends LagompbSpec {
 
     "handle wrong event" in {
       val prevState = TestState(companyId, "state")
-      assertThrows[NotImplementedError](eventHandler.handle(WrongEvent(), prevState, MetaData.defaultInstance))
+      assertThrows[NotImplementedError](
+        eventHandler.handle(WrongEvent(), prevState, MetaData.defaultInstance)
+      )
     }
   }
 }
