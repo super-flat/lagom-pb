@@ -29,7 +29,7 @@ object Dependencies {
     val LogstashLogbackVersion = "6.3"
     val SilencerVersion = "1.6.0"
     val AkkaGrpcRuntimeVersion = "1.0.1"
-    val AkkaVersion: String = "2.6.8"
+    val AkkaVersion: String = "2.6.6"
     val H2Version = "1.4.200"
     val JaninoVersion = "3.1.2"
     val ScalapbJson4sVersion = "0.10.1"
