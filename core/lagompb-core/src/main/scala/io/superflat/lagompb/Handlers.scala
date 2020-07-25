@@ -9,9 +9,9 @@ import scala.util.Try
  * LagompbCommandHandler
  *
  * @param actorSystem the actor system
- * @tparam TState the aggregate state type
+ * @tparam S the aggregate state type
  */
-abstract class CommandHandler[TState <: scalapb.GeneratedMessage](actorSystem: ActorSystem) {
+abstract class CommandHandler[S <: scalapb.GeneratedMessage](actorSystem: ActorSystem) {
 
   /**
    * Handles a given command send to the entity
@@ -21,16 +21,16 @@ abstract class CommandHandler[TState <: scalapb.GeneratedMessage](actorSystem: A
    * @param currentMetaData the current event meta before the command was triggered
    * @return CommandHandlerResponse
    */
-  def handle(command: Command, currentState: TState, currentMetaData: MetaData): Try[CommandHandlerResponse]
+  def handle(command: Command, currentState: S, currentMetaData: MetaData): Try[CommandHandlerResponse]
 }
 
 /**
  * LagomPbEventHandler
  *
  * @param actorSystem the actor system
- * @tparam TState the aggregate state type
+ * @tparam S the aggregate state type
  */
-abstract class EventHandler[TState <: scalapb.GeneratedMessage](actorSystem: ActorSystem) {
+abstract class EventHandler[S <: scalapb.GeneratedMessage](actorSystem: ActorSystem) {
 
   /**
    * Handles a given event ad return the resulting state
@@ -40,5 +40,5 @@ abstract class EventHandler[TState <: scalapb.GeneratedMessage](actorSystem: Act
    * @param metaData the event meta characterising the actual event.
    * @return the resulting state
    */
-  def handle(event: scalapb.GeneratedMessage, currentState: TState, metaData: MetaData): TState
+  def handle(event: scalapb.GeneratedMessage, currentState: S, metaData: MetaData): S
 }

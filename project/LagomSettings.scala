@@ -48,6 +48,7 @@ object LagomSettings extends AutoPlugin {
         Compile.AkkaProjectionKafka,
         Compile.AkkaProjectionSlick,
         Compile.AkkaProjectionEventSourced,
+        Compile.CatsCore,
         Runtime.AkkaGrpcRuntime,
         Runtime.ScalapbRuntime,
         Runtime.ScalapbValidationRuntime,

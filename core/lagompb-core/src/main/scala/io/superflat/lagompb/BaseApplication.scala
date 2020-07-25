@@ -41,9 +41,7 @@ abstract class BaseApplication(context: LagomApplicationContext)
 
   // $COVERAGE-OFF$
 
-  //FIXME find a better way to load these ones
-  ProtosRegistry.registry
-  ProtosRegistry.typeRegistry
+  loadProtosRegistry()
 
   // Json Serializer registry not needed
   final override lazy val jsonSerializerRegistry: JsonSerializerRegistry =
@@ -78,15 +76,20 @@ abstract class BaseApplication(context: LagomApplicationContext)
    */
   override def serviceLocator: ServiceLocator
 
-  def selectShard(numShards: Int, entityId: String): Int = {
+  def selectShard(numShards: Int, entityId: String): Int =
     Math.abs(entityId.hashCode) % numShards
-  }
 
   // initialize cluster sharding
-  clusterSharding.init(Entity(aggregateRoot.typeKey)(entityContext => {
-    val shardIndex = selectShard(ConfigReader.eventsConfig.numShards, entityContext.entityId)
+  clusterSharding.init(Entity(aggregateRoot.typeKey) { entityContext =>
+    val shardIndex =
+      selectShard(ConfigReader.eventsConfig.numShards, entityContext.entityId)
     aggregateRoot.create(entityContext, shardIndex)
-  }))
+  })
+
+  def loadProtosRegistry(): Unit = {
+    ProtosRegistry.registry
+    ProtosRegistry.typeRegistry
+  }
 
   // $COVERAGE-ON$
 }
@@ -103,6 +106,9 @@ abstract class BaseStatelessApplication(context: LagomApplicationContext)
 
   // $COVERAGE-OFF$
 
+  // lagomServer is set by the server definition in the implementation class
+  override lazy val lagomServer: LagomServer = server
+
   /**
    * server helps define the lagom server. Please refer to the lagom doc
    * @example
@@ -116,9 +122,6 @@ abstract class BaseStatelessApplication(context: LagomApplicationContext)
    * @return ServiceLocator
    */
   override def serviceLocator: ServiceLocator
-
-  // lagomServer is set by the server definition in the implementation class
-  override lazy val lagomServer: LagomServer = server
 
   // $COVERAGE-ON$
 }

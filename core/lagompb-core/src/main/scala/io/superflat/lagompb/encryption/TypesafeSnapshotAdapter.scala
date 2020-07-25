@@ -31,9 +31,8 @@ abstract class TypesafeSnapshotAdapter[T, U] extends SnapshotAdapter[T] {
    * @param state state of type `T`
    * @return any scala object
    */
-  final def toJournal(state: T): scala.Any = {
+  final def toJournal(state: T): scala.Any =
     safeToJournal(state)
-  }
 
   /**
    * implements SnapshotAdapter method using provided `safeFromJournal` method
@@ -41,7 +40,6 @@ abstract class TypesafeSnapshotAdapter[T, U] extends SnapshotAdapter[T] {
    * @param from any scala object
    * @return instance of `T`
    */
-  final def fromJournal(from: scala.Any): T = {
+  final def fromJournal(from: scala.Any): T =
     safeFromJournal(from.asInstanceOf[U])
-  }
 }

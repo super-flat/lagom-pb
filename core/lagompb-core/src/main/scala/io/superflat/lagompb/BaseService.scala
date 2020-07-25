@@ -27,6 +27,8 @@ trait BaseService extends Service {
     namedService
   }
 
-  /** routes define the various routes handled by the service. */
+  /**
+   * routes define the various routes handled by the service.
+   */
   def routes: Seq[Descriptor.Call[_, _]]
 }

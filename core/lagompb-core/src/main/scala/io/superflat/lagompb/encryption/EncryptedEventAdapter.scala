@@ -22,12 +22,11 @@ class EncryptedEventAdapter(encryptor: ProtoEncryption) extends EventAdapter[Eve
    * @param e some EventWrapper instance (scalapb protobuf class)
    * @return EncryptedProto instance
    */
-  override def toJournal(e: EventWrapper): EncryptedProto = {
+  override def toJournal(e: EventWrapper): EncryptedProto =
     encryptor.encrypt(Any.pack(e)) match {
-      case Success(value) => value
+      case Success(value)     => value
       case Failure(exception) => throw exception
     }
-  }
 
   /**
    * given an encrypted proto, attempt to decrypt the message using provided
@@ -43,7 +42,7 @@ class EncryptedEventAdapter(encryptor: ProtoEncryption) extends EventAdapter[Eve
    */
   override def fromJournal(p: EncryptedProto, manifest: String): EventSeq[EventWrapper] = {
     val someAny: Any = encryptor.decrypt(p) match {
-      case Success(value) => value
+      case Success(value)     => value
       case Failure(exception) => throw exception
     }
 

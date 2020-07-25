@@ -13,7 +13,7 @@ final class InternalServerError(errorCode: TransportErrorCode, exceptionMessage:
     extends TransportException(errorCode, exceptionMessage, cause) {
   // $COVERAGE-OFF$
   def this(errorCode: TransportErrorCode, exceptionMessage: ExceptionMessage) =
-    this(errorCode, exceptionMessage, null)
+    this(errorCode, exceptionMessage, new Throwable)
   // $COVERAGE-ON$
 }
 
@@ -22,7 +22,10 @@ object InternalServerError {
   val ErrorCode: TransportErrorCode = TransportErrorCode.InternalServerError
 
   def apply(message: String) =
-    new InternalServerError(ErrorCode, new ExceptionMessage(classOf[InternalServerError].getSimpleName, message), null)
+    new InternalServerError(ErrorCode,
+                            new ExceptionMessage(classOf[InternalServerError].getSimpleName, message),
+                            new Throwable
+    )
 
   def apply(cause: Throwable) =
     new InternalServerError(

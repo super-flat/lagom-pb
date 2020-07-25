@@ -3,6 +3,7 @@ package io.superflat.lagompb
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
 import akka.grpc.GrpcServiceException
 import akka.util.Timeout
+import cats.implicits._
 import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.api.transport.BadRequest
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
@@ -39,31 +40,30 @@ sealed trait SharedBaseServiceImpl {
    * sends commands to the aggregate root and return a future of the aggregate state given a entity Id
    * the given entity Id is obtained the cluster shard.
    *
-   * @param entityUuid the entity Id added or retrieved from the shard
+   * @param entityId the entity Id added or retrieved from the shard
    * @param cmd        the command to send to the aggregate. It is a scalapb generated case class from the command
    *                   protocol buffer message definition
    * @param data       additional data that need to be set in the state meta
-   * @tparam TCommand the Type of the command to send.
+   * @tparam C the Type of the command to send.
    * @return Future of state
    */
-  def sendCommand[TCommand <: scalapb.GeneratedMessage, TState <: scalapb.GeneratedMessage](
-      clusterSharding: ClusterSharding,
-      entityUuid: String,
-      cmd: TCommand,
-      data: Map[String, String]
-  )(implicit ec: ExecutionContext): Future[StateAndMeta[TState]] = {
+  def sendCommand[C <: scalapb.GeneratedMessage, S <: scalapb.GeneratedMessage](
+    clusterSharding: ClusterSharding,
+    entityId: String,
+    cmd: C,
+    data: Map[String, String]
+  )(implicit ec: ExecutionContext): Future[StateAndMeta[S]] =
     clusterSharding
-      .entityRefFor(aggregateRoot.typeKey, entityUuid)
+      .entityRefFor(aggregateRoot.typeKey, entityId)
       .ask[CommandReply](replyTo => Command(cmd, replyTo, data))
-      .map((value: CommandReply) => handleLagompbCommandReply[TState](value))
-  }
+      .map((value: CommandReply) => handleLagompbCommandReply[S](value))
 
-  private[lagompb] def handleLagompbCommandReply[TState <: scalapb.GeneratedMessage](
-      commandReply: CommandReply
-  ): StateAndMeta[TState] = {
+  private[lagompb] def handleLagompbCommandReply[S <: scalapb.GeneratedMessage](
+    commandReply: CommandReply
+  ): StateAndMeta[S] =
     commandReply.reply match {
       case Reply.SuccessfulReply(successReply) =>
-        parseState[TState](successReply.getStateWrapper)
+        parseState[S](successReply.getStateWrapper)
       case Reply.FailedReply(failureReply) =>
         failureReply.cause match {
           case FailureCause.ValidationError =>
@@ -73,31 +73,30 @@ sealed trait SharedBaseServiceImpl {
           case _ => throw new GlobalException("reason unknown")
         }
       case _ =>
-        throw new GlobalException(s"unknown LagompbCommandReply ${commandReply.reply.getClass.getName}")
+        throw new GlobalException(s"unknown CommandReply ${commandReply.reply.getClass.getName}")
     }
-  }
 
-  private[lagompb] def parseState[TState <: scalapb.GeneratedMessage](
-      stateWrapper: StateWrapper
-  ): StateAndMeta[TState] = {
+  private[lagompb] def parseState[S <: scalapb.GeneratedMessage](
+    stateWrapper: StateWrapper
+  ): StateAndMeta[S] = {
     val meta: MetaData = stateWrapper.getMeta
     val state: Any = stateWrapper.getState
-    val parsed: TState = parseAny[TState](state)
-    StateAndMeta[TState](parsed, meta)
+    val parsed: S = parseAny[S](state)
+    StateAndMeta[S](parsed, meta)
   }
 
-  private[lagompb] def parseAny[TState <: scalapb.GeneratedMessage](data: Any): TState = {
+  private[lagompb] def parseAny[S <: scalapb.GeneratedMessage](data: Any): S = {
     val typeUrl: String = data.typeUrl.split('/').lastOption.getOrElse("")
 
-    if (aggregateStateCompanion.scalaDescriptor.fullName.equals(typeUrl)) {
+    if (aggregateStateCompanion.scalaDescriptor.fullName === typeUrl)
       Try {
-        data.unpack(aggregateStateCompanion).asInstanceOf[TState]
+        data.unpack(aggregateStateCompanion).asInstanceOf[S]
       } match {
         case Failure(exception) =>
           throw new GlobalException(exception.getMessage)
         case Success(value) => value
       }
-    } else throw new GlobalException("wrong state definition")
+    else throw new GlobalException("wrong state definition")
   }
 
   // $COVERAGE-ON$
@@ -113,14 +112,16 @@ sealed trait SharedBaseServiceImpl {
  * @param ec                       the execution context
  */
 abstract class BaseServiceImpl(
-    val clusterSharding: ClusterSharding,
-    val persistentEntityRegistry: PersistentEntityRegistry,
-    val aggregate: AggregateRoot[_]
+  val clusterSharding: ClusterSharding,
+  val persistentEntityRegistry: PersistentEntityRegistry,
+  val aggregate: AggregateRoot[_]
 )(implicit ec: ExecutionContext)
     extends SharedBaseServiceImpl
     with BaseService {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
+
+  final override def aggregateRoot: AggregateRoot[_] = aggregate
 
   /**
    * Sends command to the aggregate root. The command must have the aggregate entity id set.
@@ -128,21 +129,20 @@ abstract class BaseServiceImpl(
    *
    * @param cmd  the command to send
    * @param data the additional data to send
-   * @tparam TCommand the command scala type
-   * @tparam TState   the actual state scala type
+   * @tparam C the command scala type
+   * @tparam S   the actual state scala type
    * @return the [[io.superflat.lagompb.StateAndMeta]] containing the actual state and the event meta
    */
-  final def sendCommand[TCommand <: GeneratedMessage, TState <: scalapb.GeneratedMessage](
-      cmd: TCommand,
-      data: Map[String, String] = Map.empty
-  ): Future[StateAndMeta[TState]] = {
-
+  final def sendCommand[C <: GeneratedMessage, S <: scalapb.GeneratedMessage](
+    cmd: C,
+    data: Map[String, String] = Map.empty
+  ): Future[StateAndMeta[S]] =
     cmd.companion.scalaDescriptor.fields
       .find(field => field.getOptions.extension(ExtensionsProto.command).exists(_.entityId))
-      .fold[Future[StateAndMeta[TState]]](Future.failed(BadRequest("command does not have entity key set.")))(fd => {
+      .fold[Future[StateAndMeta[S]]](Future.failed(BadRequest("entity key not set."))) { fd =>
         val entityId: String = cmd.getField(fd).as[String]
         super
-          .sendCommand[TCommand, TState](clusterSharding, entityId, cmd, data)
+          .sendCommand[C, S](clusterSharding, entityId, cmd, data)
           .transform {
             case Failure(exception) =>
               log.error("", exception)
@@ -155,8 +155,7 @@ abstract class BaseServiceImpl(
               }
             case Success(value) => Success(value)
           }
-      })
-  }
+      }
 
   /**
    * Sends command to the aggregate root. The command must have the aggregate entity id set.
@@ -165,17 +164,17 @@ abstract class BaseServiceImpl(
    * @param entityId the entity ID
    * @param cmd      the command to send
    * @param data     the additional data to send
-   * @tparam TCommand the command scala type
-   * @tparam TState   the actual state scala type
+   * @tparam C the command scala type
+   * @tparam S   the actual state scala type
    * @return the [[io.superflat.lagompb.StateAndMeta]] containing the actual state and the event meta
    */
-  final def sendCommand[TCommand <: GeneratedMessage, TState <: scalapb.GeneratedMessage](
-      entityId: String,
-      cmd: TCommand,
-      data: Map[String, String]
-  ): Future[StateAndMeta[TState]] = {
+  final def sendCommand[C <: GeneratedMessage, S <: scalapb.GeneratedMessage](
+    entityId: String,
+    cmd: C,
+    data: Map[String, String]
+  ): Future[StateAndMeta[S]] =
     super
-      .sendCommand[TCommand, TState](clusterSharding, entityId, cmd, data)
+      .sendCommand[C, S](clusterSharding, entityId, cmd, data)
       .transform {
         case Failure(exception) =>
           log.error("", exception)
@@ -188,9 +187,6 @@ abstract class BaseServiceImpl(
           }
         case Success(value) => Success(value)
       }
-  }
-
-  final override def aggregateRoot: AggregateRoot[_] = aggregate
 }
 
 /**
@@ -208,18 +204,18 @@ trait BaseGrpcServiceImpl extends SharedBaseServiceImpl {
    * @param entityId        the entity ID
    * @param cmd             the command to send
    * @param data            the additional data to send
-   * @tparam TCommand the command scala type
-   * @tparam TState   the actual state scala type
+   * @tparam C the command scala type
+   * @tparam S   the actual state scala type
    * @return the [[io.superflat.lagompb.StateAndMeta]] containing the actual state and the state meta
    */
-  final override def sendCommand[TCommand <: GeneratedMessage, TState <: scalapb.GeneratedMessage](
-      clusterSharding: ClusterSharding,
-      entityId: String,
-      cmd: TCommand,
-      data: Map[String, String]
-  )(implicit ec: ExecutionContext): Future[StateAndMeta[TState]] = {
+  final override def sendCommand[C <: GeneratedMessage, S <: scalapb.GeneratedMessage](
+    clusterSharding: ClusterSharding,
+    entityId: String,
+    cmd: C,
+    data: Map[String, String]
+  )(implicit ec: ExecutionContext): Future[StateAndMeta[S]] =
     super
-      .sendCommand[TCommand, TState](clusterSharding, entityId, cmd, data)
+      .sendCommand[C, S](clusterSharding, entityId, cmd, data)
       .transform {
         case Failure(exception) =>
           exception match {
@@ -233,7 +229,6 @@ trait BaseGrpcServiceImpl extends SharedBaseServiceImpl {
           }
         case Success(value) => Success(value)
       }
-  }
 
   /**
    * Sends command to the aggregate root. The command must have the aggregate entity id set.
@@ -242,29 +237,28 @@ trait BaseGrpcServiceImpl extends SharedBaseServiceImpl {
    * @param clusterSharding the cluster sharding
    * @param cmd             the command to send
    * @param data            the additional data to send
-   * @tparam TCommand the command scala type
-   * @tparam TState   the actual state scala type
+   * @tparam C the command scala type
+   * @tparam S   the actual state scala type
    * @return the [[io.superflat.lagompb.StateAndMeta]] containing the actual state and the state meta
    */
-  final def sendCommand[TCommand <: GeneratedMessage, TState <: scalapb.GeneratedMessage](
-      clusterSharding: ClusterSharding,
-      cmd: TCommand,
-      data: Map[String, String]
-  )(implicit ec: ExecutionContext): Future[StateAndMeta[TState]] = {
-
+  final def sendCommand[C <: GeneratedMessage, S <: scalapb.GeneratedMessage](
+    clusterSharding: ClusterSharding,
+    cmd: C,
+    data: Map[String, String]
+  )(implicit ec: ExecutionContext): Future[StateAndMeta[S]] =
     cmd.companion.scalaDescriptor.fields
       .find(field => field.getOptions.extension(ExtensionsProto.command).exists(_.entityId))
-      .fold[Future[StateAndMeta[TState]]](
+      .fold[Future[StateAndMeta[S]]](
         Future.failed(
           new GrpcServiceException(
             status = Status.INVALID_ARGUMENT
-              .withDescription("command does not have entity key set.")
+              .withDescription("entity key not set.")
           )
         )
-      )(fd => {
+      ) { fd =>
         val entityId: String = cmd.getField(fd).as[String]
         super
-          .sendCommand[TCommand, TState](clusterSharding, entityId, cmd, data)
+          .sendCommand[C, S](clusterSharding, entityId, cmd, data)
           .transform {
             case Failure(exception) =>
               exception match {
@@ -278,8 +272,7 @@ trait BaseGrpcServiceImpl extends SharedBaseServiceImpl {
               }
             case Success(value) => Success(value)
           }
-      })
-  }
+      }
 
   // $COVERAGE-ON$
 }

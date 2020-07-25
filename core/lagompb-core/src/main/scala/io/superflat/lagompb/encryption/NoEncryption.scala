@@ -1,7 +1,7 @@
 package io.superflat.lagompb.encryption
 
-import com.google.protobuf.any.Any
 import com.google.protobuf.ByteString
+import com.google.protobuf.any.Any
 import io.superflat.lagompb.protobuf.encryption.EncryptedProto
 
 import scala.util.Try
@@ -35,12 +35,11 @@ object NoEncryption extends ProtoEncryption {
    * @param encryptedProto instance of EncryptedProto
    * @return Successful scalapb Any instance or Failure
    */
-  def decrypt(encryptedProto: EncryptedProto): Try[Any] = {
+  def decrypt(encryptedProto: EncryptedProto): Try[Any] =
     Try {
       // fake decryption back to ByteString -> ByteArray -> Any
       val encryptedByteString: ByteString = encryptedProto.encryptedProto
       val byteArray: Array[Byte] = encryptedByteString.toByteArray()
       Any.parseFrom(byteArray)
     }
-  }
 }

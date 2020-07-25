@@ -28,8 +28,8 @@ object Dependencies {
     val KanelaVersion = "1.0.5"
     val LogstashLogbackVersion = "6.3"
     val SilencerVersion = "1.6.0"
-    val AkkaGrpcRuntimeVersion = "1.0.1"
-    val AkkaVersion: String = "2.6.8"
+    val AkkaGrpcRuntimeVersion = "0.8.4"
+    val AkkaVersion: String = "2.6.6"
     val H2Version = "1.4.200"
     val JaninoVersion = "3.1.2"
     val ScalapbJson4sVersion = "0.10.1"
@@ -43,6 +43,7 @@ object Dependencies {
     val EmbeddedPostgresVersion = "0.13.3"
     val EmbeddedKafkaVersion = "2.5.0"
     val AkkaProjectionVersion = "0.3"
+    val CatsVersion = "2.1.1"
   }
 
   object Compile {
@@ -96,6 +97,8 @@ object Dependencies {
 
     val AkkaProjectionEventSourced: ModuleID =
       "com.lightbend.akka" %% "akka-projection-eventsourced" % Versions.AkkaProjectionVersion
+
+    val CatsCore = "org.typelevel" %% "cats-core" % Versions.CatsVersion
   }
 
   object Runtime {

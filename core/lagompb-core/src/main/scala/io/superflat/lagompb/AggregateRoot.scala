@@ -28,13 +28,13 @@ import scala.util.{Failure, Success, Try}
  * @param actorSystem    the underlying actor system
  * @param commandHandler the commands handler
  * @param eventHandler   the events handler
- * @tparam TState the scala type of the aggregate state
+ * @tparam S the scala type of the aggregate state
  */
-abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
-    actorSystem: ActorSystem,
-    commandHandler: CommandHandler[TState],
-    eventHandler: EventHandler[TState],
-    protoEncryption: ProtoEncryption = NoEncryption
+abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
+  actorSystem: ActorSystem,
+  commandHandler: CommandHandler[S],
+  eventHandler: EventHandler[S],
+  protoEncryption: ProtoEncryption = NoEncryption
 ) {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
@@ -50,7 +50,7 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
   /**
    * Defines the aggregate state.
    */
-  def stateCompanion: scalapb.GeneratedMessageCompanion[TState]
+  def stateCompanion: scalapb.GeneratedMessageCompanion[S]
 
   final def create(entityContext: EntityContext[Command], shardIndex: Int): Behavior[Command] = {
     val persistenceId: PersistenceId =
@@ -73,21 +73,26 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
    *
    * @param persistenceId the aggregate persistence Id
    */
-  private[lagompb] def create(persistenceId: PersistenceId): EventSourcedBehavior[Command, EventWrapper, StateWrapper] =
+  private[lagompb] def create(
+    persistenceId: PersistenceId
+  ): EventSourcedBehavior[Command, EventWrapper, StateWrapper] = {
+    val splitter: Char = PersistenceId.DefaultSeparator(0)
+    val entityId = persistenceId.id.split(splitter).lastOption.getOrElse("")
     EventSourcedBehavior
       .withEnforcedReplies[Command, EventWrapper, StateWrapper](
         persistenceId = persistenceId,
-        emptyState = initialState,
+        emptyState = initialState(entityId),
         commandHandler = genericCommandHandler,
         eventHandler = genericEventHandler
       )
       .eventAdapter(new EncryptedEventAdapter(protoEncryption))
       .snapshotAdapter(new EncryptedSnapshotAdapter(protoEncryption))
+  }
 
-  private def initialState: StateWrapper =
+  private[this] def initialState(entityId: String): StateWrapper =
     StateWrapper()
       .withState(Any.pack(stateCompanion.defaultInstance))
-      .withMeta(MetaData.defaultInstance)
+      .withMeta(MetaData.defaultInstance.withEntityId(entityId))
 
   /**
    * unpacks the nested state in the event, throws away prior state
@@ -95,9 +100,8 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
    * @param priorState the current state
    * @param event      the event wrapper
    */
-  private[lagompb] def genericEventHandler(priorState: StateWrapper, event: EventWrapper): StateWrapper = {
+  private[lagompb] def genericEventHandler(priorState: StateWrapper, event: EventWrapper): StateWrapper =
     priorState.update(_.meta := event.getMeta, _.state := event.getResultingState)
-  }
 
   /**
    * Given a LagompbState implementation and a LagompbCommand, run the
@@ -111,7 +115,7 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
 
     // parse nested state
     Try {
-      stateWrapper.getState.unpack[TState](stateCompanion)
+      stateWrapper.getState.unpack[S](stateCompanion)
     } match {
       case Failure(exception) =>
         val errMsg: String = s"state parser failure, ${exception.getMessage}"
@@ -120,7 +124,7 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
         throw new GlobalException(errMsg)
 
       case Success(state) =>
-        log.debug(s"[LagomPb] plugin data ${cmd.data} is valid...")
+        log.debug(s"[Lagompb] plugin data ${cmd.data} is valid...")
 
         commandHandler.handle(cmd, state, stateWrapper.getMeta) match {
 
@@ -135,37 +139,35 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
                   // No event to persist
                   case NoEvent(_) =>
                     Effect.reply(cmd.replyTo)(
-                      CommandReply()
-                        .withSuccessfulReply(
-                          SuccessfulReply()
-                            .withStateWrapper(stateWrapper)
-                        )
+                      CommandReply().withSuccessfulReply(SuccessfulReply().withStateWrapper(stateWrapper))
                     )
 
                   // Some event to persist
                   case Event(event: Any) =>
                     ProtosRegistry
-                      .getCompanion(event)
+                      .companion(event)
                       .fold[ReplyEffect[EventWrapper, StateWrapper]](
                         Effect.reply(cmd.replyTo)(
-                          CommandReply()
-                            .withFailedReply(
-                              FailedReply()
-                                .withReason(
-                                  s"[Lagompb] unable to parse event ${event.typeUrl} emitted by the command handler"
-                                )
-                                .withCause(FailureCause.InternalError)
-                            )
+                          CommandReply().withFailedReply(
+                            FailedReply()
+                              .withReason(
+                                s"[Lagompb] unable to parse event ${event.typeUrl} emitted by the command handler"
+                              )
+                              .withCause(FailureCause.InternalError)
+                          )
                         )
-                      )(comp => {
+                      ) { comp =>
                         // let us construct the event meta prior to call the user agent
                         val eventMeta: MetaData = MetaData()
                           .withRevisionNumber(stateWrapper.getMeta.revisionNumber + 1)
                           .withRevisionDate(Instant.now().toTimestamp)
                           .withData(cmd.data)
+                          .withEntityId(
+                            stateWrapper.getMeta.entityId
+                          ) // the priorState will always have the entityId set in its meta even for the initial state
 
                         // let us the event handler
-                        val resultingState: TState = eventHandler
+                        val resultingState: S = eventHandler
                           .handle(event.unpack(comp), state, eventMeta)
 
                         log.debug(
@@ -179,14 +181,14 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
                               .withResultingState(Any.pack(resultingState))
                               .withMeta(eventMeta)
                           )
-                          .thenReply(cmd.replyTo)((updatedStateWrapper: StateWrapper) => {
+                          .thenReply(cmd.replyTo) { (updatedStateWrapper: StateWrapper) =>
                             CommandReply()
                               .withSuccessfulReply(
                                 SuccessfulReply()
                                   .withStateWrapper(updatedStateWrapper)
                               )
-                          })
-                      })
+                          }
+                      }
 
                   // the command handler return some unhandled successful response
                   // this case may never happen but it is safe to always check it

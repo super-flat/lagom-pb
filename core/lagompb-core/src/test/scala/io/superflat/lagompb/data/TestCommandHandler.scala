@@ -12,12 +12,12 @@ import scala.util.Try
 class TestCommandHandler(actorSystem: ActorSystem) extends CommandHandler[TestState](actorSystem) {
 
   override def handle(
-      command: Command,
-      currentState: TestState,
-      currentEventMeta: MetaData
-  ): Try[CommandHandlerResponse] = {
+    command: Command,
+    currentState: TestState,
+    currentEventMeta: MetaData
+  ): Try[CommandHandlerResponse] =
     command.command match {
-      case cmd: TestCmd => handleTestCmd(cmd, currentState)
+      case cmd: TestCmd    => handleTestCmd(cmd, currentState)
       case cmd: TestGetCmd => handleTestGetCmd(cmd, currentState)
       case _: TestEmptyCmd =>
         Try(
@@ -42,11 +42,10 @@ class TestCommandHandler(actorSystem: ActorSystem) extends CommandHandler[TestSt
             )
         )
       case _: TestFailCmd => throw new RuntimeException("I am failing...")
-      case _ => handleInvalidCommand()
+      case _              => handleInvalidCommand()
     }
-  }
 
-  def handleTestGetCmd(cmd: TestGetCmd, currentState: TestState): Try[CommandHandlerResponse] = {
+  def handleTestGetCmd(cmd: TestGetCmd, currentState: TestState): Try[CommandHandlerResponse] =
     Try(
       CommandHandlerResponse()
         .withSuccessResponse(
@@ -54,10 +53,9 @@ class TestCommandHandler(actorSystem: ActorSystem) extends CommandHandler[TestSt
             .withNoEvent(com.google.protobuf.empty.Empty())
         )
     )
-  }
 
-  def handleTestCmd(cmd: TestCmd, state: TestState): Try[CommandHandlerResponse] = {
-    if (cmd.companyUuid.isEmpty) {
+  def handleTestCmd(cmd: TestCmd, state: TestState): Try[CommandHandlerResponse] =
+    if (cmd.companyUuid.isEmpty)
       Try(
         CommandHandlerResponse()
           .withFailedResponse(
@@ -66,7 +64,7 @@ class TestCommandHandler(actorSystem: ActorSystem) extends CommandHandler[TestSt
               .withCause(FailureCause.ValidationError)
           )
       )
-    } else {
+    else
       Try(
         CommandHandlerResponse()
           .withSuccessResponse(
@@ -74,8 +72,6 @@ class TestCommandHandler(actorSystem: ActorSystem) extends CommandHandler[TestSt
               .withEvent(Any.pack(TestEvent(cmd.companyUuid, cmd.name)))
           )
       )
-    }
-  }
 
   def handleInvalidCommand(): Try[CommandHandlerResponse] =
     Try(

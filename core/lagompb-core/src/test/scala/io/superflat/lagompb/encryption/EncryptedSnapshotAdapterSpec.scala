@@ -1,20 +1,22 @@
 package io.superflat.lagompb.encryption
 
-import io.superflat.lagompb.testkit.LagompbSpec
+import com.google.protobuf.any.Any
+import com.google.protobuf.wrappers.StringValue
 import io.superflat.lagompb.protobuf.core.StateWrapper
 import io.superflat.lagompb.protobuf.encryption.EncryptedProto
-import com.google.protobuf.wrappers.StringValue
-import com.google.protobuf.any.Any
+import io.superflat.lagompb.testkit.LagompbSpec
+
 import scala.util.Try
 
 class EncryptedSnapshotAdapterSpec extends LagompbSpec {
 
   "EncryptedSnapshotAdapter" must {
     "safely encrypt and decrypt" in {
-      val encryptor = new TestEncryption()
+      val encryptor = new EncryptionSpec()
       val adapter = new EncryptedSnapshotAdapter(encryptor)
 
-      val state = StateWrapper().withState(Any.pack(StringValue("such a special state")))
+      val state =
+        StateWrapper().withState(Any.pack(StringValue("such a special state")))
 
       val encrypted: EncryptedProto = adapter.safeToJournal(state)
       val decrypted: StateWrapper = adapter.safeFromJournal(encrypted)
@@ -27,7 +29,7 @@ class EncryptedSnapshotAdapterSpec extends LagompbSpec {
     }
 
     "throw when the encrypt throws" in {
-      val encryptor = new TestEncryption(shouldFail = true)
+      val encryptor = new EncryptionSpec(shouldFail = true)
       val adapter = new EncryptedSnapshotAdapter(encryptor)
       val state = StateWrapper.defaultInstance
       val actual: Try[EncryptedProto] = Try(adapter.safeToJournal(state))
@@ -36,7 +38,7 @@ class EncryptedSnapshotAdapterSpec extends LagompbSpec {
     }
 
     "throw when the decrypt throws" in {
-      val encryptor = new TestEncryption(shouldFail = true)
+      val encryptor = new EncryptionSpec(shouldFail = true)
       val adapter = new EncryptedSnapshotAdapter(encryptor)
       val proto = EncryptedProto.defaultInstance
       val actual: Try[StateWrapper] = Try(adapter.safeFromJournal(proto))

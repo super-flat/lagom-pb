@@ -26,10 +26,10 @@ trait TestService extends BaseService {
 }
 
 class TestServiceImpl(
-    sys: ActorSystem,
-    clusterSharding: ClusterSharding,
-    persistentEntityRegistry: PersistentEntityRegistry,
-    aggregate: AggregateRoot[TestState]
+  sys: ActorSystem,
+  clusterSharding: ClusterSharding,
+  persistentEntityRegistry: PersistentEntityRegistry,
+  aggregate: AggregateRoot[TestState]
 )(implicit ec: ExecutionContext)
     extends BaseServiceImpl(clusterSharding, persistentEntityRegistry, aggregate)
     with TestService {
@@ -42,11 +42,9 @@ class TestServiceImpl(
   override def aggregateStateCompanion: GeneratedMessageCompanion[_ <: GeneratedMessage] = TestState
 
   override def testHello: ServiceCall[TestCmd, TestState] = { req =>
-    {
-      val companyId: String = UUID.randomUUID().toString
-      val cmd = req.update(_.companyUuid := companyId)
-      sendCommand[TestCmd, TestState](cmd)
-        .map((rst: StateAndMeta[TestState]) => rst.state)
-    }
+    val companyId: String = UUID.randomUUID().toString
+    val cmd = req.update(_.companyUuid := companyId)
+    sendCommand[TestCmd, TestState](cmd)
+      .map((rst: StateAndMeta[TestState]) => rst.state)
   }
 }

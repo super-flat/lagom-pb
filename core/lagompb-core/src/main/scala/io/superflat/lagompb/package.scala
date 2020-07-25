@@ -13,9 +13,8 @@ package object lagompb {
      *
      * @return java Instant date
      */
-    def toInstant: Instant = {
+    def toInstant: Instant =
       Instant.ofEpochSecond(timestamp.seconds, timestamp.nanos)
-    }
 
     /**
      * converts a protocol buffer timestamp to java Instant date based upon a given time zone
@@ -23,12 +22,11 @@ package object lagompb {
      * @param zoneId the time zone
      * @return java Instant date
      */
-    def toInstant(zoneId: ZoneId): Instant = {
+    def toInstant(zoneId: ZoneId): Instant =
       Instant
         .ofEpochSecond(timestamp.seconds, timestamp.nanos)
         .atZone(zoneId)
         .toInstant
-    }
 
     /**
      * converts a protocol buffer timestamp to java local date based upon a given time zone
@@ -36,12 +34,11 @@ package object lagompb {
      * @param zoneId the time zone id
      * @return  java local date
      */
-    def toLocalDate(zoneId: ZoneId): LocalDate = {
+    def toLocalDate(zoneId: ZoneId): LocalDate =
       Instant
         .ofEpochSecond(timestamp.seconds, timestamp.nanos)
         .atZone(zoneId)
         .toLocalDate
-    }
   }
 
   implicit class Instants(instant: Instant) {
@@ -51,10 +48,9 @@ package object lagompb {
      *
      * @return Protobuf timestamp
      */
-    def toTimestamp: Timestamp = {
+    def toTimestamp: Timestamp =
       Timestamp()
         .withNanos(instant.getNano)
         .withSeconds(instant.getEpochSecond)
-    }
   }
 }
