@@ -72,7 +72,7 @@ sealed trait SharedBaseServiceImpl {
           case _ => throw new GlobalException("reason unknown")
         }
       case _ =>
-        throw new GlobalException(s"unknown LagompbCommandReply ${commandReply.reply.getClass.getName}")
+        throw new GlobalException(s"unknown CommandReply ${commandReply.reply.getClass.getName}")
     }
 
   private[lagompb] def parseState[TState <: scalapb.GeneratedMessage](
@@ -87,7 +87,7 @@ sealed trait SharedBaseServiceImpl {
   private[lagompb] def parseAny[TState <: scalapb.GeneratedMessage](data: Any): TState = {
     val typeUrl: String = data.typeUrl.split('/').lastOption.getOrElse("")
 
-    if (aggregateStateCompanion.scalaDescriptor.fullName.equals(typeUrl))
+    if (aggregateStateCompanion.scalaDescriptor.fullName == typeUrl)
       Try {
         data.unpack(aggregateStateCompanion).asInstanceOf[TState]
       } match {
@@ -138,7 +138,7 @@ abstract class BaseServiceImpl(
   ): Future[StateAndMeta[TState]] =
     cmd.companion.scalaDescriptor.fields
       .find(field => field.getOptions.extension(ExtensionsProto.command).exists(_.entityId))
-      .fold[Future[StateAndMeta[TState]]](Future.failed(BadRequest("command does not have entity key set."))) { fd =>
+      .fold[Future[StateAndMeta[TState]]](Future.failed(BadRequest("entity key not set."))) { fd =>
         val entityId: String = cmd.getField(fd).as[String]
         super
           .sendCommand[TCommand, TState](clusterSharding, entityId, cmd, data)
@@ -251,7 +251,7 @@ trait BaseGrpcServiceImpl extends SharedBaseServiceImpl {
         Future.failed(
           new GrpcServiceException(
             status = Status.INVALID_ARGUMENT
-              .withDescription("command does not have entity key set.")
+              .withDescription("entity key not set.")
           )
         )
       ) { fd =>

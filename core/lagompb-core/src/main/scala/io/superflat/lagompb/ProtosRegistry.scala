@@ -51,7 +51,7 @@ object ProtosRegistry {
    * @param any the protobuf message
    * @return the maybe scalapb GeneratedMessageCompanion object
    */
-  def getCompanion(any: Any): Option[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
+  def companion(any: Any): Option[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
     companionsMap.get(any.typeUrl.split('/').lastOption.getOrElse(""))
 
   /**

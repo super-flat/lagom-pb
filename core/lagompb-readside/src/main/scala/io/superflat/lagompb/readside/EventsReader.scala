@@ -40,7 +40,7 @@ final class EventsReader(eventTag: String, encryption: ProtoEncryption, eventPro
       // handle happy path decryption
       .map({
         case EventWrapper(Some(event: any.Any), Some(resultingState), Some(meta)) =>
-          ProtosRegistry.getCompanion(event) match {
+          ProtosRegistry.companion(event) match {
             case Some(comp) =>
               eventProcessor
                 .process(comp, event, eventTag, resultingState, meta)

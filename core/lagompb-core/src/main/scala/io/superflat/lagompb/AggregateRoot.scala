@@ -73,17 +73,21 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
    *
    * @param persistenceId the aggregate persistence Id
    */
-  private[lagompb] def create(persistenceId: PersistenceId): EventSourcedBehavior[Command, EventWrapper, StateWrapper] =
+  private[lagompb] def create(
+      persistenceId: PersistenceId
+  ): EventSourcedBehavior[Command, EventWrapper, StateWrapper] = {
+    val splitter: Char = PersistenceId.DefaultSeparator(0)
+    val entityId = persistenceId.id.split(splitter).lastOption.getOrElse("")
     EventSourcedBehavior
       .withEnforcedReplies[Command, EventWrapper, StateWrapper](
         persistenceId = persistenceId,
-        emptyState =
-          initialState(persistenceId.id.substring(persistenceId.id.indexOf(PersistenceId.DefaultSeparator) + 1)),
+        emptyState = initialState(entityId),
         commandHandler = genericCommandHandler,
         eventHandler = genericEventHandler
       )
       .eventAdapter(new EncryptedEventAdapter(protoEncryption))
       .snapshotAdapter(new EncryptedSnapshotAdapter(protoEncryption))
+  }
 
   private[this] def initialState(entityId: String): StateWrapper =
     StateWrapper()
@@ -145,7 +149,7 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
                   // Some event to persist
                   case Event(event: Any) =>
                     ProtosRegistry
-                      .getCompanion(event)
+                      .companion(event)
                       .fold[ReplyEffect[EventWrapper, StateWrapper]](
                         Effect.reply(cmd.replyTo)(
                           CommandReply()

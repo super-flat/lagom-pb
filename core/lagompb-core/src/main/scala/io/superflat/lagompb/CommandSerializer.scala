@@ -21,6 +21,7 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
     ProtosRegistry.companions
       .map(companion => (companion.scalaDescriptor.fullName, (s: Array[Byte]) => companion.parseFrom(s)))
       .toMap
+
   final val commandManifest: String = classOf[Command].getName
 
   private final val log: Logger =
@@ -44,7 +45,7 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
           .withData(pluginData)
           .toByteArray
 
-      case _ => throw new GlobalException("requires Command")
+      case _ => throw new GlobalException("No Command Provided...")
     }
 
   override def identifier: Int = 5555
@@ -58,7 +59,7 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
         val ref: ActorRef[CommandReply] =
           actorRefResolver.resolveActorRef[CommandReply](actorRefStr)
 
-        wrapper.command.fold(throw new GlobalException("requires Command")) { any =>
+        wrapper.command.fold(throw new GlobalException("error deserializing command")) { any =>
           log.debug(s"deserializing Command #[${any.typeUrl}]")
 
           msgMap
