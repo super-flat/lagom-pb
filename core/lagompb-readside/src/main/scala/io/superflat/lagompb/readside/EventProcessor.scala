@@ -7,20 +7,20 @@ import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.dbio.DBIO
 
 /**
-  * Helps process the events read from the journal
-  */
+ * Helps process the events read from the journal
+ */
 trait EventProcessor {
 
   /**
-    * Processes events read from the Journal
-    *
-    * @param comp the scalapb companion object used to unmarshall the aggregate state
-    * @param event the actual event
-    * @param eventTag the event tag
-    * @param resultingState the resulting state of the applied event
-    * @param meta the additional meta data
-    * @return
-    */
+   * Processes events read from the Journal
+   *
+   * @param comp the scalapb companion object used to unmarshall the aggregate state
+   * @param event the actual event
+   * @param eventTag the event tag
+   * @param resultingState the resulting state of the applied event
+   * @param meta the additional meta data
+   * @return
+   */
   def process(
       comp: GeneratedMessageCompanion[_ <: GeneratedMessage],
       event: any.Any,

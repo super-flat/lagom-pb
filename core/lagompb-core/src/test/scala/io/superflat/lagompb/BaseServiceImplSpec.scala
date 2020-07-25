@@ -96,9 +96,7 @@ class BaseServiceImplSpec extends LagompbSpec {
             FailedReply()
               .withReason("failed")
           )
-      an[RuntimeException] shouldBe thrownBy(
-        testImpl.handleLagompbCommandReply[TestState](rejected)
-      )
+      an[RuntimeException] shouldBe thrownBy(testImpl.handleLagompbCommandReply[TestState](rejected))
     }
 
     "failed to handle CommandReply" in {
@@ -109,9 +107,7 @@ class BaseServiceImplSpec extends LagompbSpec {
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
       case class WrongReply()
       an[RuntimeException] shouldBe thrownBy(
-        testImpl.handleLagompbCommandReply[TestState](
-          CommandReply().withReply(Reply.Empty)
-        )
+        testImpl.handleLagompbCommandReply[TestState](CommandReply().withReply(Reply.Empty))
       )
     }
 
@@ -146,18 +142,14 @@ class BaseServiceImplSpec extends LagompbSpec {
             .withState(
               Any()
                 .withTypeUrl("type.googleapis.com/com.contonso.test")
-                .withValue(
-                  com.google.protobuf.ByteString.copyFrom("test".getBytes)
-                )
+                .withValue(com.google.protobuf.ByteString.copyFrom("test".getBytes))
             )
             .withMeta(MetaData().withRevisionNumber(1))
         )
       )
     }
 
-    "process request as expected" in ServiceTest.withServer(
-      ServiceTest.defaultSetup.withCluster()
-    ) { context =>
+    "process request as expected" in ServiceTest.withServer(ServiceTest.defaultSetup.withCluster()) { context =>
       new TestApplication(context)
     } { server =>
       val testCmd = TestCmd().withCompanyUuid(companyId).withName("John")

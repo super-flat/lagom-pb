@@ -27,23 +27,21 @@ import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
 /**
-  * ReadSideProcessor helps implement multiple readSide processors where the offsets are
-  * persisted postgres. One of the greatest advantage is one can process events emitted differently by
-  * spawning different type of [[ReadSideProcessor]] to handle them.
-  * Each instance must be registered in the application via
-  * the dependency injection and the init method called
-  *
-  * Please bear in mind that the akka.projection.slick is required to be set in the configuration file.
-  *
-  * @see https://doc.akka.io/docs/akka-projection/current/slick.html#configuration
-  * @param encryption ProtoEncryption instance to use
-  * @param actorSystem the actor system
-  * @param ec          the execution context
-  * @tparam T the aggregate state type
-  */
-@silent abstract class ReadSideProcessor[T <: scalapb.GeneratedMessage](
-    encryption: ProtoEncryption
-)(implicit
+ * ReadSideProcessor helps implement multiple readSide processors where the offsets are
+ * persisted postgres. One of the greatest advantage is one can process events emitted differently by
+ * spawning different type of [[ReadSideProcessor]] to handle them.
+ * Each instance must be registered in the application via
+ * the dependency injection and the init method called
+ *
+ * Please bear in mind that the akka.projection.slick is required to be set in the configuration file.
+ *
+ * @see https://doc.akka.io/docs/akka-projection/current/slick.html#configuration
+ * @param encryption ProtoEncryption instance to use
+ * @param actorSystem the actor system
+ * @param ec          the execution context
+ * @tparam T the aggregate state type
+ */
+@silent abstract class ReadSideProcessor[T <: scalapb.GeneratedMessage](encryption: ProtoEncryption)(implicit
     ec: ExecutionContext,
     actorSystem: ActorSystem[_]
 ) extends EventProcessor {
@@ -52,10 +50,7 @@ import scala.util.{Failure, Success, Try}
 
   // The implementation class needs to set the akka.projection.slick config for the offset database
   protected val dbConfig: DatabaseConfig[PostgresProfile] =
-    DatabaseConfig.forConfig(
-      "akka.projection.slick",
-      actorSystem.settings.config
-    )
+    DatabaseConfig.forConfig("akka.projection.slick", actorSystem.settings.config)
 
   protected val baseTag: String = ConfigReader.eventsConfig.tagName
 
@@ -84,27 +79,24 @@ import scala.util.{Failure, Success, Try}
     }
 
   /**
-    * Initialize the projection to start fetching the events that are emitted
-    */
+   * Initialize the projection to start fetching the events that are emitted
+   */
   def init(): Unit =
     ShardedDaemonProcess(actorSystem).init[ProjectionBehavior.Command](
       name = projectionName,
       numberOfInstances = ConfigReader.allEventTags.size,
-      behaviorFactory =
-        n => ProjectionBehavior(exactlyOnceProjection(s"$baseTag$n")),
+      behaviorFactory = n => ProjectionBehavior(exactlyOnceProjection(s"$baseTag$n")),
       settings = ShardedDaemonProcessSettings(actorSystem),
       stopMessage = Some(ProjectionBehavior.Stop)
     )
 
   /**
-    * Build the projection instance based upon the event tag
-    *
-    * @param tagName the event tag
-    * @return the projection instance
-    */
-  protected def exactlyOnceProjection(
-      tagName: String
-  ): ExactlyOnceProjection[Offset, EventEnvelope[EncryptedProto]] =
+   * Build the projection instance based upon the event tag
+   *
+   * @param tagName the event tag
+   * @return the projection instance
+   */
+  protected def exactlyOnceProjection(tagName: String): ExactlyOnceProjection[Offset, EventEnvelope[EncryptedProto]] =
     SlickProjection
       .exactlyOnce(
         projectionId = ProjectionId(projectionName, tagName),
@@ -114,39 +106,33 @@ import scala.util.{Failure, Success, Try}
       )
 
   /**
-    * Set the Event Sourced Provider per tag
-    *
-    * @param tag the event tag
-    * @return the event sourced provider
-    */
-  protected def sourceProvider(
-      tag: String
-  ): SourceProvider[Offset, EventEnvelope[EncryptedProto]] =
+   * Set the Event Sourced Provider per tag
+   *
+   * @param tag the event tag
+   * @return the event sourced provider
+   */
+  protected def sourceProvider(tag: String): SourceProvider[Offset, EventEnvelope[EncryptedProto]] =
     EventSourcedProvider
-      .eventsByTag[EncryptedProto](
-        actorSystem,
-        readJournalPluginId = JdbcReadJournal.Identifier,
-        tag
-      )
+      .eventsByTag[EncryptedProto](actorSystem, readJournalPluginId = JdbcReadJournal.Identifier, tag)
 
   /**
-    * The projection Name must be unique
-    *
-    * @return
-    */
+   * The projection Name must be unique
+   *
+   * @return
+   */
   def projectionName: String
 
   /**
-    * aggregate state. it is a generated scalapb message extending the LagompbState trait
-    *
-    * @return aggregate state
-    */
+   * aggregate state. it is a generated scalapb message extending the LagompbState trait
+   *
+   * @return aggregate state
+   */
   def aggregateStateCompanion: scalapb.GeneratedMessageCompanion[T]
 
   /**
-    * Handles aggregate event persisted and made available for read model
-    *
-    * @param event the aggregate event
-    */
+   * Handles aggregate event persisted and made available for read model
+   *
+   * @param event the aggregate event
+   */
   def handle(event: ReadSideEvent[T]): DBIO[Done]
 }

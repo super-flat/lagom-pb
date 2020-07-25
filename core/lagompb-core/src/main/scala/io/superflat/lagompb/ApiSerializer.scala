@@ -1,30 +1,21 @@
 package io.superflat.lagompb
 
 import akka.util.ByteString
-import com.lightbend.lagom.scaladsl.api.deser.{
-  MessageSerializer,
-  StrictMessageSerializer
-}
-import com.lightbend.lagom.scaladsl.api.deser.MessageSerializer.{
-  NegotiatedDeserializer,
-  NegotiatedSerializer
-}
+import com.lightbend.lagom.scaladsl.api.deser.{MessageSerializer, StrictMessageSerializer}
+import com.lightbend.lagom.scaladsl.api.deser.MessageSerializer.{NegotiatedDeserializer, NegotiatedSerializer}
 import com.lightbend.lagom.scaladsl.api.transport.MessageProtocol
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 /**
-  * ApiSerializer helps serialize json REST payload into protobuf messages and vice versa.
-  */
+ * ApiSerializer helps serialize json REST payload into protobuf messages and vice versa.
+ */
 class ApiSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]
     extends StrictMessageSerializer[A]
     with GenericSerializers[A] {
 
-  override def serializerForRequest
-      : MessageSerializer.NegotiatedSerializer[A, ByteString] = serializerJson
+  override def serializerForRequest: MessageSerializer.NegotiatedSerializer[A, ByteString] = serializerJson
 
-  override def deserializer(
-      protocol: MessageProtocol
-  ): MessageSerializer.NegotiatedDeserializer[A, ByteString] =
+  override def deserializer(protocol: MessageProtocol): MessageSerializer.NegotiatedDeserializer[A, ByteString] =
     deserializer
 
   override def serializerForResponse(
@@ -35,15 +26,12 @@ class ApiSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]
 
 sealed trait GenericSerializers[T <: GeneratedMessage] {
 
-  def deserializer(implicit
-      T: GeneratedMessageCompanion[T]
-  ): NegotiatedDeserializer[T, ByteString] = { (wire: ByteString) =>
-    ProtosRegistry.parser.fromJsonString(wire.utf8String)
+  def deserializer(implicit T: GeneratedMessageCompanion[T]): NegotiatedDeserializer[T, ByteString] = {
+    (wire: ByteString) =>
+      ProtosRegistry.parser.fromJsonString(wire.utf8String)
   }
 
-  def negotiateResponse(
-      acceptedMessageProtocols: Seq[MessageProtocol]
-  ): NegotiatedSerializer[T, ByteString] =
+  def negotiateResponse(acceptedMessageProtocols: Seq[MessageProtocol]): NegotiatedSerializer[T, ByteString] =
     acceptedMessageProtocols match {
       case Nil => serializerJson
       case protocols =>
@@ -58,14 +46,17 @@ sealed trait GenericSerializers[T <: GeneratedMessage] {
 
   def serializerJson: NegotiatedSerializer[T, ByteString] =
     new NegotiatedSerializer[T, ByteString] {
+
       override def protocol: MessageProtocol =
         MessageProtocol(Some("application/json"))
+
       override def serialize(message: T): ByteString =
         ByteString(ProtosRegistry.printer.print(message))
     }
 
   def serializerProtobuf: NegotiatedSerializer[T, ByteString] =
     new NegotiatedSerializer[T, ByteString] {
+
       override def protocol: MessageProtocol =
         MessageProtocol(Some("application/x-protobuf"))
 

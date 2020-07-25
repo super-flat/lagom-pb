@@ -36,9 +36,7 @@ class EncryptedEventAdapterSpec extends LagompbSpec {
       val actual: Try[EncryptedProto] = Try(adapter.toJournal(event))
 
       actual.isFailure shouldBe true
-      actual.failed.map(_.getMessage()).toOption shouldBe Some(
-        encryptor.failureMsg
-      )
+      actual.failed.map(_.getMessage()).toOption shouldBe Some(encryptor.failureMsg)
     }
 
     "throw when the decrypt throws" in {
@@ -49,9 +47,7 @@ class EncryptedEventAdapterSpec extends LagompbSpec {
         Try(adapter.fromJournal(proto, ""))
 
       actual.isFailure shouldBe true
-      actual.failed.map(_.getMessage()).toOption shouldBe Some(
-        encryptor.failureMsg
-      )
+      actual.failed.map(_.getMessage()).toOption shouldBe Some(encryptor.failureMsg)
     }
   }
 

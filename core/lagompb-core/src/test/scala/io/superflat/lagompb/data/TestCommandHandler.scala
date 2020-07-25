@@ -9,8 +9,7 @@ import io.superflat.lagompb.protobuf.tests._
 
 import scala.util.Try
 
-class TestCommandHandler(actorSystem: ActorSystem)
-    extends CommandHandler[TestState](actorSystem) {
+class TestCommandHandler(actorSystem: ActorSystem) extends CommandHandler[TestState](actorSystem) {
 
   override def handle(
       command: Command,
@@ -18,7 +17,7 @@ class TestCommandHandler(actorSystem: ActorSystem)
       currentEventMeta: MetaData
   ): Try[CommandHandlerResponse] =
     command.command match {
-      case cmd: TestCmd    => handleTestCmd(cmd, currentState)
+      case cmd: TestCmd => handleTestCmd(cmd, currentState)
       case cmd: TestGetCmd => handleTestGetCmd(cmd, currentState)
       case _: TestEmptyCmd =>
         Try(
@@ -38,20 +37,15 @@ class TestCommandHandler(actorSystem: ActorSystem)
                 .withEvent(
                   Any()
                     .withTypeUrl("type.googleapis.com/lagom.test")
-                    .withValue(
-                      com.google.protobuf.ByteString.copyFrom("".getBytes)
-                    )
+                    .withValue(com.google.protobuf.ByteString.copyFrom("".getBytes))
                 )
             )
         )
       case _: TestFailCmd => throw new RuntimeException("I am failing...")
-      case _              => handleInvalidCommand()
+      case _ => handleInvalidCommand()
     }
 
-  def handleTestGetCmd(
-      cmd: TestGetCmd,
-      currentState: TestState
-  ): Try[CommandHandlerResponse] =
+  def handleTestGetCmd(cmd: TestGetCmd, currentState: TestState): Try[CommandHandlerResponse] =
     Try(
       CommandHandlerResponse()
         .withSuccessResponse(
@@ -60,10 +54,7 @@ class TestCommandHandler(actorSystem: ActorSystem)
         )
     )
 
-  def handleTestCmd(
-      cmd: TestCmd,
-      state: TestState
-  ): Try[CommandHandlerResponse] =
+  def handleTestCmd(cmd: TestCmd, state: TestState): Try[CommandHandlerResponse] =
     if (cmd.companyUuid.isEmpty)
       Try(
         CommandHandlerResponse()

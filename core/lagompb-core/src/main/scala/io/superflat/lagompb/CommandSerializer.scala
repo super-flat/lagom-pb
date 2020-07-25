@@ -11,21 +11,15 @@ import io.superflat.lagompb.protobuf.core.{CommandReply, CommandWrapper}
 import org.slf4j.{Logger, LoggerFactory}
 
 /**
-  * LagomPbCommandSerializer
-  * It is used internally by lagom-common to serialize commands and replies
-  */
-sealed class CommandSerializer(val system: ExtendedActorSystem)
-    extends SerializerWithStringManifest {
+ * LagomPbCommandSerializer
+ * It is used internally by lagom-common to serialize commands and replies
+ */
+sealed class CommandSerializer(val system: ExtendedActorSystem) extends SerializerWithStringManifest {
 
   // construct a map of type_url -> companion object parser
   final lazy val msgMap: Map[String, Array[Byte] => scalapb.GeneratedMessage] =
     ProtosRegistry.companions
-      .map(companion =>
-        (
-          companion.scalaDescriptor.fullName,
-          (s: Array[Byte]) => companion.parseFrom(s)
-        )
-      )
+      .map(companion => (companion.scalaDescriptor.fullName, (s: Array[Byte]) => companion.parseFrom(s)))
       .toMap
   final val commandManifest: String = classOf[Command].getName
 
@@ -42,9 +36,7 @@ sealed class CommandSerializer(val system: ExtendedActorSystem)
           .toSerializationFormat(actorRef)
           .getBytes(StandardCharsets.UTF_8)
 
-        log.debug(
-          s"serializing Command [${cmd.companion.scalaDescriptor.fullName}]"
-        )
+        log.debug(s"serializing Command [${cmd.companion.scalaDescriptor.fullName}]")
 
         CommandWrapper()
           .withCommand(Any.pack(cmd))
@@ -66,21 +58,16 @@ sealed class CommandSerializer(val system: ExtendedActorSystem)
         val ref: ActorRef[CommandReply] =
           actorRefResolver.resolveActorRef[CommandReply](actorRefStr)
 
-        wrapper.command.fold(throw new GlobalException("requires Command")) {
-          any =>
-            log.debug(s"deserializing Command #[${any.typeUrl}]")
+        wrapper.command.fold(throw new GlobalException("requires Command")) { any =>
+          log.debug(s"deserializing Command #[${any.typeUrl}]")
 
-            msgMap
-              .get(any.typeUrl.split('/').lastOption.getOrElse(""))
-              .fold(
-                throw new GlobalException(
-                  s"unable to deserialize command ${any.typeUrl}. "
-                )
-              ) { mesg =>
-                val protoCmd: scalapb.GeneratedMessage =
-                  mesg(any.value.toByteArray)
-                Command(protoCmd, ref, wrapper.data)
-              }
+          msgMap
+            .get(any.typeUrl.split('/').lastOption.getOrElse(""))
+            .fold(throw new GlobalException(s"unable to deserialize command ${any.typeUrl}. ")) { mesg =>
+              val protoCmd: scalapb.GeneratedMessage =
+                mesg(any.value.toByteArray)
+              Command(protoCmd, ref, wrapper.data)
+            }
         }
       case _ => throw new GlobalException("Wrong Command manifest....")
     }

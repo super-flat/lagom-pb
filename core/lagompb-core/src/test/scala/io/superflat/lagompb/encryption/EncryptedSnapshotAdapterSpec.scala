@@ -34,9 +34,7 @@ class EncryptedSnapshotAdapterSpec extends LagompbSpec {
       val state = StateWrapper.defaultInstance
       val actual: Try[EncryptedProto] = Try(adapter.safeToJournal(state))
       actual.isFailure shouldBe true
-      actual.failed.map(_.getMessage()).toOption shouldBe Some(
-        encryptor.failureMsg
-      )
+      actual.failed.map(_.getMessage()).toOption shouldBe Some(encryptor.failureMsg)
     }
 
     "throw when the decrypt throws" in {
@@ -45,9 +43,7 @@ class EncryptedSnapshotAdapterSpec extends LagompbSpec {
       val proto = EncryptedProto.defaultInstance
       val actual: Try[StateWrapper] = Try(adapter.safeFromJournal(proto))
       actual.isFailure shouldBe true
-      actual.failed.map(_.getMessage()).toOption shouldBe Some(
-        encryptor.failureMsg
-      )
+      actual.failed.map(_.getMessage()).toOption shouldBe Some(encryptor.failureMsg)
     }
   }
 

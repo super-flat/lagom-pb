@@ -4,16 +4,14 @@ import com.lightbend.lagom.scaladsl.api.{Descriptor, Service}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 /**
-  * Must be implemented by any lagom api without message broker integration
-  */
+ * Must be implemented by any lagom api without message broker integration
+ */
 trait BaseService extends Service {
 
   protected val serviceName: String =
     ConfigReader.serviceName
 
-  implicit def messageSerializer[
-      A <: GeneratedMessage: GeneratedMessageCompanion
-  ]: ApiSerializer[A] =
+  implicit def messageSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]: ApiSerializer[A] =
     new ApiSerializer[A]
 
   final override def descriptor: Descriptor = {
