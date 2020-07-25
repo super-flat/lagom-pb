@@ -28,7 +28,7 @@ object Dependencies {
     val KanelaVersion = "1.0.5"
     val LogstashLogbackVersion = "6.3"
     val SilencerVersion = "1.6.0"
-    val AkkaGrpcRuntimeVersion = "1.0.1"
+    val AkkaGrpcRuntimeVersion = "0.8.4"
     val AkkaVersion: String = "2.6.6"
     val H2Version = "1.4.200"
     val JaninoVersion = "3.1.2"
