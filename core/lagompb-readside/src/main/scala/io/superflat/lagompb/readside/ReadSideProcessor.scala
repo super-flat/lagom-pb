@@ -39,9 +39,9 @@ import scala.util.{Failure, Success, Try}
  * @param encryption ProtoEncryption instance to use
  * @param actorSystem the actor system
  * @param ec          the execution context
- * @tparam TState the aggregate state type
+ * @tparam T the aggregate state type
  */
-@silent abstract class ReadSideProcessor[TState <: scalapb.GeneratedMessage](encryption: ProtoEncryption)(implicit
+@silent abstract class ReadSideProcessor[T <: scalapb.GeneratedMessage](encryption: ProtoEncryption)(implicit
     ec: ExecutionContext,
     actorSystem: ActorSystem[_]
 ) extends EventProcessor {
@@ -63,11 +63,11 @@ import scala.util.{Failure, Success, Try}
   ): DBIO[Done] = {
     Try {
       handle(
-        ReadSideEvent[TState](
+        ReadSideEvent[T](
           event.unpack(comp),
           eventTag,
           resultingState
-            .unpack[TState](aggregateStateCompanion),
+            .unpack[T](aggregateStateCompanion),
           meta
         )
       )
@@ -131,12 +131,12 @@ import scala.util.{Failure, Success, Try}
    *
    * @return aggregate state
    */
-  def aggregateStateCompanion: scalapb.GeneratedMessageCompanion[TState]
+  def aggregateStateCompanion: scalapb.GeneratedMessageCompanion[T]
 
   /**
    * Handles aggregate event persisted and made available for read model
    *
    * @param event the aggregate event
    */
-  def handle(event: ReadSideEvent[TState]): DBIO[Done]
+  def handle(event: ReadSideEvent[T]): DBIO[Done]
 }

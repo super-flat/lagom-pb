@@ -35,10 +35,10 @@ import scala.concurrent.ExecutionContext
  * @param encryption ProtoEncryption instance to use
  * @param actorSystem the actor system
  * @param ec the execution context
- * @tparam TState the aggregate state type
+ * @tparam T the aggregate state type
  */
 
-abstract class KafkaPublisher[TState <: scalapb.GeneratedMessage](encryption: ProtoEncryption)(implicit
+abstract class KafkaPublisher[T <: scalapb.GeneratedMessage](encryption: ProtoEncryption)(implicit
     ec: ExecutionContext,
     actorSystem: ActorSystem[_]
 ) extends EventProcessor {
@@ -55,7 +55,7 @@ abstract class KafkaPublisher[TState <: scalapb.GeneratedMessage](encryption: Pr
   // as the lagompb.kafka-projections
   val producerConfig: KafkaConfig = KafkaConfig(actorSystem.settings.config.getConfig(" lagompb.projection.kafka"))
 
-  private val sendProducer: SendProducer[String, String] = SendProducer(
+  private[this] val sendProducer: SendProducer[String, String] = SendProducer(
     ProducerSettings(actorSystem, new StringSerializer, new StringSerializer)
       .withBootstrapServers(producerConfig.bootstrapServers)
   )(actorSystem.toClassic)
@@ -153,5 +153,5 @@ abstract class KafkaPublisher[TState <: scalapb.GeneratedMessage](encryption: Pr
    *
    * @return aggregate state
    */
-  def aggregateStateCompanion: scalapb.GeneratedMessageCompanion[TState]
+  def aggregateStateCompanion: scalapb.GeneratedMessageCompanion[T]
 }

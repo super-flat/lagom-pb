@@ -85,7 +85,7 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
       .eventAdapter(new EncryptedEventAdapter(protoEncryption))
       .snapshotAdapter(new EncryptedSnapshotAdapter(protoEncryption))
 
-  private def initialState(entityId: String): StateWrapper =
+  private[this] def initialState(entityId: String): StateWrapper =
     StateWrapper()
       .withState(Any.pack(stateCompanion.defaultInstance))
       .withMeta(MetaData.defaultInstance.withEntityId(entityId))
