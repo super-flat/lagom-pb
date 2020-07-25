@@ -41,9 +41,7 @@ abstract class BaseApplication(context: LagomApplicationContext)
 
   // $COVERAGE-OFF$
 
-  //FIXME find a better way to load these ones
-  ProtosRegistry.registry
-  ProtosRegistry.typeRegistry
+  loadProtosRegistry()
 
   // Json Serializer registry not needed
   final override lazy val jsonSerializerRegistry: JsonSerializerRegistry =
@@ -87,6 +85,11 @@ abstract class BaseApplication(context: LagomApplicationContext)
       selectShard(ConfigReader.eventsConfig.numShards, entityContext.entityId)
     aggregateRoot.create(entityContext, shardIndex)
   })
+
+  def loadProtosRegistry(): Unit = {
+    ProtosRegistry.registry
+    ProtosRegistry.typeRegistry
+  }
 
   // $COVERAGE-ON$
 }
