@@ -23,7 +23,7 @@ class EncryptedSnapshotAdapter(encryptor: ProtoEncryption)
    */
   def safeToJournal(state: StateWrapper): EncryptedProto =
     encryptor.encrypt(Any.pack(state)) match {
-      case Success(value) => value
+      case Success(value)     => value
       case Failure(exception) => throw exception
     }
 
@@ -36,7 +36,7 @@ class EncryptedSnapshotAdapter(encryptor: ProtoEncryption)
    */
   def safeFromJournal(from: EncryptedProto): StateWrapper =
     encryptor.decrypt(from) match {
-      case Success(value) => value.unpack[StateWrapper]
+      case Success(value)     => value.unpack[StateWrapper]
       case Failure(exception) => throw exception
     }
 }

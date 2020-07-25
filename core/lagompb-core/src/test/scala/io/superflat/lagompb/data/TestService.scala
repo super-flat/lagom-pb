@@ -26,10 +26,10 @@ trait TestService extends BaseService {
 }
 
 class TestServiceImpl(
-    sys: ActorSystem,
-    clusterSharding: ClusterSharding,
-    persistentEntityRegistry: PersistentEntityRegistry,
-    aggregate: AggregateRoot[TestState]
+  sys: ActorSystem,
+  clusterSharding: ClusterSharding,
+  persistentEntityRegistry: PersistentEntityRegistry,
+  aggregate: AggregateRoot[TestState]
 )(implicit ec: ExecutionContext)
     extends BaseServiceImpl(clusterSharding, persistentEntityRegistry, aggregate)
     with TestService {

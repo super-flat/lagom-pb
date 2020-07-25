@@ -39,11 +39,12 @@ import scala.concurrent.ExecutionContext
  */
 
 abstract class KafkaPublisher[T <: scalapb.GeneratedMessage](encryption: ProtoEncryption)(implicit
-    ec: ExecutionContext,
-    actorSystem: ActorSystem[_]
+  ec: ExecutionContext,
+  actorSystem: ActorSystem[_]
 ) extends EventProcessor {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
+
   // The implementation class needs to set the akka.kafka.producer settings in the config file as well
   // as the lagompb.kafka-projections
   val producerConfig: KafkaConfig = KafkaConfig(actorSystem.settings.config.getConfig(" lagompb.projection.kafka"))
@@ -51,6 +52,7 @@ abstract class KafkaPublisher[T <: scalapb.GeneratedMessage](encryption: ProtoEn
   // The implementation class needs to set the akka.projection.slick config for the offset database
   protected val dbConfig: DatabaseConfig[PostgresProfile] =
     DatabaseConfig.forConfig("akka.projection.slick", actorSystem.settings.config)
+
   protected val baseTag: String = ConfigReader.eventsConfig.tagName
 
   private[this] val sendProducer: SendProducer[String, String] = SendProducer(
@@ -59,18 +61,17 @@ abstract class KafkaPublisher[T <: scalapb.GeneratedMessage](encryption: ProtoEn
   )(actorSystem.toClassic)
 
   final override def process(
-      comp: GeneratedMessageCompanion[_ <: GeneratedMessage],
-      event: any.Any,
-      eventTag: String,
-      resultingState: any.Any,
-      meta: MetaData
+    comp: GeneratedMessageCompanion[_ <: GeneratedMessage],
+    event: any.Any,
+    eventTag: String,
+    resultingState: any.Any,
+    meta: MetaData
   ): DBIO[Done] =
     comp.scalaDescriptor.fields
-      .find(
-        field =>
-          field.getOptions
-            .extension(ExtensionsProto.kafka)
-            .exists(_.partitionKey)
+      .find(field =>
+        field.getOptions
+          .extension(ExtensionsProto.kafka)
+          .exists(_.partitionKey)
       ) match {
       case Some(fd: FieldDescriptor) =>
         // let us wrap the state and the meta data and persist to kafka

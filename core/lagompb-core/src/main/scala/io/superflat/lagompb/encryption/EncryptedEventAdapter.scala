@@ -24,7 +24,7 @@ class EncryptedEventAdapter(encryptor: ProtoEncryption) extends EventAdapter[Eve
    */
   override def toJournal(e: EventWrapper): EncryptedProto =
     encryptor.encrypt(Any.pack(e)) match {
-      case Success(value) => value
+      case Success(value)     => value
       case Failure(exception) => throw exception
     }
 
@@ -42,7 +42,7 @@ class EncryptedEventAdapter(encryptor: ProtoEncryption) extends EventAdapter[Eve
    */
   override def fromJournal(p: EncryptedProto, manifest: String): EventSeq[EventWrapper] = {
     val someAny: Any = encryptor.decrypt(p) match {
-      case Success(value) => value
+      case Success(value)     => value
       case Failure(exception) => throw exception
     }
 

@@ -22,10 +22,10 @@ trait EventProcessor {
    * @return
    */
   def process(
-      comp: GeneratedMessageCompanion[_ <: GeneratedMessage],
-      event: any.Any,
-      eventTag: String,
-      resultingState: any.Any,
-      meta: MetaData
+    comp: GeneratedMessageCompanion[_ <: GeneratedMessage],
+    event: any.Any,
+    eventTag: String,
+    resultingState: any.Any,
+    meta: MetaData
   ): DBIO[Done]
 }

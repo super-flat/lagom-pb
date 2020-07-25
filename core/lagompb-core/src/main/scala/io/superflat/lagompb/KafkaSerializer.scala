@@ -11,13 +11,13 @@ import io.superflat.lagompb.protobuf.core.KafkaEvent
  */
 class KafkaSerializer extends StrictMessageSerializer[KafkaEvent] {
 
-  private final val serializer: NegotiatedSerializer[KafkaEvent, ByteString] = { (serviceEvent: KafkaEvent) =>
+  final private val serializer: NegotiatedSerializer[KafkaEvent, ByteString] = { (serviceEvent: KafkaEvent) =>
     val builder = ByteString.createBuilder
     serviceEvent.writeTo(builder.asOutputStream)
     builder.result
   }
 
-  private final val deserializer: NegotiatedDeserializer[KafkaEvent, ByteString] = { (bytes: ByteString) =>
+  final private val deserializer: NegotiatedDeserializer[KafkaEvent, ByteString] = { (bytes: ByteString) =>
     KafkaEvent.parseFrom(bytes.iterator.asInputStream)
   }
 
@@ -25,11 +25,11 @@ class KafkaSerializer extends StrictMessageSerializer[KafkaEvent] {
     serializer
 
   override def deserializer(
-      protocol: MessageProtocol
+    protocol: MessageProtocol
   ): MessageSerializer.NegotiatedDeserializer[KafkaEvent, ByteString] =
     deserializer
 
   override def serializerForResponse(
-      acceptedMessageProtocols: Seq[MessageProtocol]
+    acceptedMessageProtocols: Seq[MessageProtocol]
   ): MessageSerializer.NegotiatedSerializer[KafkaEvent, ByteString] = serializer
 }

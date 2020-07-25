@@ -6,9 +6,9 @@ import io.superflat.lagompb.protobuf.tests.TestState
 import scalapb.GeneratedMessageCompanion
 
 final class TestAggregateRoot(
-    actorSystem: ActorSystem,
-    commandHandler: CommandHandler[TestState],
-    eventHandler: EventHandler[TestState]
+  actorSystem: ActorSystem,
+  commandHandler: CommandHandler[TestState],
+  eventHandler: EventHandler[TestState]
 ) extends AggregateRoot[TestState](actorSystem, commandHandler, eventHandler) {
 
   override def aggregateName: String = "TestAggregate"

@@ -57,6 +57,6 @@ abstract class LagompbActorTestKit(testKit: ActorTestKit)
    * Shuts down the ActorTestKit. If override be sure to call super.afterAll
    * or shut down the testkit explicitly with `testKit.shutdownTestKit()`.
    */
-  protected override def afterAll(): Unit =
+  override protected def afterAll(): Unit =
     testKit.shutdownTestKit()
 }

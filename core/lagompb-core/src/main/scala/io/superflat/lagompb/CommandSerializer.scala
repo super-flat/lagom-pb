@@ -24,7 +24,7 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
 
   final val commandManifest: String = classOf[Command].getName
 
-  private final val log: Logger =
+  final private val log: Logger =
     LoggerFactory.getLogger(classOf[CommandSerializer])
   private val actorRefResolver = ActorRefResolver(system.toTyped)
 

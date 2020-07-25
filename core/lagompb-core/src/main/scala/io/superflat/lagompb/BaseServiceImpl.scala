@@ -47,10 +47,10 @@ sealed trait SharedBaseServiceImpl {
    * @return Future of state
    */
   def sendCommand[TCommand <: scalapb.GeneratedMessage, TState <: scalapb.GeneratedMessage](
-      clusterSharding: ClusterSharding,
-      entityId: String,
-      cmd: TCommand,
-      data: Map[String, String]
+    clusterSharding: ClusterSharding,
+    entityId: String,
+    cmd: TCommand,
+    data: Map[String, String]
   )(implicit ec: ExecutionContext): Future[StateAndMeta[TState]] =
     clusterSharding
       .entityRefFor(aggregateRoot.typeKey, entityId)
@@ -58,7 +58,7 @@ sealed trait SharedBaseServiceImpl {
       .map((value: CommandReply) => handleLagompbCommandReply[TState](value))
 
   private[lagompb] def handleLagompbCommandReply[TState <: scalapb.GeneratedMessage](
-      commandReply: CommandReply
+    commandReply: CommandReply
   ): StateAndMeta[TState] =
     commandReply.reply match {
       case Reply.SuccessfulReply(successReply) =>
@@ -76,7 +76,7 @@ sealed trait SharedBaseServiceImpl {
     }
 
   private[lagompb] def parseState[TState <: scalapb.GeneratedMessage](
-      stateWrapper: StateWrapper
+    stateWrapper: StateWrapper
   ): StateAndMeta[TState] = {
     val meta: MetaData = stateWrapper.getMeta
     val state: Any = stateWrapper.getState
@@ -111,9 +111,9 @@ sealed trait SharedBaseServiceImpl {
  * @param ec                       the execution context
  */
 abstract class BaseServiceImpl(
-    val clusterSharding: ClusterSharding,
-    val persistentEntityRegistry: PersistentEntityRegistry,
-    val aggregate: AggregateRoot[_]
+  val clusterSharding: ClusterSharding,
+  val persistentEntityRegistry: PersistentEntityRegistry,
+  val aggregate: AggregateRoot[_]
 )(implicit ec: ExecutionContext)
     extends SharedBaseServiceImpl
     with BaseService {
@@ -133,8 +133,8 @@ abstract class BaseServiceImpl(
    * @return the [[io.superflat.lagompb.StateAndMeta]] containing the actual state and the event meta
    */
   final def sendCommand[TCommand <: GeneratedMessage, TState <: scalapb.GeneratedMessage](
-      cmd: TCommand,
-      data: Map[String, String] = Map.empty
+    cmd: TCommand,
+    data: Map[String, String] = Map.empty
   ): Future[StateAndMeta[TState]] =
     cmd.companion.scalaDescriptor.fields
       .find(field => field.getOptions.extension(ExtensionsProto.command).exists(_.entityId))
@@ -168,9 +168,9 @@ abstract class BaseServiceImpl(
    * @return the [[io.superflat.lagompb.StateAndMeta]] containing the actual state and the event meta
    */
   final def sendCommand[TCommand <: GeneratedMessage, TState <: scalapb.GeneratedMessage](
-      entityId: String,
-      cmd: TCommand,
-      data: Map[String, String]
+    entityId: String,
+    cmd: TCommand,
+    data: Map[String, String]
   ): Future[StateAndMeta[TState]] =
     super
       .sendCommand[TCommand, TState](clusterSharding, entityId, cmd, data)
@@ -208,10 +208,10 @@ trait BaseGrpcServiceImpl extends SharedBaseServiceImpl {
    * @return the [[io.superflat.lagompb.StateAndMeta]] containing the actual state and the state meta
    */
   final override def sendCommand[TCommand <: GeneratedMessage, TState <: scalapb.GeneratedMessage](
-      clusterSharding: ClusterSharding,
-      entityId: String,
-      cmd: TCommand,
-      data: Map[String, String]
+    clusterSharding: ClusterSharding,
+    entityId: String,
+    cmd: TCommand,
+    data: Map[String, String]
   )(implicit ec: ExecutionContext): Future[StateAndMeta[TState]] =
     super
       .sendCommand[TCommand, TState](clusterSharding, entityId, cmd, data)
@@ -241,9 +241,9 @@ trait BaseGrpcServiceImpl extends SharedBaseServiceImpl {
    * @return the [[io.superflat.lagompb.StateAndMeta]] containing the actual state and the state meta
    */
   final def sendCommand[TCommand <: GeneratedMessage, TState <: scalapb.GeneratedMessage](
-      clusterSharding: ClusterSharding,
-      cmd: TCommand,
-      data: Map[String, String]
+    clusterSharding: ClusterSharding,
+    cmd: TCommand,
+    data: Map[String, String]
   )(implicit ec: ExecutionContext): Future[StateAndMeta[TState]] =
     cmd.companion.scalaDescriptor.fields
       .find(field => field.getOptions.extension(ExtensionsProto.command).exists(_.entityId))

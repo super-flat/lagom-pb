@@ -18,25 +18,25 @@ object ProtosRegistry {
    */
   private[lagompb] lazy val companions: Vector[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
     registry
-      .foldLeft[Vector[scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]]](Vector.empty)({
+      .foldLeft[Vector[scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]]](Vector.empty) {
         (s, fileObject) =>
           s ++ fileObject.messagesCompanions
-      })
+      }
 
   /**
    * Creates a map between the generated message typeUrl and the appropriate message companion
    */
   private[lagompb] lazy val companionsMap
-      : Map[String, scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]] =
+    : Map[String, scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]] =
     companions
       .map(companion => (companion.scalaDescriptor.fullName, companion))
       .toMap
 
   private[lagompb] lazy val typeRegistry: TypeRegistry =
     registry
-      .foldLeft(TypeRegistry.empty)({ (reg, fileObject) =>
+      .foldLeft(TypeRegistry.empty) { (reg, fileObject) =>
         reg.addFile(fileObject)
-      })
+      }
 
   private[lagompb] lazy val parser: Parser =
     new Parser().withTypeRegistry(typeRegistry)
@@ -80,13 +80,12 @@ object ProtosRegistry {
         case Failure(exception) =>
           exception match {
             case e: ScalaReflectionException => throw e
-            case _ => seq
+            case _                           => seq
           }
         case Success(fileObject) =>
           val subMsg: String = fileObject.messagesCompanions
-            .map(
-              mc =>
-                s"\n|\t\t - companion typeUrl: ${mc.scalaDescriptor.fullName}, jvmName: ${mc.getClass.getCanonicalName}"
+            .map(mc =>
+              s"\n|\t\t - companion typeUrl: ${mc.scalaDescriptor.fullName}, jvmName: ${mc.getClass.getCanonicalName}"
             )
             .mkString("")
           val msg: String =

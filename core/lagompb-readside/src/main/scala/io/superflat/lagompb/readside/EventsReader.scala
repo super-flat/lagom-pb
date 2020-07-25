@@ -61,7 +61,7 @@ final class EventsReader(eventTag: String, encryption: ProtoEncryption, eventPro
           log.error("failed to handle event", throwable)
           Try(DBIO.failed(throwable))
       }) match {
-      case Success(value) => value
+      case Success(value)     => value
       case Failure(exception) => throw exception
     }
 }

@@ -12,8 +12,8 @@ import io.superflat.lagompb.protobuf.core.MetaData
  * @tparam T the resulting state scala type
  */
 case class ReadSideEvent[T <: scalapb.GeneratedMessage](
-    event: scalapb.GeneratedMessage,
-    eventTag: String,
-    state: T,
-    metaData: MetaData
+  event: scalapb.GeneratedMessage,
+  eventTag: String,
+  state: T,
+  metaData: MetaData
 )

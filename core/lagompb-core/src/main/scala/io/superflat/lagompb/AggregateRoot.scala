@@ -31,10 +31,10 @@ import scala.util.{Failure, Success, Try}
  * @tparam TState the scala type of the aggregate state
  */
 abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
-    actorSystem: ActorSystem,
-    commandHandler: CommandHandler[TState],
-    eventHandler: EventHandler[TState],
-    protoEncryption: ProtoEncryption = NoEncryption
+  actorSystem: ActorSystem,
+  commandHandler: CommandHandler[TState],
+  eventHandler: EventHandler[TState],
+  protoEncryption: ProtoEncryption = NoEncryption
 ) {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
@@ -74,7 +74,7 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
    * @param persistenceId the aggregate persistence Id
    */
   private[lagompb] def create(
-      persistenceId: PersistenceId
+    persistenceId: PersistenceId
   ): EventSourcedBehavior[Command, EventWrapper, StateWrapper] = {
     val splitter: Char = PersistenceId.DefaultSeparator(0)
     val entityId = persistenceId.id.split(splitter).lastOption.getOrElse("")

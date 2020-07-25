@@ -12,12 +12,12 @@ import scala.util.Try
 class TestCommandHandler(actorSystem: ActorSystem) extends CommandHandler[TestState](actorSystem) {
 
   override def handle(
-      command: Command,
-      currentState: TestState,
-      currentEventMeta: MetaData
+    command: Command,
+    currentState: TestState,
+    currentEventMeta: MetaData
   ): Try[CommandHandlerResponse] =
     command.command match {
-      case cmd: TestCmd => handleTestCmd(cmd, currentState)
+      case cmd: TestCmd    => handleTestCmd(cmd, currentState)
       case cmd: TestGetCmd => handleTestGetCmd(cmd, currentState)
       case _: TestEmptyCmd =>
         Try(
@@ -42,7 +42,7 @@ class TestCommandHandler(actorSystem: ActorSystem) extends CommandHandler[TestSt
             )
         )
       case _: TestFailCmd => throw new RuntimeException("I am failing...")
-      case _ => handleInvalidCommand()
+      case _              => handleInvalidCommand()
     }
 
   def handleTestGetCmd(cmd: TestGetCmd, currentState: TestState): Try[CommandHandlerResponse] =

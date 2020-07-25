@@ -19,7 +19,7 @@ class ApiSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]
     deserializer
 
   override def serializerForResponse(
-      acceptedMessageProtocols: Seq[MessageProtocol]
+    acceptedMessageProtocols: Seq[MessageProtocol]
   ): MessageSerializer.NegotiatedSerializer[A, ByteString] =
     negotiateResponse(acceptedMessageProtocols)
 }

@@ -42,8 +42,8 @@ import scala.util.{Failure, Success, Try}
  * @tparam T the aggregate state type
  */
 @silent abstract class ReadSideProcessor[T <: scalapb.GeneratedMessage](encryption: ProtoEncryption)(implicit
-    ec: ExecutionContext,
-    actorSystem: ActorSystem[_]
+  ec: ExecutionContext,
+  actorSystem: ActorSystem[_]
 ) extends EventProcessor {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
@@ -55,11 +55,11 @@ import scala.util.{Failure, Success, Try}
   protected val baseTag: String = ConfigReader.eventsConfig.tagName
 
   final override def process(
-      comp: GeneratedMessageCompanion[_ <: GeneratedMessage],
-      event: any.Any,
-      eventTag: String,
-      resultingState: any.Any,
-      meta: MetaData
+    comp: GeneratedMessageCompanion[_ <: GeneratedMessage],
+    event: any.Any,
+    eventTag: String,
+    resultingState: any.Any,
+    meta: MetaData
   ): DBIO[Done] =
     Try {
       handle(
