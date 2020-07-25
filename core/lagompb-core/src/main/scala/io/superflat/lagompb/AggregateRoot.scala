@@ -6,30 +6,43 @@ import akka.actor.ActorSystem
 import akka.actor.typed.Behavior
 import akka.cluster.sharding.typed.scaladsl.{EntityContext, EntityTypeKey}
 import akka.persistence.typed.PersistenceId
-import akka.persistence.typed.scaladsl.{Effect, EventSourcedBehavior, ReplyEffect, RetentionCriteria}
+import akka.persistence.typed.scaladsl.{
+  Effect,
+  EventSourcedBehavior,
+  ReplyEffect,
+  RetentionCriteria
+}
 import com.google.protobuf.any.Any
-import io.superflat.lagompb.encryption.{EncryptedEventAdapter, EncryptedSnapshotAdapter, NoEncryption, ProtoEncryption}
+import io.superflat.lagompb.encryption.{
+  EncryptedEventAdapter,
+  EncryptedSnapshotAdapter,
+  NoEncryption,
+  ProtoEncryption
+}
 import io.superflat.lagompb.protobuf.core._
 import io.superflat.lagompb.protobuf.core.CommandHandlerResponse.HandlerResponse.{
   Empty,
   FailedResponse,
   SuccessResponse
 }
-import io.superflat.lagompb.protobuf.core.SuccessCommandHandlerResponse.Response.{Event, NoEvent}
+import io.superflat.lagompb.protobuf.core.SuccessCommandHandlerResponse.Response.{
+  Event,
+  NoEvent
+}
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.util.{Failure, Success, Try}
 
 /**
- * LagompbAggregate abstract class encapsulate all the necessary setup required to
- * create an aggregate in the lagom ecosystem. There are three main components an aggregate
- * requires to be functional: a commands handler, an events handler and a state.
- *
- * @param actorSystem    the underlying actor system
- * @param commandHandler the commands handler
- * @param eventHandler   the events handler
- * @tparam TState the scala type of the aggregate state
- */
+  * LagompbAggregate abstract class encapsulate all the necessary setup required to
+  * create an aggregate in the lagom ecosystem. There are three main components an aggregate
+  * requires to be functional: a commands handler, an events handler and a state.
+  *
+  * @param actorSystem    the underlying actor system
+  * @param commandHandler the commands handler
+  * @param eventHandler   the events handler
+  * @tparam TState the scala type of the aggregate state
+  */
 abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
     actorSystem: ActorSystem,
     commandHandler: CommandHandler[TState],
@@ -43,16 +56,19 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
     EntityTypeKey[Command](aggregateName)
 
   /**
-   * Defines the aggregate name. The `aggregateName` must be unique
-   */
+    * Defines the aggregate name. The `aggregateName` must be unique
+    */
   def aggregateName: String
 
   /**
-   * Defines the aggregate state.
-   */
+    * Defines the aggregate state.
+    */
   def stateCompanion: scalapb.GeneratedMessageCompanion[TState]
 
-  final def create(entityContext: EntityContext[Command], shardIndex: Int): Behavior[Command] = {
+  final def create(
+      entityContext: EntityContext[Command],
+      shardIndex: Int
+  ): Behavior[Command] = {
     val persistenceId: PersistenceId =
       PersistenceId(entityContext.entityTypeKey.name, entityContext.entityId)
     val selectedTag: String = ConfigReader.allEventTags(shardIndex)
@@ -61,24 +77,31 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
       .withRetention(
         RetentionCriteria
           .snapshotEvery(
-            numberOfEvents = ConfigReader.snapshotCriteria.frequency, // snapshotFrequency
-            keepNSnapshots = ConfigReader.snapshotCriteria.retention //snapshotRetention
+            numberOfEvents =
+              ConfigReader.snapshotCriteria.frequency, // snapshotFrequency
+            keepNSnapshots =
+              ConfigReader.snapshotCriteria.retention //snapshotRetention
           )
       )
   }
 
   /**
-   * Returns the EventSourcedBehavior for lagom, wiring together the
-   * user-provided LagompbCommandHandler and LagompbEventHandler
-   *
-   * @param persistenceId the aggregate persistence Id
-   */
-  private[lagompb] def create(persistenceId: PersistenceId): EventSourcedBehavior[Command, EventWrapper, StateWrapper] =
+    * Returns the EventSourcedBehavior for lagom, wiring together the
+    * user-provided LagompbCommandHandler and LagompbEventHandler
+    *
+    * @param persistenceId the aggregate persistence Id
+    */
+  private[lagompb] def create(
+      persistenceId: PersistenceId
+  ): EventSourcedBehavior[Command, EventWrapper, StateWrapper] =
     EventSourcedBehavior
       .withEnforcedReplies[Command, EventWrapper, StateWrapper](
         persistenceId = persistenceId,
-        emptyState =
-          initialState(persistenceId.id.substring(persistenceId.id.indexOf(PersistenceId.DefaultSeparator) + 1)),
+        emptyState = initialState(
+          persistenceId.id.substring(
+            persistenceId.id.indexOf(PersistenceId.DefaultSeparator) + 1
+          )
+        ),
         commandHandler = genericCommandHandler,
         eventHandler = genericEventHandler
       )
@@ -91,24 +114,32 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
       .withMeta(MetaData.defaultInstance.withEntityId(entityId))
 
   /**
-   * unpacks the nested state in the event, throws away prior state
-   *
-   * @param priorState the current state
-   * @param event      the event wrapper
-   */
-  private[lagompb] def genericEventHandler(priorState: StateWrapper, event: EventWrapper): StateWrapper = {
-    priorState.update(_.meta := event.getMeta, _.state := event.getResultingState)
-  }
+    * unpacks the nested state in the event, throws away prior state
+    *
+    * @param priorState the current state
+    * @param event      the event wrapper
+    */
+  private[lagompb] def genericEventHandler(
+      priorState: StateWrapper,
+      event: EventWrapper
+  ): StateWrapper =
+    priorState.update(
+      _.meta := event.getMeta,
+      _.state := event.getResultingState
+    )
 
   /**
-   * Given a LagompbState implementation and a LagompbCommand, run the
-   * implemented commandHandler.handle and persist/reply any event/state
-   * as needed.
-   *
-   * @param stateWrapper state wrapper
-   * @param cmd          the command to process
-   */
-  final def genericCommandHandler(stateWrapper: StateWrapper, cmd: Command): ReplyEffect[EventWrapper, StateWrapper] = {
+    * Given a LagompbState implementation and a LagompbCommand, run the
+    * implemented commandHandler.handle and persist/reply any event/state
+    * as needed.
+    *
+    * @param stateWrapper state wrapper
+    * @param cmd          the command to process
+    */
+  final def genericCommandHandler(
+      stateWrapper: StateWrapper,
+      cmd: Command
+  ): ReplyEffect[EventWrapper, StateWrapper] = {
 
     // parse nested state
     Try {
@@ -158,10 +189,12 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
                                 .withCause(FailureCause.InternalError)
                             )
                         )
-                      )(comp => {
+                      ) { comp =>
                         // let us construct the event meta prior to call the user agent
                         val eventMeta: MetaData = MetaData()
-                          .withRevisionNumber(stateWrapper.getMeta.revisionNumber + 1)
+                          .withRevisionNumber(
+                            stateWrapper.getMeta.revisionNumber + 1
+                          )
                           .withRevisionDate(Instant.now().toTimestamp)
                           .withData(cmd.data)
                           .withEntityId(
@@ -183,14 +216,15 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
                               .withResultingState(Any.pack(resultingState))
                               .withMeta(eventMeta)
                           )
-                          .thenReply(cmd.replyTo)((updatedStateWrapper: StateWrapper) => {
-                            CommandReply()
-                              .withSuccessfulReply(
-                                SuccessfulReply()
-                                  .withStateWrapper(updatedStateWrapper)
-                              )
-                          })
-                      })
+                          .thenReply(cmd.replyTo) {
+                            (updatedStateWrapper: StateWrapper) =>
+                              CommandReply()
+                                .withSuccessfulReply(
+                                  SuccessfulReply()
+                                    .withStateWrapper(updatedStateWrapper)
+                                )
+                          }
+                      }
 
                   // the command handler return some unhandled successful response
                   // this case may never happen but it is safe to always check it

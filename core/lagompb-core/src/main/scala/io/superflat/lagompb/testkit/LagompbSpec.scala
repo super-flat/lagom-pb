@@ -20,5 +20,8 @@ trait LagompbSpec
     with MockFactory {
 
   implicit override val patienceConfig: PatienceConfig =
-    PatienceConfig(timeout = Span(30, Seconds), interval = Span(100, org.scalatest.time.Millis))
+    PatienceConfig(
+      timeout = Span(30, Seconds),
+      interval = Span(100, org.scalatest.time.Millis)
+    )
 }

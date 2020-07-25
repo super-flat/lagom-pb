@@ -29,31 +29,36 @@ import slick.jdbc.PostgresProfile
 import scala.concurrent.ExecutionContext
 
 /**
- * Helps handle readSide processor by pushing persisted events to kafka and storing the offsets
- * in postgres.
- *
- * @param encryption ProtoEncryption instance to use
- * @param actorSystem the actor system
- * @param ec the execution context
- * @tparam T the aggregate state type
- */
+  * Helps handle readSide processor by pushing persisted events to kafka and storing the offsets
+  * in postgres.
+  *
+  * @param encryption ProtoEncryption instance to use
+  * @param actorSystem the actor system
+  * @param ec the execution context
+  * @tparam T the aggregate state type
+  */
 
-abstract class KafkaPublisher[T <: scalapb.GeneratedMessage](encryption: ProtoEncryption)(implicit
+abstract class KafkaPublisher[T <: scalapb.GeneratedMessage](
+    encryption: ProtoEncryption
+)(implicit
     ec: ExecutionContext,
     actorSystem: ActorSystem[_]
 ) extends EventProcessor {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
+  // The implementation class needs to set the akka.kafka.producer settings in the config file as well
+  // as the lagompb.kafka-projections
+  val producerConfig: KafkaConfig = KafkaConfig(
+    actorSystem.settings.config.getConfig(" lagompb.projection.kafka")
+  )
 
   // The implementation class needs to set the akka.projection.slick config for the offset database
   protected val dbConfig: DatabaseConfig[PostgresProfile] =
-    DatabaseConfig.forConfig("akka.projection.slick", actorSystem.settings.config)
-
+    DatabaseConfig.forConfig(
+      "akka.projection.slick",
+      actorSystem.settings.config
+    )
   protected val baseTag: String = ConfigReader.eventsConfig.tagName
-
-  // The implementation class needs to set the akka.kafka.producer settings in the config file as well
-  // as the lagompb.kafka-projections
-  val producerConfig: KafkaConfig = KafkaConfig(actorSystem.settings.config.getConfig(" lagompb.projection.kafka"))
 
   private[this] val sendProducer: SendProducer[String, String] = SendProducer(
     ProducerSettings(actorSystem, new StringSerializer, new StringSerializer)
@@ -66,13 +71,12 @@ abstract class KafkaPublisher[T <: scalapb.GeneratedMessage](encryption: ProtoEn
       eventTag: String,
       resultingState: any.Any,
       meta: MetaData
-  ): DBIO[Done] = {
+  ): DBIO[Done] =
     comp.scalaDescriptor.fields
-      .find(
-        field =>
-          field.getOptions
-            .extension(ExtensionsProto.kafka)
-            .exists(_.partitionKey)
+      .find(field =>
+        field.getOptions
+          .extension(ExtensionsProto.kafka)
+          .exists(_.partitionKey)
       ) match {
       case Some(fd: FieldDescriptor) =>
         // let us wrap the state and the meta data and persist to kafka
@@ -87,7 +91,9 @@ abstract class KafkaPublisher[T <: scalapb.GeneratedMessage](encryption: ProtoEn
               ProtosRegistry.printer.print(
                 KafkaEvent.defaultInstance
                   .withEvent(event)
-                  .withState(StateWrapper().withMeta(meta).withState(resultingState))
+                  .withState(
+                    StateWrapper().withMeta(meta).withState(resultingState)
+                  )
                   .withPartitionKey(
                     comp
                       .parseFrom(event.value.toByteArray)
@@ -112,14 +118,17 @@ abstract class KafkaPublisher[T <: scalapb.GeneratedMessage](encryption: ProtoEn
         DBIO.from(result)
 
       case None =>
-        DBIOAction.failed(new GlobalException(s"No partition key field is defined for event ${event.typeUrl}"))
+        DBIOAction.failed(
+          new GlobalException(
+            s"No partition key field is defined for event ${event.typeUrl}"
+          )
+        )
     }
-  }
 
   /**
-   * Initialize the projection to start fetching the events that are emitted
-   */
-  def init(): Unit = {
+    * Initialize the projection to start fetching the events that are emitted
+    */
+  def init(): Unit =
     ShardedDaemonProcess(actorSystem).init[ProjectionBehavior.Command](
       name = projectionName,
       numberOfInstances = ConfigReader.allEventTags.size,
@@ -130,7 +139,11 @@ abstract class KafkaPublisher[T <: scalapb.GeneratedMessage](encryption: ProtoEn
             .exactlyOnce(
               projectionId = ProjectionId(projectionName, tagName),
               EventSourcedProvider
-                .eventsByTag[EncryptedProto](actorSystem, readJournalPluginId = JdbcReadJournal.Identifier, tagName),
+                .eventsByTag[EncryptedProto](
+                  actorSystem,
+                  readJournalPluginId = JdbcReadJournal.Identifier,
+                  tagName
+                ),
               dbConfig,
               handler = () => new EventsReader(tagName, encryption, this)
             )
@@ -139,19 +152,18 @@ abstract class KafkaPublisher[T <: scalapb.GeneratedMessage](encryption: ProtoEn
       settings = ShardedDaemonProcessSettings(actorSystem),
       stopMessage = Some(ProjectionBehavior.Stop)
     )
-  }
 
   /**
-   * The projection Name must be unique
-   *
-   * @return
-   */
+    * The projection Name must be unique
+    *
+    * @return
+    */
   def projectionName: String
 
   /**
-   * aggregate state. it is a generated scalapb message extending the LagompbState trait
-   *
-   * @return aggregate state
-   */
+    * aggregate state. it is a generated scalapb message extending the LagompbState trait
+    *
+    * @return aggregate state
+    */
   def aggregateStateCompanion: scalapb.GeneratedMessageCompanion[T]
 }
