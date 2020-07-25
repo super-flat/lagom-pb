@@ -15,21 +15,21 @@ import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 /**
   * ApiSerializer helps serialize json REST payload into protobuf messages and vice versa.
   */
-class ApiSerializer[T <: GeneratedMessage: GeneratedMessageCompanion]
-    extends StrictMessageSerializer[T]
-    with GenericSerializers[T] {
+class ApiSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]
+    extends StrictMessageSerializer[A]
+    with GenericSerializers[A] {
 
   override def serializerForRequest
-      : MessageSerializer.NegotiatedSerializer[T, ByteString] = serializerJson
+      : MessageSerializer.NegotiatedSerializer[A, ByteString] = serializerJson
 
   override def deserializer(
       protocol: MessageProtocol
-  ): MessageSerializer.NegotiatedDeserializer[T, ByteString] =
+  ): MessageSerializer.NegotiatedDeserializer[A, ByteString] =
     deserializer
 
   override def serializerForResponse(
       acceptedMessageProtocols: Seq[MessageProtocol]
-  ): MessageSerializer.NegotiatedSerializer[T, ByteString] =
+  ): MessageSerializer.NegotiatedSerializer[A, ByteString] =
     negotiateResponse(acceptedMessageProtocols)
 }
 

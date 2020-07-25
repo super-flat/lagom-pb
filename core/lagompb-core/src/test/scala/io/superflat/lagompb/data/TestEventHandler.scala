@@ -19,7 +19,7 @@ class TestEventHandler(actorSystem: ActorSystem)
       case _ => throw new NotImplementedError()
     }
 
-  private def handleTestEvent(
+  private[this] def handleTestEvent(
       companyUuid: String,
       name: String,
       state: TestState
