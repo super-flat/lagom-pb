@@ -7,9 +7,9 @@ import scala.concurrent.Future
 /**
  * Repository interface that will be implemented by any jdbc readSide
  *
- * @tparam T the data model type
+ * @tparam M the data model type
  */
-trait JdbcRepository[T] {
+trait JdbcRepository[M] {
 
   /**
    * Creates a new record in the database
@@ -18,7 +18,7 @@ trait JdbcRepository[T] {
    * @param connection the implicit database connection
    * @return the created data model
    */
-  def save(model: T)(implicit connection: Connection): Future[T]
+  def save(model: M)(implicit connection: Connection): Future[M]
 
   /**
    * Retrieves a record from the database with the corresponding id.
@@ -27,14 +27,14 @@ trait JdbcRepository[T] {
    * @param connection the implicit database connection
    * @return the record fetched or None if it was not found
    */
-  def read(entityId: String)(implicit connection: Connection): Future[Option[T]]
+  def read(entityId: String)(implicit connection: Connection): Future[Option[M]]
 
   /**
    * Retrieves all records from the database
    *
    * @return the list of records fetched
    */
-  def all()(implicit connection: Connection): Future[Seq[T]]
+  def all()(implicit connection: Connection): Future[Seq[M]]
 
   /**
    * Update the corresponding record in the database.
@@ -44,7 +44,7 @@ trait JdbcRepository[T] {
    * @param connection the implicit database connection
    * @return the updated record or None if it was not found
    */
-  def update(entityId: String, model: T)(implicit connection: Connection): Future[Int]
+  def update(entityId: String, model: M)(implicit connection: Connection): Future[Int]
 
   /**
    * Deletes a record from the database with the corresponding id.
@@ -53,6 +53,6 @@ trait JdbcRepository[T] {
    * @param connection the implicit database connection
    * @return the deleted record or None if it was not found
    */
-  def delete(entityId: String)(implicit connection: Connection): Future[Option[T]]
+  def delete(entityId: String)(implicit connection: Connection): Future[Option[M]]
 
 }

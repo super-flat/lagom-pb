@@ -28,12 +28,12 @@ import scala.util.{Failure, Success, Try}
  * @param actorSystem    the underlying actor system
  * @param commandHandler the commands handler
  * @param eventHandler   the events handler
- * @tparam TState the scala type of the aggregate state
+ * @tparam S the scala type of the aggregate state
  */
-abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
+abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
   actorSystem: ActorSystem,
-  commandHandler: CommandHandler[TState],
-  eventHandler: EventHandler[TState],
+  commandHandler: CommandHandler[S],
+  eventHandler: EventHandler[S],
   protoEncryption: ProtoEncryption = NoEncryption
 ) {
 
@@ -50,7 +50,7 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
   /**
    * Defines the aggregate state.
    */
-  def stateCompanion: scalapb.GeneratedMessageCompanion[TState]
+  def stateCompanion: scalapb.GeneratedMessageCompanion[S]
 
   final def create(entityContext: EntityContext[Command], shardIndex: Int): Behavior[Command] = {
     val persistenceId: PersistenceId =
@@ -115,7 +115,7 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
 
     // parse nested state
     Try {
-      stateWrapper.getState.unpack[TState](stateCompanion)
+      stateWrapper.getState.unpack[S](stateCompanion)
     } match {
       case Failure(exception) =>
         val errMsg: String = s"state parser failure, ${exception.getMessage}"
@@ -172,7 +172,7 @@ abstract class AggregateRoot[TState <: scalapb.GeneratedMessage](
                           ) // the priorState will always have the entityId set in its meta even for the initial state
 
                         // let us the event handler
-                        val resultingState: TState = eventHandler
+                        val resultingState: S = eventHandler
                           .handle(event.unpack(comp), state, eventMeta)
 
                         log.debug(

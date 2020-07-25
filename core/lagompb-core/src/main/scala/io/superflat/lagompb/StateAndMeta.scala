@@ -7,6 +7,6 @@ import io.superflat.lagompb.protobuf.core.MetaData
  *
  * @param state the aggregate state
  * @param metaData the state meta
- * @tparam TState
+ * @tparam A
  */
-final case class StateAndMeta[TState](state: TState, metaData: MetaData)
+final case class StateAndMeta[A](state: A, metaData: MetaData)

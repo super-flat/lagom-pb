@@ -9,7 +9,7 @@ import scala.util.Try
  *
  * @param shouldFail true if encrypt/decrypt should throw
  */
-class TestEncryption(shouldFail: Boolean = false) extends ProtoEncryption {
+class EncryptionSpec(shouldFail: Boolean = false) extends ProtoEncryption {
 
   var didEncrypt: Boolean = false
   var didDecrypt: Boolean = false
@@ -18,13 +18,13 @@ class TestEncryption(shouldFail: Boolean = false) extends ProtoEncryption {
 
   def encrypt(proto: com.google.protobuf.any.Any): Try[EncryptedProto] = {
     didEncrypt = true
-    if (shouldFail) throw new EncryptFailure(failureMsg)
+    if (shouldFail) throw EncryptFailure(failureMsg)
     NoEncryption.encrypt(proto)
   }
 
   def decrypt(encryptedProto: EncryptedProto): Try[com.google.protobuf.any.Any] = {
     didDecrypt = true
-    if (shouldFail) throw new DecryptPermanentFailure(failureMsg)
+    if (shouldFail) throw DecryptPermanentFailure(failureMsg)
     NoEncryption.decrypt(encryptedProto)
   }
 

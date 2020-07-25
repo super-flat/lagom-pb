@@ -13,7 +13,7 @@ class EncryptedEventAdapterSpec extends LagompbSpec {
 
   "EncryptedEventAdapter" must {
     "safely encrypt and decrypt" in {
-      val testEncryptor = new TestEncryption()
+      val testEncryptor = new EncryptionSpec()
       val e: EncryptedEventAdapter = new EncryptedEventAdapter(testEncryptor)
 
       val event: EventWrapper = EventWrapper()
@@ -30,7 +30,7 @@ class EncryptedEventAdapterSpec extends LagompbSpec {
     }
 
     "throw when the encrypt throws" in {
-      val encryptor = new TestEncryption(shouldFail = true)
+      val encryptor = new EncryptionSpec(shouldFail = true)
       val adapter: EncryptedEventAdapter = new EncryptedEventAdapter(encryptor)
       val event: EventWrapper = EventWrapper.defaultInstance
       val actual: Try[EncryptedProto] = Try(adapter.toJournal(event))
@@ -40,7 +40,7 @@ class EncryptedEventAdapterSpec extends LagompbSpec {
     }
 
     "throw when the decrypt throws" in {
-      val encryptor = new TestEncryption(shouldFail = true)
+      val encryptor = new EncryptionSpec(shouldFail = true)
       val adapter: EncryptedEventAdapter = new EncryptedEventAdapter(encryptor)
       val proto: EncryptedProto = EncryptedProto.defaultInstance
       val actual: Try[EventSeq[EventWrapper]] =

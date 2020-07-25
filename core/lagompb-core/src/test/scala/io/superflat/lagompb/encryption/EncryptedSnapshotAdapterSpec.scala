@@ -12,7 +12,7 @@ class EncryptedSnapshotAdapterSpec extends LagompbSpec {
 
   "EncryptedSnapshotAdapter" must {
     "safely encrypt and decrypt" in {
-      val encryptor = new TestEncryption()
+      val encryptor = new EncryptionSpec()
       val adapter = new EncryptedSnapshotAdapter(encryptor)
 
       val state =
@@ -29,7 +29,7 @@ class EncryptedSnapshotAdapterSpec extends LagompbSpec {
     }
 
     "throw when the encrypt throws" in {
-      val encryptor = new TestEncryption(shouldFail = true)
+      val encryptor = new EncryptionSpec(shouldFail = true)
       val adapter = new EncryptedSnapshotAdapter(encryptor)
       val state = StateWrapper.defaultInstance
       val actual: Try[EncryptedProto] = Try(adapter.safeToJournal(state))
@@ -38,7 +38,7 @@ class EncryptedSnapshotAdapterSpec extends LagompbSpec {
     }
 
     "throw when the decrypt throws" in {
-      val encryptor = new TestEncryption(shouldFail = true)
+      val encryptor = new EncryptionSpec(shouldFail = true)
       val adapter = new EncryptedSnapshotAdapter(encryptor)
       val proto = EncryptedProto.defaultInstance
       val actual: Try[StateWrapper] = Try(adapter.safeFromJournal(proto))
