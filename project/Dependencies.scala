@@ -13,6 +13,7 @@ object Dependencies {
    */
   object Versions {
     val Scala213 = "2.13.1"
+    val Scala212 = "2.12.11"
     val MacwireVersion = "2.3.7"
     val ScalaTestVersion = "3.2.0"
     val PlayJsonDerivedCodecsVersion = "7.0.0"
@@ -28,12 +29,12 @@ object Dependencies {
     val KanelaVersion = "1.0.5"
     val LogstashLogbackVersion = "6.3"
     val SilencerVersion = "1.6.0"
-    val AkkaGrpcRuntimeVersion = "0.8.4"
+    val AkkaGrpcVersion = "0.8.4"
     val AkkaVersion: String = "2.6.6"
     val H2Version = "1.4.200"
     val JaninoVersion = "3.1.2"
     val ScalapbJson4sVersion = "0.10.1"
-    val PlayGrpcRuntimeVersion = "0.8.2"
+    val PlayGrpcVersion = "0.8.2"
     val ReflectionsVersion = "0.9.12"
     val ScalaClassFinderVersion = "1.5.1"
     val ApacheCommonValidatorVersion = "1.6"
@@ -44,6 +45,11 @@ object Dependencies {
     val EmbeddedKafkaVersion = "2.5.0"
     val AkkaProjectionVersion = "0.3"
     val CatsVersion = "2.1.1"
+
+    val LagomVersion = "1.6.2"
+    val SbtProtocVersion = "0.99.34"
+
+    val CrossScalaForPlugin = Seq(Scala212)
   }
 
   object Compile {
@@ -106,8 +112,8 @@ object Dependencies {
 
     val ScalapbValidationRuntime =
       "com.thesamet.scalapb" %% "scalapb-validate-core" % scalapb.validate.compiler.BuildInfo.version % "protobuf"
-    val AkkaGrpcRuntime: ModuleID = "com.lightbend.akka.grpc" %% "akka-grpc-runtime" % Versions.AkkaGrpcRuntimeVersion
-    val PlayGrpcRuntime: ModuleID = "com.lightbend.play" %% "play-grpc-runtime" % Versions.PlayGrpcRuntimeVersion
+    val AkkaGrpcRuntime: ModuleID = "com.lightbend.akka.grpc" %% "akka-grpc-runtime" % Versions.AkkaGrpcVersion
+    val PlayGrpcRuntime: ModuleID = "com.lightbend.play" %% "play-grpc-runtime" % Versions.PlayGrpcVersion
     val ScalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % Versions.Scala213
 
     val ScalapbCommonProtosRuntime: ModuleID =
