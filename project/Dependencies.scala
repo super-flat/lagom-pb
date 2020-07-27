@@ -1,4 +1,14 @@
 import com.lightbend.lagom.core.LagomVersion
+import com.lightbend.lagom.sbt.LagomImport.{
+  lagomScaladslApi,
+  lagomScaladslCluster,
+  lagomScaladslKafkaBroker,
+  lagomScaladslPersistenceCassandra,
+  lagomScaladslPersistenceJdbc,
+  lagomScaladslServer,
+  lagomScaladslTestKit
+}
+import play.sbt.PlayImport.filters
 import sbt._
 import scalapb.compiler.Version.scalapbVersion
 
@@ -48,7 +58,8 @@ object Dependencies {
 
     val LagomVersion = "1.6.2"
     val SbtProtocVersion = "0.99.34"
-
+    val ScalapbCompilerVersion = "0.10.7"
+    val ScalapbValidationVersion = "0.1.2"
     val CrossScalaForPlugin = Seq(Scala212)
   }
 
@@ -126,7 +137,7 @@ object Dependencies {
   object Test {
     val ScalaTest: ModuleID = "org.scalatest" %% "scalatest" % Versions.ScalaTestVersion
     val ScalaMock: ModuleID = "org.scalamock" %% "scalamock" % Versions.ScalaMockVersion
-    val AkkaMultiNodeTeskit: ModuleID = "com.typesafe.akka" %% "akka-multi-node-testkit" % Versions.AkkaVersion
+    val AkkaMultiNodeTestkit: ModuleID = "com.typesafe.akka" %% "akka-multi-node-testkit" % Versions.AkkaVersion
     val AkkaTestkit: ModuleID = "com.typesafe.akka" %% "akka-testkit" % Versions.AkkaVersion
     val AkkaStreamTestkit: ModuleID = "com.typesafe.akka" %% "akka-stream-testkit" % Versions.AkkaVersion
     val AkkaActorTestkitTyped: ModuleID = "com.typesafe.akka" %% "akka-actor-testkit-typed" % Versions.AkkaVersion
@@ -134,4 +145,57 @@ object Dependencies {
     val EmbeddedKafka: ModuleID = "io.github.embeddedkafka" %% "embedded-kafka" % Versions.EmbeddedKafkaVersion
   }
 
+  val SbtPlugin = Seq(
+    "com.lightbend.play" %% "play-grpc-generators" % Dependencies.Versions.PlayGrpcVersion,
+    "com.thesamet.scalapb" %% "compilerplugin" % Dependencies.Versions.ScalapbCompilerVersion,
+    "com.thesamet.scalapb" %% "scalapb-validate-codegen" % Dependencies.Versions.ScalapbValidationVersion,
+    lagomScaladslApi,
+    lagomScaladslServer,
+    filters,
+    lagomScaladslCluster,
+    lagomScaladslPersistenceJdbc,
+    lagomScaladslPersistenceCassandra,
+    lagomScaladslKafkaBroker,
+    lagomScaladslTestKit,
+    Dependencies.Compile.PlayJsonDerivedCodecs,
+    Dependencies.Compile.LagomScaladslAkkaDiscovery,
+    Dependencies.Compile.postgresDriver,
+    Dependencies.Compile.Macwire,
+    Dependencies.Compile.AkkaServiceLocator,
+    Dependencies.Compile.akkaManagement,
+    Dependencies.Compile.AkkaManagementClusterBootstrap,
+    Dependencies.Compile.AkkaManagementClusterHttp,
+    Dependencies.Compile.AkkaKubernetesDiscoveryApi,
+    Dependencies.Compile.JwtPlayJson,
+    Dependencies.Compile.ScalapbJson4s,
+    Dependencies.Compile.Janino,
+    Dependencies.Compile.Reflections,
+    Dependencies.Compile.KamonBundle,
+    Dependencies.Compile.KamonPrometheus,
+    Dependencies.Compile.KamonJaeger,
+    Dependencies.Compile.LogstashLogback,
+    Dependencies.Compile.ScalaClassFinder,
+    Dependencies.Compile.ApacheCommonValidator,
+    Dependencies.Compile.GoogleRe2j,
+    Dependencies.Compile.GoogleProtobufUtil,
+    Dependencies.Compile.ScalapbCommonProtos,
+    Dependencies.Compile.AkkaProjectionCore,
+    Dependencies.Compile.AkkaProjectionKafka,
+    Dependencies.Compile.AkkaProjectionSlick,
+    Dependencies.Compile.AkkaProjectionEventSourced,
+    Dependencies.Compile.CatsCore,
+    Dependencies.Runtime.AkkaGrpcRuntime,
+    Dependencies.Runtime.ScalapbRuntime,
+    Dependencies.Runtime.ScalapbValidationRuntime,
+    Dependencies.Runtime.PlayGrpcRuntime,
+    Dependencies.Runtime.ScalapbCommonProtosRuntime,
+    Dependencies.Test.ScalaTest,
+    Dependencies.Test.ScalaMock,
+    Dependencies.Test.AkkaMultiNodeTestkit,
+    Dependencies.Test.AkkaTestkit,
+    Dependencies.Test.AkkaStreamTestkit,
+    Dependencies.Test.AkkaActorTestkitTyped,
+    Dependencies.Test.EmbeddedPostgres,
+    Dependencies.Test.EmbeddedKafka
+  )
 }
