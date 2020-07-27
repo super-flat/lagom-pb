@@ -13,6 +13,7 @@ import io.superflat.lagompb.protobuf.core.CommandReply.Reply
 import io.superflat.lagompb.protobuf.tests._
 import io.superflat.lagompb.testkit.BaseActorTestKit
 import akka.actor.typed.scaladsl.adapter._
+import akka.actor.ActorSystem
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -37,7 +38,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
     }
   }
 
-  val actorSystem = testKit.system.toClassic
+  val actorSystem: ActorSystem = testKit.system.toClassic
 
   "Aggregate Implementation" should {
 
