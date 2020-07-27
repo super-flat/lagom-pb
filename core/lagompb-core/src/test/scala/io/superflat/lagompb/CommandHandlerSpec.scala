@@ -2,18 +2,25 @@ package io.superflat.lagompb
 
 import java.util.UUID
 
+import akka.actor.ActorSystem
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.data.TestCommandHandler
 import io.superflat.lagompb.protobuf.core._
 import io.superflat.lagompb.protobuf.tests.{NoCmd, TestCmd, TestEvent, TestState}
-import io.superflat.lagompb.testkit.BaseSpec
+import io.superflat.lagompb.testkit.{BaseActorTestKit, BaseSpec}
 
 import scala.util.Try
+import akka.actor.typed.scaladsl.adapter._
 
-class CommandHandlerSpec extends BaseSpec {
+class CommandHandlerSpec extends BaseActorTestKit(s"""
+      akka.persistence.journal.plugin = "akka.persistence.journal.inmem"
+      akka.persistence.snapshot-store.plugin = "akka.persistence.snapshot-store.local"
+      akka.persistence.snapshot-store.local.dir = "tmp/snapshot"
+    """) {
 
+  val actorSystem: ActorSystem = testKit.system.toClassic
   val companyId: String = UUID.randomUUID().toString
-  val cmdHandler = new TestCommandHandler(null)
+  val cmdHandler = new TestCommandHandler(actorSystem)
 
   "CommandHandler implementation" should {
     "handle valid command as expected" in {
