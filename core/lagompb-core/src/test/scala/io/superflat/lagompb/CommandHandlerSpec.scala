@@ -6,11 +6,11 @@ import com.google.protobuf.any.Any
 import io.superflat.lagompb.data.TestCommandHandler
 import io.superflat.lagompb.protobuf.core._
 import io.superflat.lagompb.protobuf.tests.{NoCmd, TestCmd, TestEvent, TestState}
-import io.superflat.lagompb.testkit.LagompbSpec
+import io.superflat.lagompb.testkit.BaseSpec
 
 import scala.util.Try
 
-class CommandHandlerSpec extends LagompbSpec {
+class CommandHandlerSpec extends BaseSpec {
 
   val companyId: String = UUID.randomUUID().toString
   val cmdHandler = new TestCommandHandler(null)

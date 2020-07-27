@@ -16,15 +16,13 @@ trait BaseService extends Service {
 
   final override def descriptor: Descriptor = {
     import Service._
-    var namedService: Descriptor = named(serviceName)
-      .withAutoAcl(true)
 
-    // Let us set the route
-    routes.foreach { calls =>
-      namedService = namedService.addCalls(calls)
-    }
+    routes
+      .foldLeft(
+        named(serviceName)
+          .withAutoAcl(true)
+      ) { _.addCalls(_) }
 
-    namedService
   }
 
   /**

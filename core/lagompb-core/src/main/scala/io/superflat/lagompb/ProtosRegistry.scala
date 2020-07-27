@@ -34,7 +34,7 @@ object ProtosRegistry {
 
   private[lagompb] lazy val typeRegistry: TypeRegistry =
     registry
-      .foldLeft(TypeRegistry.empty) { (reg, fileObject) =>
+      .foldLeft(TypeRegistry.empty) { (reg: TypeRegistry, fileObject) =>
         reg.addFile(fileObject)
       }
 

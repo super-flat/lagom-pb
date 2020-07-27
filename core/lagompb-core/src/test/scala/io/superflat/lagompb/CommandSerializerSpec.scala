@@ -3,9 +3,9 @@ package io.superflat.lagompb
 import akka.actor.testkit.typed.scaladsl.TestProbe
 import io.superflat.lagompb.protobuf.core.CommandReply
 import io.superflat.lagompb.protobuf.tests.TestCmd
-import io.superflat.lagompb.testkit.LagompbActorTestKit
+import io.superflat.lagompb.testkit.BaseActorTestKit
 
-class CommandSerializerSpec extends LagompbActorTestKit(s"""
+class CommandSerializerSpec extends BaseActorTestKit(s"""
     akka {
       actor {
         serialize-messages = on

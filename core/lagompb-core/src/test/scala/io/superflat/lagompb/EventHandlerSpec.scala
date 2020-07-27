@@ -5,9 +5,9 @@ import java.util.UUID
 import io.superflat.lagompb.data.TestEventHandler
 import io.superflat.lagompb.protobuf.core.MetaData
 import io.superflat.lagompb.protobuf.tests.{TestEvent, TestState, WrongEvent}
-import io.superflat.lagompb.testkit.LagompbSpec
+import io.superflat.lagompb.testkit.BaseSpec
 
-class EventHandlerSpec extends LagompbSpec {
+class EventHandlerSpec extends BaseSpec {
   "EventHandler implementation" must {
     val companyId: String = UUID.randomUUID().toString
     val eventHandler = new TestEventHandler(null)

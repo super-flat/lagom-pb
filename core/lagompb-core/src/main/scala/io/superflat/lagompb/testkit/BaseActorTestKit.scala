@@ -9,7 +9,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.time.Span
 import org.scalatest.wordspec.AnyWordSpecLike
 
-abstract class LagompbActorTestKit(testKit: ActorTestKit)
+abstract class BaseActorTestKit(testKit: ActorTestKit)
     extends ActorTestKitBase(testKit)
     with AnyWordSpecLike
     with Matchers

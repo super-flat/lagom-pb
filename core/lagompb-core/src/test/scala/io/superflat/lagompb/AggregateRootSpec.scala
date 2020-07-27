@@ -11,11 +11,12 @@ import io.superflat.lagompb.data.{TestAggregateRoot, TestCommandHandler, TestEve
 import io.superflat.lagompb.protobuf.core._
 import io.superflat.lagompb.protobuf.core.CommandReply.Reply
 import io.superflat.lagompb.protobuf.tests._
-import io.superflat.lagompb.testkit.LagompbActorTestKit
+import io.superflat.lagompb.testkit.BaseActorTestKit
+import akka.actor.typed.scaladsl.adapter._
 
 import scala.concurrent.duration.FiniteDuration
 
-class AggregateRootSpec extends LagompbActorTestKit(s"""
+class AggregateRootSpec extends BaseActorTestKit(s"""
       akka.persistence.journal.plugin = "akka.persistence.journal.inmem"
       akka.persistence.snapshot-store.plugin = "akka.persistence.snapshot-store.local"
       akka.persistence.snapshot-store.local.dir = "tmp/snapshot"
@@ -36,6 +37,8 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
     }
   }
 
+  val actorSystem = testKit.system.toClassic
+
   "Aggregate Implementation" should {
 
     "handle command as expected" in {
@@ -44,7 +47,7 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
         createTestProbe[CommandReply]()
 
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
+        new TestAggregateRoot(actorSystem, new TestCommandHandler(actorSystem), new TestEventHandler(actorSystem))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -77,7 +80,7 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
         createTestProbe[CommandReply]()
 
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
+        new TestAggregateRoot(actorSystem, new TestCommandHandler(actorSystem), new TestEventHandler(actorSystem))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -105,13 +108,13 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
         createTestProbe[CommandReply]()
 
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
+        new TestAggregateRoot(actorSystem, new TestCommandHandler(actorSystem), new TestEventHandler(actorSystem))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
       val aggregateRef: ActorRef[Command] =
         spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
-      val testCmd = TestGetCmd().withCompanyUuid(companyUUID)
+      val testCmd = TestGetCmd.defaultInstance.withCompanyUuid(companyUUID)
 
       // let us send the command to the aggregate
       val data =
@@ -138,13 +141,13 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
         createTestProbe[CommandReply]()
 
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
+        new TestAggregateRoot(actorSystem, new TestCommandHandler(actorSystem), new TestEventHandler(actorSystem))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
       val aggregateRef: ActorRef[Command] =
         spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
-      val testCmd = TestEmptyCmd().withCompanyUuid(companyUUID)
+      val testCmd = TestEmptyCmd.defaultInstance.withCompanyUuid(companyUUID)
 
       // let us send the command to the aggregate
       aggregateRef ! Command(testCmd, commandSender.ref, Map.empty)
@@ -165,13 +168,13 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
         createTestProbe[CommandReply]()
 
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
+        new TestAggregateRoot(actorSystem, new TestCommandHandler(actorSystem), new TestEventHandler(actorSystem))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
       val aggregateRef: ActorRef[Command] =
         spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
-      val testCmd = TestEmptySuccessCmd().withCompanyUuid(companyUUID)
+      val testCmd = TestEmptySuccessCmd.defaultInstance.withCompanyUuid(companyUUID)
 
       // let us send the command to the aggregate
       aggregateRef ! Command(testCmd, commandSender.ref, Map.empty)
@@ -192,13 +195,13 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
         createTestProbe[CommandReply]()
 
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
+        new TestAggregateRoot(actorSystem, new TestCommandHandler(actorSystem), new TestEventHandler(actorSystem))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
       val aggregateRef: ActorRef[Command] =
         spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
-      val testCmd = TestUnknownEventCmd().withCompanyUuid(companyUUID)
+      val testCmd = TestUnknownEventCmd.defaultInstance.withCompanyUuid(companyUUID)
 
       // let us send the command to the aggregate
       aggregateRef ! Command(testCmd, commandSender.ref, Map.empty)
@@ -220,13 +223,13 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
         createTestProbe[CommandReply]()
 
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
+        new TestAggregateRoot(actorSystem, new TestCommandHandler(actorSystem), new TestEventHandler(actorSystem))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
       val aggregateRef: ActorRef[Command] =
         spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
-      val testCmd = TestFailCmd().withCompanyUuid(companyUUID)
+      val testCmd = TestFailCmd.defaultInstance.withCompanyUuid(companyUUID)
 
       // let us send the command to the aggregate
       aggregateRef ! Command(testCmd, commandSender.ref, Map.empty)
@@ -235,36 +238,43 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
 
     "handle wrong state parsing" in {
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
-      val stateWrapper = StateWrapper().withState(
+        new TestAggregateRoot(actorSystem, new TestCommandHandler(actorSystem), new TestEventHandler(actorSystem))
+      val stateWrapper = StateWrapper.defaultInstance.withState(
         Any()
           .withTypeUrl("type.googleapis.com/lagom.test")
           .withValue(com.google.protobuf.ByteString.copyFrom("".getBytes))
       )
 
-      an[GlobalException] shouldBe thrownBy(aggregate.genericCommandHandler(stateWrapper, null))
+      // Let us create the sender of commands
+      val commandSender: TestProbe[CommandReply] =
+        createTestProbe[CommandReply]()
+      val testCmd = TestCmd.defaultInstance
+
+      an[GlobalException] shouldBe thrownBy(
+        aggregate.genericCommandHandler(stateWrapper, Command(testCmd, commandSender.ref, Map.empty))
+      )
     }
 
     "handle generic event handler" in {
       val companyUuid = "12234"
       val aggregate =
-        new TestAggregateRoot(null, new TestCommandHandler(null), new TestEventHandler(null))
-      val stateWrapper = StateWrapper()
+        new TestAggregateRoot(actorSystem, new TestCommandHandler(actorSystem), new TestEventHandler(actorSystem))
+      val stateWrapper = StateWrapper.defaultInstance
         .withState(
           Any
             .pack(
-              TestState()
+              TestState.defaultInstance
                 .withName("prior")
                 .withCompanyUuid(companyUuid)
             )
         )
         .withMeta(MetaData.defaultInstance)
 
-      val eventWrapper = EventWrapper()
+      val eventWrapper = EventWrapper.defaultInstance
         .withEvent(
           Any
             .pack(
-              TestEvent()
+              TestEvent.defaultInstance
                 .withName("event")
                 .withEventUuid("23")
             )
@@ -273,7 +283,7 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
         .withResultingState(
           Any
             .pack(
-              TestState()
+              TestState.defaultInstance
                 .withName("resulting")
                 .withCompanyUuid(companyUuid)
             )
@@ -282,7 +292,7 @@ class AggregateRootSpec extends LagompbActorTestKit(s"""
       val newState: StateWrapper =
         aggregate.genericEventHandler(stateWrapper, eventWrapper)
       newState.getState shouldBe Any.pack(
-        TestState()
+        TestState.defaultInstance
           .withName("resulting")
           .withCompanyUuid(companyUuid)
       )

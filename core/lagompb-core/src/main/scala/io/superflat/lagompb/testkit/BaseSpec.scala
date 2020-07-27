@@ -7,7 +7,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.time.{Seconds, Span}
 import org.scalatest.wordspec.AnyWordSpecLike
 
-trait LagompbSpec
+trait BaseSpec
     extends AnyWordSpecLike
     with Matchers
     with TestSuite

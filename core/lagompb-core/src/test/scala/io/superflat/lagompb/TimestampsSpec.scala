@@ -3,9 +3,9 @@ package io.superflat.lagompb
 import java.time.{Instant, ZoneId}
 
 import com.google.protobuf.timestamp.Timestamp
-import io.superflat.lagompb.testkit.LagompbSpec
+import io.superflat.lagompb.testkit.BaseSpec
 
-class TimestampsSpec extends LagompbSpec {
+class TimestampsSpec extends BaseSpec {
 
   "A protobuf Timestamp date" must {
     val ts = Timestamp().withSeconds(1582879956).withNanos(704545000)
