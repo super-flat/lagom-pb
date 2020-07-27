@@ -4,10 +4,10 @@ import com.google.protobuf.any.Any
 import io.superflat.lagompb.protobuf.core.CoreProto
 import io.superflat.lagompb.protobuf.options.OptionsProto
 import io.superflat.lagompb.protobuf.tests.TestCmd
-import io.superflat.lagompb.testkit.LagompbSpec
+import io.superflat.lagompb.testkit.BaseSpec
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
-class ProtosRegistrySpec extends LagompbSpec {
+class ProtosRegistrySpec extends BaseSpec {
 
   "Loading GeneratedFileObject" should {
 

@@ -4,11 +4,11 @@ import com.google.protobuf.any.Any
 import com.google.protobuf.wrappers.StringValue
 import com.google.protobuf.ByteString
 import io.superflat.lagompb.protobuf.encryption.EncryptedProto
-import io.superflat.lagompb.testkit.LagompbSpec
+import io.superflat.lagompb.testkit.BaseSpec
 
 import scala.util.Success
 
-class NoEncryptionSpec extends LagompbSpec {
+class NoEncryptionSpec extends BaseSpec {
 
   "NoEncryption" must {
     "encrypt with no loss" in {

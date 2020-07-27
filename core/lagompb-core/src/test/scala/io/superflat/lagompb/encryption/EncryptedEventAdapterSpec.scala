@@ -5,11 +5,11 @@ import com.google.protobuf.any.Any
 import com.google.protobuf.wrappers.StringValue
 import io.superflat.lagompb.protobuf.core.EventWrapper
 import io.superflat.lagompb.protobuf.encryption.EncryptedProto
-import io.superflat.lagompb.testkit.LagompbSpec
+import io.superflat.lagompb.testkit.BaseSpec
 
 import scala.util.Try
 
-class EncryptedEventAdapterSpec extends LagompbSpec {
+class EncryptedEventAdapterSpec extends BaseSpec {
 
   "EncryptedEventAdapter" must {
     "safely encrypt and decrypt" in {

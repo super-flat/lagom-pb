@@ -4,11 +4,11 @@ import com.google.protobuf.any.Any
 import com.google.protobuf.wrappers.StringValue
 import io.superflat.lagompb.protobuf.core.StateWrapper
 import io.superflat.lagompb.protobuf.encryption.EncryptedProto
-import io.superflat.lagompb.testkit.LagompbSpec
+import io.superflat.lagompb.testkit.BaseSpec
 
 import scala.util.Try
 
-class EncryptedSnapshotAdapterSpec extends LagompbSpec {
+class EncryptedSnapshotAdapterSpec extends BaseSpec {
 
   "EncryptedSnapshotAdapter" must {
     "safely encrypt and decrypt" in {

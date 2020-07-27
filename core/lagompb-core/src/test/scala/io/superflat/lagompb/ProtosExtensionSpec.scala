@@ -4,10 +4,10 @@ import java.util.UUID
 
 import io.superflat.lagompb.protobuf.extensions.ExtensionsProto
 import io.superflat.lagompb.protobuf.tests.{TestCmd, TestEvent}
-import io.superflat.lagompb.testkit.LagompbSpec
+import io.superflat.lagompb.testkit.BaseSpec
 import scalapb.descriptors.FieldDescriptor
 
-class ProtosExtensionSpec extends LagompbSpec {
+class ProtosExtensionSpec extends BaseSpec {
   val companyId: String = UUID.randomUUID().toString
 
   "Check the existence of kafka option" should {

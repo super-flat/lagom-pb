@@ -9,11 +9,11 @@ import io.superflat.lagompb.data._
 import io.superflat.lagompb.protobuf.core._
 import io.superflat.lagompb.protobuf.core.CommandReply.Reply
 import io.superflat.lagompb.protobuf.tests.{TestCmd, TestState}
-import io.superflat.lagompb.testkit.LagompbSpec
+import io.superflat.lagompb.testkit.BaseSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class BaseServiceImplSpec extends LagompbSpec {
+class BaseServiceImplSpec extends BaseSpec {
   val companyId: String = UUID.randomUUID().toString
 
   val any: Any =

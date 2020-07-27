@@ -5,12 +5,21 @@ import java.util.UUID
 import io.superflat.lagompb.data.TestEventHandler
 import io.superflat.lagompb.protobuf.core.MetaData
 import io.superflat.lagompb.protobuf.tests.{TestEvent, TestState, WrongEvent}
-import io.superflat.lagompb.testkit.LagompbSpec
+import io.superflat.lagompb.testkit.{BaseActorTestKit, BaseSpec}
+import akka.actor.typed.scaladsl.adapter._
+import akka.actor.ActorSystem
 
-class EventHandlerSpec extends LagompbSpec {
+class EventHandlerSpec extends BaseActorTestKit(s"""
+      akka.persistence.journal.plugin = "akka.persistence.journal.inmem"
+      akka.persistence.snapshot-store.plugin = "akka.persistence.snapshot-store.local"
+      akka.persistence.snapshot-store.local.dir = "tmp/snapshot"
+    """) {
+
+  val actorSystem: ActorSystem = testKit.system.toClassic
+
   "EventHandler implementation" must {
     val companyId: String = UUID.randomUUID().toString
-    val eventHandler = new TestEventHandler(null)
+    val eventHandler = new TestEventHandler(actorSystem)
 
     "handle event and return the new state" in {
       val prevState = TestState(companyId, "state")
