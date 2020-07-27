@@ -1,4 +1,5 @@
 import sbt.Keys.libraryDependencies
+import Dependencies.Versions
 
 lazy val root = project
   .in(file("."))
@@ -59,6 +60,7 @@ lazy val `lagompb-readside` = project
 lazy val `lagompb-plugin` = project
   .in(file("core/lagompb-plugin"))
   .enablePlugins(SbtPlugin)
+  .enablePlugins(Publish)
   .settings(
     name := "lagompb-plugin",
     crossScalaVersions := Dependencies.Versions.CrossScalaForPlugin,
