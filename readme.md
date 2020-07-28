@@ -12,8 +12,6 @@ Scala shared code for [lagom](https://www.lagomframework.com/documentation/1.6.x
 This library helps write lagom microservices easily by making use of protocol buffer messages to define the es/cqrs core
 components like _**api requests/responses**_, _**grpc services**_, _**events**_, _**commands**_ and _**state**_.
 
-[Documentation](https://super-flat.github.io/lagom-pb/)
-
 ## Features
 
 - Implementation of an HTTP/Json based microservice using REST interfaces by defining _**api requests and responses as protobuf messages**_.
@@ -37,6 +35,27 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 - All events, snapshots and readSide offsets are persisted to Postgres SQL.
 
 - Encryption trait to enable events and snapshots encryption.
+
+## Get Started
+
+1. Add to your `plugins.sbt`:
+
+```scala
+ThisBuild / resolvers ++= Seq(Resolver.jcenterRepo, Resolver.sonatypeRepo("public"), Resolver.sonatypeRepo("snapshots"))
+
+addSbtPlugin("io.superflat" % "lagompb-plugin" % "0.5.0")
+```
+
+2. Add to your `build.sbt`:
+
+```scala
+ThisBuild / resolvers ++= Seq(Resolver.jcenterRepo, Resolver.sonatypeRepo("public"), Resolver.sonatypeRepo("snapshots"))
+libraryDependencies ++= Seq(
+  "io.superflat" %% "lagompb-core" % "0.5.0",
+  "io.superflat" %% "lagompb-core" % "0.5.0 % "protobuf"
+)
+```
+
 
 ## Sample Project
 
