@@ -111,10 +111,10 @@ object Dependencies {
   }
 
   object Runtime {
-    val ScalapbRuntime: ModuleID = "com.thesamet.scalapb" %% "scalapb-runtime" % scalapbVersion % "protobuf"
+    val ScalapbRuntime: ModuleID = "com.thesamet.scalapb" %% "scalapb-runtime" % scalapbVersion
 
     val ScalapbValidationRuntime =
-      "com.thesamet.scalapb" %% "scalapb-validate-core" % scalapb.validate.compiler.BuildInfo.version % "protobuf"
+      "com.thesamet.scalapb" %% "scalapb-validate-core" % scalapb.validate.compiler.BuildInfo.version
     val AkkaGrpcRuntime: ModuleID = "com.lightbend.akka.grpc" %% "akka-grpc-runtime" % Versions.AkkaGrpcVersion
     val PlayGrpcRuntime: ModuleID = "com.lightbend.play" %% "play-grpc-runtime" % Versions.PlayGrpcVersion
     val ScalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % Versions.Scala213

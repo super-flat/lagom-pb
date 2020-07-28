@@ -36,7 +36,6 @@ lazy val `lagompb-core` = project
   .settings(
     name := "lagompb-core",
     Compile / unmanagedResourceDirectories += baseDirectory.value / "src" / "main" / "protobuf",
-    Compile / unmanagedResourceDirectories += baseDirectory.value / "target" / "protobuf_external",
     unmanagedResources / excludeFilter := HiddenFileFilter || "*tests*",
     coverageExcludedPackages := CoverageWhitelist.whitelist.mkString(";")
   )
