@@ -41,15 +41,12 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 1. Add to your `plugins.sbt`:
 
 ```scala
-ThisBuild / resolvers ++= Seq(Resolver.jcenterRepo, Resolver.sonatypeRepo("public"), Resolver.sonatypeRepo("snapshots"))
-
 addSbtPlugin("io.superflat" % "lagompb-plugin" % "0.5.0")
 ```
 
 2. Add to your `build.sbt`:
 
 ```scala
-ThisBuild / resolvers ++= Seq(Resolver.jcenterRepo, Resolver.sonatypeRepo("public"), Resolver.sonatypeRepo("snapshots"))
 libraryDependencies ++= Seq(
   "io.superflat" %% "lagompb-core" % "0.5.0",
   "io.superflat" %% "lagompb-core" % "0.5.0 % "protobuf"
