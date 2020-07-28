@@ -14,7 +14,7 @@ object TestSettings extends AutoPlugin {
         lagomScaladslTestKit,
         Dependencies.Test.ScalaTest,
         Dependencies.Test.ScalaMock,
-        Dependencies.Test.AkkaMultiNodeTeskit,
+        Dependencies.Test.AkkaMultiNodeTestkit,
         Dependencies.Test.AkkaTestkit,
         Dependencies.Test.AkkaStreamTestkit,
         Dependencies.Test.AkkaActorTestkitTyped,

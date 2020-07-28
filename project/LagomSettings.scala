@@ -57,7 +57,7 @@ object LagomSettings extends AutoPlugin {
         Runtime.ScalapbCommonProtosRuntime,
         Dependencies.Test.ScalaTest,
         Dependencies.Test.ScalaMock,
-        Dependencies.Test.AkkaMultiNodeTeskit,
+        Dependencies.Test.AkkaMultiNodeTestkit,
         Dependencies.Test.AkkaTestkit,
         Dependencies.Test.AkkaStreamTestkit,
         Dependencies.Test.AkkaActorTestkitTyped,

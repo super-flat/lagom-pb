@@ -1,4 +1,6 @@
 import com.lightbend.lagom.core.LagomVersion
+import com.lightbend.lagom.sbt.LagomImport._
+import play.sbt.PlayImport.filters
 import sbt._
 import scalapb.compiler.Version.scalapbVersion
 
@@ -13,6 +15,7 @@ object Dependencies {
    */
   object Versions {
     val Scala213 = "2.13.1"
+    val Scala212 = "2.12.11"
     val MacwireVersion = "2.3.7"
     val ScalaTestVersion = "3.2.0"
     val PlayJsonDerivedCodecsVersion = "7.0.0"
@@ -28,12 +31,12 @@ object Dependencies {
     val KanelaVersion = "1.0.5"
     val LogstashLogbackVersion = "6.3"
     val SilencerVersion = "1.6.0"
-    val AkkaGrpcRuntimeVersion = "0.8.4"
+    val AkkaGrpcVersion = "0.8.4"
     val AkkaVersion: String = "2.6.6"
     val H2Version = "1.4.200"
     val JaninoVersion = "3.1.2"
     val ScalapbJson4sVersion = "0.10.1"
-    val PlayGrpcRuntimeVersion = "0.8.2"
+    val PlayGrpcVersion = "0.8.2"
     val ReflectionsVersion = "0.9.12"
     val ScalaClassFinderVersion = "1.5.1"
     val ApacheCommonValidatorVersion = "1.6"
@@ -44,6 +47,12 @@ object Dependencies {
     val EmbeddedKafkaVersion = "2.5.0"
     val AkkaProjectionVersion = "0.3"
     val CatsVersion = "2.1.1"
+
+    val LagomVersion = "1.6.2"
+    val SbtProtocVersion = "0.99.34"
+    val ScalapbCompilerVersion = "0.10.7"
+    val ScalapbValidationVersion = "0.1.2"
+    val CrossScalaForPlugin = Seq(Scala212)
   }
 
   object Compile {
@@ -102,12 +111,12 @@ object Dependencies {
   }
 
   object Runtime {
-    val ScalapbRuntime: ModuleID = "com.thesamet.scalapb" %% "scalapb-runtime" % scalapbVersion % "protobuf"
+    val ScalapbRuntime: ModuleID = "com.thesamet.scalapb" %% "scalapb-runtime" % scalapbVersion
 
     val ScalapbValidationRuntime =
-      "com.thesamet.scalapb" %% "scalapb-validate-core" % scalapb.validate.compiler.BuildInfo.version % "protobuf"
-    val AkkaGrpcRuntime: ModuleID = "com.lightbend.akka.grpc" %% "akka-grpc-runtime" % Versions.AkkaGrpcRuntimeVersion
-    val PlayGrpcRuntime: ModuleID = "com.lightbend.play" %% "play-grpc-runtime" % Versions.PlayGrpcRuntimeVersion
+      "com.thesamet.scalapb" %% "scalapb-validate-core" % scalapb.validate.compiler.BuildInfo.version
+    val AkkaGrpcRuntime: ModuleID = "com.lightbend.akka.grpc" %% "akka-grpc-runtime" % Versions.AkkaGrpcVersion
+    val PlayGrpcRuntime: ModuleID = "com.lightbend.play" %% "play-grpc-runtime" % Versions.PlayGrpcVersion
     val ScalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % Versions.Scala213
 
     val ScalapbCommonProtosRuntime: ModuleID =
@@ -120,7 +129,7 @@ object Dependencies {
   object Test {
     val ScalaTest: ModuleID = "org.scalatest" %% "scalatest" % Versions.ScalaTestVersion
     val ScalaMock: ModuleID = "org.scalamock" %% "scalamock" % Versions.ScalaMockVersion
-    val AkkaMultiNodeTeskit: ModuleID = "com.typesafe.akka" %% "akka-multi-node-testkit" % Versions.AkkaVersion
+    val AkkaMultiNodeTestkit: ModuleID = "com.typesafe.akka" %% "akka-multi-node-testkit" % Versions.AkkaVersion
     val AkkaTestkit: ModuleID = "com.typesafe.akka" %% "akka-testkit" % Versions.AkkaVersion
     val AkkaStreamTestkit: ModuleID = "com.typesafe.akka" %% "akka-stream-testkit" % Versions.AkkaVersion
     val AkkaActorTestkitTyped: ModuleID = "com.typesafe.akka" %% "akka-actor-testkit-typed" % Versions.AkkaVersion
@@ -128,4 +137,57 @@ object Dependencies {
     val EmbeddedKafka: ModuleID = "io.github.embeddedkafka" %% "embedded-kafka" % Versions.EmbeddedKafkaVersion
   }
 
+  val SbtPlugin = Seq(
+    "com.lightbend.play" %% "play-grpc-generators" % Dependencies.Versions.PlayGrpcVersion,
+    "com.thesamet.scalapb" %% "compilerplugin" % Dependencies.Versions.ScalapbCompilerVersion,
+    "com.thesamet.scalapb" %% "scalapb-validate-codegen" % Dependencies.Versions.ScalapbValidationVersion,
+    lagomScaladslApi,
+    lagomScaladslServer,
+    filters,
+    lagomScaladslCluster,
+    lagomScaladslPersistenceJdbc,
+    lagomScaladslPersistenceCassandra,
+    lagomScaladslKafkaBroker,
+    lagomScaladslTestKit,
+    Dependencies.Compile.PlayJsonDerivedCodecs,
+    Dependencies.Compile.LagomScaladslAkkaDiscovery,
+    Dependencies.Compile.postgresDriver,
+    Dependencies.Compile.Macwire,
+    Dependencies.Compile.AkkaServiceLocator,
+    Dependencies.Compile.akkaManagement,
+    Dependencies.Compile.AkkaManagementClusterBootstrap,
+    Dependencies.Compile.AkkaManagementClusterHttp,
+    Dependencies.Compile.AkkaKubernetesDiscoveryApi,
+    Dependencies.Compile.JwtPlayJson,
+    Dependencies.Compile.ScalapbJson4s,
+    Dependencies.Compile.Janino,
+    Dependencies.Compile.Reflections,
+    Dependencies.Compile.KamonBundle,
+    Dependencies.Compile.KamonPrometheus,
+    Dependencies.Compile.KamonJaeger,
+    Dependencies.Compile.LogstashLogback,
+    Dependencies.Compile.ScalaClassFinder,
+    Dependencies.Compile.ApacheCommonValidator,
+    Dependencies.Compile.GoogleRe2j,
+    Dependencies.Compile.GoogleProtobufUtil,
+    Dependencies.Compile.ScalapbCommonProtos,
+    Dependencies.Compile.AkkaProjectionCore,
+    Dependencies.Compile.AkkaProjectionKafka,
+    Dependencies.Compile.AkkaProjectionSlick,
+    Dependencies.Compile.AkkaProjectionEventSourced,
+    Dependencies.Compile.CatsCore,
+    Dependencies.Runtime.AkkaGrpcRuntime,
+    Dependencies.Runtime.ScalapbRuntime,
+    Dependencies.Runtime.ScalapbValidationRuntime,
+    Dependencies.Runtime.PlayGrpcRuntime,
+    Dependencies.Runtime.ScalapbCommonProtosRuntime,
+    Dependencies.Test.ScalaTest,
+    Dependencies.Test.ScalaMock,
+    Dependencies.Test.AkkaMultiNodeTestkit,
+    Dependencies.Test.AkkaTestkit,
+    Dependencies.Test.AkkaStreamTestkit,
+    Dependencies.Test.AkkaActorTestkitTyped,
+    Dependencies.Test.EmbeddedPostgres,
+    Dependencies.Test.EmbeddedKafka
+  )
 }

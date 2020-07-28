@@ -1,6 +1,8 @@
+import sbt.Keys.libraryDependencies
+
 lazy val root = project
   .in(file("."))
-  .aggregate(`lagompb-core`, `lagompb-readside`, docs)
+  .aggregate(`lagompb-core`, `lagompb-readside`, `lagompb-plugin`, docs)
   .enablePlugins(CommonSettings)
   .enablePlugins(NoPublish)
   .settings(name := "lagompb")
@@ -53,5 +55,21 @@ lazy val `lagompb-readside` = project
   .enablePlugins(Publish)
   .settings(name := "lagompb-readside", coverageExcludedPackages := CoverageWhitelist.whitelist.mkString(";"))
   .dependsOn(`lagompb-core`)
+
+lazy val `lagompb-plugin` = project
+  .in(file("core/lagompb-plugin"))
+  .enablePlugins(SbtPlugin)
+  .enablePlugins(Publish)
+  .settings(
+    name := "lagompb-plugin",
+    crossScalaVersions := Dependencies.Versions.CrossScalaForPlugin,
+    scalaVersion := Dependencies.Versions.Scala212,
+    addSbtPlugin("com.lightbend.lagom" % "lagom-sbt-plugin" % Dependencies.Versions.LagomVersion),
+    addSbtPlugin("com.lightbend.akka.grpc" %% "sbt-akka-grpc" % Dependencies.Versions.AkkaGrpcVersion),
+    addSbtPlugin("com.thesamet" % "sbt-protoc" % Dependencies.Versions.SbtProtocVersion),
+    resolvers += Resolver.bintrayRepo("playframework", "maven"),
+    resolvers += Resolver.sonatypeRepo("snapshots"),
+    libraryDependencies ++= Dependencies.SbtPlugin
+  )
 
 cancelable in Global := true

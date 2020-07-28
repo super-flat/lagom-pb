@@ -217,7 +217,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
                     )
                 )
 
-              // An unhandled response is returned by the comand handler
+              // An unhandled response is returned by the command handler
               case Empty =>
                 Effect.reply(cmd.replyTo)(
                   CommandReply()
