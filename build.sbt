@@ -69,6 +69,7 @@ lazy val `lagompb-plugin` = project
     addSbtPlugin("com.lightbend.akka.grpc" %% "sbt-akka-grpc" % Dependencies.Versions.AkkaGrpcVersion),
     addSbtPlugin("com.thesamet" % "sbt-protoc" % Dependencies.Versions.SbtProtocVersion),
     resolvers += Resolver.bintrayRepo("playframework", "maven"),
+    resolvers += Resolver.sonatypeRepo("snapshots"),
     libraryDependencies ++= Dependencies.SbtPlugin
   )
 
