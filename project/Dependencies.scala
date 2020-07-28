@@ -1,14 +1,5 @@
 import com.lightbend.lagom.core.LagomVersion
-import com.lightbend.lagom.core.LagomVersion.akka
-import com.lightbend.lagom.sbt.LagomImport.{
-  lagomScaladslApi,
-  lagomScaladslCluster,
-  lagomScaladslKafkaBroker,
-  lagomScaladslPersistenceCassandra,
-  lagomScaladslPersistenceJdbc,
-  lagomScaladslServer,
-  lagomScaladslTestKit
-}
+import com.lightbend.lagom.sbt.LagomImport._
 import play.sbt.PlayImport.filters
 import sbt._
 import scalapb.compiler.Version.scalapbVersion
