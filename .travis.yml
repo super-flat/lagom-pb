@@ -17,8 +17,6 @@ stages:
 
 jobs:
   include:
-    - stage: checker
-      script: sbt scalastyle
     - stage: test
       script: sbt clean coverage test coverageAggregate
       after_script:
