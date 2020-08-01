@@ -49,7 +49,7 @@ import scala.util.{Failure, Success, Try}
   final val log: Logger = LoggerFactory.getLogger(getClass)
 
   // The implementation class needs to set the akka.projection.slick config for the offset database
-  protected val dbConfig: DatabaseConfig[PostgresProfile] =
+  protected val offsetStoreDatabaseConfig: DatabaseConfig[PostgresProfile] =
     DatabaseConfig.forConfig("akka.projection.slick", actorSystem.settings.config)
 
   protected val baseTag: String = ConfigReader.eventsConfig.tagName
@@ -81,7 +81,10 @@ import scala.util.{Failure, Success, Try}
   /**
    * Initialize the projection to start fetching the events that are emitted
    */
-  def init(): Unit =
+  def init(): Unit = {
+    // Let us attempt to create the projection store
+    if (ConfigReader.createOffsetStore) SlickProjection.createOffsetTableIfNotExists(offsetStoreDatabaseConfig)
+
     ShardedDaemonProcess(actorSystem).init[ProjectionBehavior.Command](
       name = projectionName,
       numberOfInstances = ConfigReader.allEventTags.size,
@@ -89,6 +92,7 @@ import scala.util.{Failure, Success, Try}
       settings = ShardedDaemonProcessSettings(actorSystem),
       stopMessage = Some(ProjectionBehavior.Stop)
     )
+  }
 
   /**
    * Build the projection instance based upon the event tag
@@ -101,7 +105,7 @@ import scala.util.{Failure, Success, Try}
       .exactlyOnce(
         projectionId = ProjectionId(projectionName, tagName),
         sourceProvider(tagName),
-        dbConfig,
+        offsetStoreDatabaseConfig,
         handler = () => new EventsReader(tagName, encryption, this)
       )
 
