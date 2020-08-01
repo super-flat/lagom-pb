@@ -35,4 +35,8 @@ object ConfigReader {
       tagName = config.getString(s"$LP.events.tagname"),
       numShards = config.getInt("akka.cluster.sharding.number-of-shards")
     )
+
+  def createOffsetStore: Boolean = {
+    config.getBoolean("lagompb.projection.create-tables.auto")
+  }
 }
