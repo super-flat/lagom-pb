@@ -32,7 +32,7 @@ object Dependencies {
     val LogstashLogbackVersion = "6.3"
     val SilencerVersion = "1.6.0"
     val AkkaGrpcVersion = "0.8.4"
-    val AkkaVersion: String = "2.6.6"
+    val AkkaVersion: String = "2.6.8"
     val H2Version = "1.4.200"
     val JaninoVersion = "3.1.2"
     val ScalapbJson4sVersion = "0.10.1"
@@ -48,11 +48,12 @@ object Dependencies {
     val AkkaProjectionVersion = "0.3"
     val CatsVersion = "2.1.1"
 
-    val LagomVersion = "1.6.2"
+    val LagomVersion = "1.6.3"
     val SbtProtocVersion = "0.99.34"
     val ScalapbCompilerVersion = "0.10.7"
     val ScalapbValidationVersion = "0.1.2"
     val CrossScalaForPlugin = Seq(Scala212)
+    val AkkaHttpVersion = "10.1.12"
   }
 
   object Compile {
@@ -108,6 +109,8 @@ object Dependencies {
       "com.lightbend.akka" %% "akka-projection-eventsourced" % Versions.AkkaProjectionVersion
 
     val CatsCore = "org.typelevel" %% "cats-core" % Versions.CatsVersion
+    // TODO remove after upgrade Akka and play gRPC
+    val AkkaHttp = "com.typesafe.akka" %% "akka-http2-support" % Versions.AkkaHttpVersion
   }
 
   object Runtime {
