@@ -8,7 +8,12 @@ import akka.cluster.sharding.typed.scaladsl.{EntityContext, EntityTypeKey}
 import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.{Effect, EventSourcedBehavior, ReplyEffect, RetentionCriteria}
 import com.google.protobuf.any.Any
-import io.superflat.lagompb.encryption.{EncryptedEventAdapter, EncryptedSnapshotAdapter, NoEncryption, ProtoEncryption}
+import io.superflat.lagompb.encryption.{
+  EncryptedEventAdapter,
+  EncryptedSnapshotAdapter,
+  EncryptionAdapter,
+  ProtoEncryption
+}
 import io.superflat.lagompb.protobuf.core._
 import io.superflat.lagompb.protobuf.core.CommandHandlerResponse.HandlerResponse.{
   Empty,
@@ -25,22 +30,24 @@ import scala.util.{Failure, Success, Try}
  * create an aggregate in the lagom ecosystem. There are three main components an aggregate
  * requires to be functional: a commands handler, an events handler and a state.
  *
- * @param actorSystem    the underlying actor system
- * @param commandHandler the commands handler
- * @param eventHandler   the events handler
+ * @param actorSystem     the underlying actor system
+ * @param commandHandler  the commands handler
+ * @param eventHandler    the events handler
+ * @param protoEncryption optional ProtoEncryption implementation
  * @tparam S the scala type of the aggregate state
  */
 abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
   actorSystem: ActorSystem,
   commandHandler: CommandHandler[S],
   eventHandler: EventHandler[S],
-  protoEncryption: ProtoEncryption = NoEncryption
+  protoEncryption: Option[ProtoEncryption] = None
 ) {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
 
-  final val typeKey: EntityTypeKey[Command] =
-    EntityTypeKey[Command](aggregateName)
+  final val typeKey: EntityTypeKey[Command] = EntityTypeKey[Command](aggregateName)
+
+  final val encryptionAdapter: EncryptionAdapter = new EncryptionAdapter(protoEncryption)
 
   /**
    * Defines the aggregate name. The `aggregateName` must be unique
@@ -85,8 +92,6 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
         commandHandler = genericCommandHandler,
         eventHandler = genericEventHandler
       )
-      .eventAdapter(new EncryptedEventAdapter(protoEncryption))
-      .snapshotAdapter(new EncryptedSnapshotAdapter(protoEncryption))
   }
 
   private[this] def initialState(entityId: String): StateWrapper =
@@ -113,20 +118,20 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
    */
   final def genericCommandHandler(stateWrapper: StateWrapper, cmd: Command): ReplyEffect[EventWrapper, StateWrapper] = {
 
-    // parse nested state
-    Try {
-      stateWrapper.getState.unpack[S](stateCompanion)
-    } match {
+    encryptionAdapter
+      .decrypt(stateWrapper.getState)
+      .map(_.unpack[S](stateCompanion)) match {
+
       case Failure(exception) =>
         val errMsg: String = s"state parser failure, ${exception.getMessage}"
         log.error(errMsg, exception)
 
         throw new GlobalException(errMsg)
 
-      case Success(state) =>
+      case Success(decryptedState) =>
         log.debug(s"[Lagompb] plugin data ${cmd.data} is valid...")
 
-        commandHandler.handle(cmd, state, stateWrapper.getMeta) match {
+        commandHandler.handle(cmd, decryptedState, stateWrapper.getMeta) match {
 
           case Success(commandHandlerResponse: CommandHandlerResponse) =>
             commandHandlerResponse.handlerResponse match {
@@ -138,15 +143,24 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
 
                   // No event to persist
                   case NoEvent(_) =>
+                    // create a state wrapper with the decrypted event
+                    val decryptedStateWrapper: StateWrapper = stateWrapper
+                      .withState(Any.pack(decryptedState))
+
                     Effect.reply(cmd.replyTo)(
-                      CommandReply().withSuccessfulReply(SuccessfulReply().withStateWrapper(stateWrapper))
+                      CommandReply()
+                        .withSuccessfulReply(
+                          SuccessfulReply()
+                            .withStateWrapper(decryptedStateWrapper)
+                        )
                     )
 
                   // Some event to persist
                   case Event(event: Any) =>
-                    ProtosRegistry
-                      .companion(event)
-                      .fold[ReplyEffect[EventWrapper, StateWrapper]](
+                    // get the companion for provided event
+                    ProtosRegistry.companion(event) match {
+                      // if no companion, return failure
+                      case None =>
                         Effect.reply(cmd.replyTo)(
                           CommandReply().withFailedReply(
                             FailedReply()
@@ -156,39 +170,48 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
                               .withCause(FailureCause.InternalError)
                           )
                         )
-                      ) { comp =>
+
+                      // otherwise persist the event and reply with state
+                      case Some(comp) =>
                         // let us construct the event meta prior to call the user agent
                         val eventMeta: MetaData = MetaData()
                           .withRevisionNumber(stateWrapper.getMeta.revisionNumber + 1)
                           .withRevisionDate(Instant.now().toTimestamp)
                           .withData(cmd.data)
-                          .withEntityId(
-                            stateWrapper.getMeta.entityId
-                          ) // the priorState will always have the entityId set in its meta even for the initial state
+                          // the priorState will always have the entityId set in its meta even for the initial state
+                          .withEntityId(stateWrapper.getMeta.entityId)
 
                         // let us the event handler
                         val resultingState: S = eventHandler
-                          .handle(event.unpack(comp), state, eventMeta)
+                          .handle(event.unpack(comp), decryptedState, eventMeta)
 
                         log.debug(
-                          s"[Lagompb] user defined event handler called with resulting state ${resultingState.companion.scalaDescriptor.fullName}"
+                          s"[Lagompb] user event handler returned ${resultingState.companion.scalaDescriptor.fullName}"
                         )
+
+                        val encryptedEvent = encryptionAdapter.encrypt(event).get
+                        val anyResultingState: Any = Any.pack(resultingState)
+                        val encryptedResultingState = encryptionAdapter.encrypt(anyResultingState).get
+                        val decryptedStateWrapper = StateWrapper()
+                          .withState(anyResultingState)
+                          .withMeta(eventMeta)
 
                         Effect
                           .persist(
                             EventWrapper()
-                              .withEvent(event)
-                              .withResultingState(Any.pack(resultingState))
+                              .withEvent(encryptedEvent)
+                              .withResultingState(encryptedResultingState)
                               .withMeta(eventMeta)
                           )
                           .thenReply(cmd.replyTo) { (updatedStateWrapper: StateWrapper) =>
                             CommandReply()
                               .withSuccessfulReply(
                                 SuccessfulReply()
+                                  // TODO make this return decrypted state!
                                   .withStateWrapper(updatedStateWrapper)
                               )
                           }
-                      }
+                    }
 
                   // the command handler return some unhandled successful response
                   // this case may never happen but it is safe to always check it
