@@ -8,12 +8,7 @@ import akka.cluster.sharding.typed.scaladsl.{EntityContext, EntityTypeKey}
 import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.{Effect, EventSourcedBehavior, ReplyEffect, RetentionCriteria}
 import com.google.protobuf.any.Any
-import io.superflat.lagompb.encryption.{
-  EncryptedEventAdapter,
-  EncryptedSnapshotAdapter,
-  EncryptionAdapter,
-  ProtoEncryption
-}
+import io.superflat.lagompb.encryption.{EncryptionAdapter, ProtoEncryption}
 import io.superflat.lagompb.protobuf.core._
 import io.superflat.lagompb.protobuf.core.CommandHandlerResponse.HandlerResponse.{
   Empty,
@@ -203,12 +198,12 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
                               .withResultingState(encryptedResultingState)
                               .withMeta(eventMeta)
                           )
-                          .thenReply(cmd.replyTo) { (updatedStateWrapper: StateWrapper) =>
+                          .thenReply(cmd.replyTo) { (_: StateWrapper) =>
                             CommandReply()
                               .withSuccessfulReply(
                                 SuccessfulReply()
-                                  // TODO make this return decrypted state!
-                                  .withStateWrapper(updatedStateWrapper)
+                                  // return decrypted state, not persisted (encrypted) state
+                                  .withStateWrapper(decryptedStateWrapper)
                               )
                           }
                     }
