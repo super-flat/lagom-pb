@@ -7,6 +7,7 @@ import com.google.protobuf.any
 import io.superflat.lagompb.{GlobalException, ProtosRegistry}
 import io.superflat.lagompb.encryption.{DecryptPermanentFailure, ProtoEncryption}
 import io.superflat.lagompb.protobuf.core.EventWrapper
+import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.protobuf.encryption.EncryptedProto
 import org.slf4j.{Logger, LoggerFactory}
 import slick.dbio.{DBIO, DBIOAction}
@@ -17,11 +18,15 @@ import scala.util.{Failure, Success, Try}
  * Reads the journal events by persisting the read offset onto postgres
  *
  * @param eventTag the event tag read
- * @param encryption the event read
  * @param eventProcessor the actual event processor
+ * @param encryptionAdapter handles encrypt/decrypt transformations
  */
-final class EventsReader(eventTag: String, encryption: ProtoEncryption, eventProcessor: EventProcessor)
-    extends SlickHandler[EventEnvelope[EncryptedProto]] {
+final class EventsReader(
+  eventTag: String,
+  eventProcessor: EventProcessor,
+  encryptionAdapter: EncryptionAdapter)
+
+    extends SlickHandler[EventEnvelope[EventWrapper]] {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
 
@@ -31,13 +36,9 @@ final class EventsReader(eventTag: String, encryption: ProtoEncryption, eventPro
    * @param envelope the event envelope
    * @return
    */
-  final override def process(envelope: EventEnvelope[EncryptedProto]): DBIO[Done] =
-    encryption
-      // decrypt the message into an Any
-      .decrypt(envelope.event)
-      // unpack into the EventWrapper
-      .map(_.unpack(EventWrapper))
-      // handle happy path decryption
+  final override def process(envelope: EventEnvelope[EventWrapper]): DBIO[Done] = {
+    // decrypt the event/state as needed
+    decryptEventWrapper(envelope.event)
       .map({
         case EventWrapper(Some(event: any.Any), Some(resultingState), Some(meta)) =>
           ProtosRegistry.companion(event) match {
@@ -64,4 +65,21 @@ final class EventsReader(eventTag: String, encryption: ProtoEncryption, eventPro
       case Success(value)     => value
       case Failure(exception) => throw exception
     }
+  }
+
+  final def decryptEventWrapper(eventWrapper: EventWrapper): Try[EventWrapper] = {
+    Try(eventWrapper)
+    // decrypt the event
+    .flatMap(eventWrapper => {
+      encryptionAdapter
+      .decrypt(eventWrapper.getEvent)
+      .map(decryptedEvent => eventWrapper.withEvent(decryptedEvent))
+    })
+    // decrypt the state
+    .flatMap(eventWrapper => {
+      encryptionAdapter
+      .decrypt(eventWrapper.getResultingState)
+      .map(decryptedState => eventWrapper.withResultingState(decryptedState))
+    })
+  }
 }

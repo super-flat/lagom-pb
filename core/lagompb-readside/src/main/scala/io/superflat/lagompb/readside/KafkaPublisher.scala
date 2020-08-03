@@ -47,7 +47,7 @@ abstract class KafkaPublisher[S <: scalapb.GeneratedMessage](encryption: ProtoEn
 
   // The implementation class needs to set the akka.kafka.producer settings in the config file as well
   // as the lagompb.kafka-projections
-  val producerConfig: KafkaConfig = KafkaConfig(actorSystem.settings.config.getConfig(" lagompb.projection.kafka"))
+  val producerConfig: KafkaConfig = KafkaConfig(actorSystem.settings.config.getConfig("lagompb.projection.kafka"))
 
   // The implementation class needs to set the akka.projection.slick config for the offset database
   protected val offsetStoreDatabaseConfig: DatabaseConfig[PostgresProfile] =
@@ -120,7 +120,7 @@ abstract class KafkaPublisher[S <: scalapb.GeneratedMessage](encryption: ProtoEn
             .exactlyOnce(
               projectionId = ProjectionId(projectionName, tagName),
               EventSourcedProvider
-                .eventsByTag[EncryptedProto](actorSystem, readJournalPluginId = JdbcReadJournal.Identifier, tagName),
+                .eventsByTag[EventWrapper](actorSystem, readJournalPluginId = JdbcReadJournal.Identifier, tagName),
               offsetStoreDatabaseConfig,
               handler = () => new EventsReader(tagName, encryption, this)
             )

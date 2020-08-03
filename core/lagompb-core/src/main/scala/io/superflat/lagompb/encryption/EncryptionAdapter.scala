@@ -15,7 +15,7 @@ import scala.util.{Success, Try}
  */
 class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
 
-  import EncryptionRunner.isEncryptedProto
+  import EncryptionAdapter.isEncryptedProto
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
 
@@ -57,7 +57,7 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
   }
 }
 
-object EncryptionRunner {
+object EncryptionAdapter {
   lazy val ENCRYPTED_PROTO_NAME: String = EncryptedProto.scalaDescriptor.fullName
 
   /**

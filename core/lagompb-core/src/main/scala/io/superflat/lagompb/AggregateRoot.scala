@@ -35,14 +35,12 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
   actorSystem: ActorSystem,
   commandHandler: CommandHandler[S],
   eventHandler: EventHandler[S],
-  protoEncryption: Option[ProtoEncryption] = None
+  encryptionAdapter: EncryptionAdapter
 ) {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
 
   final val typeKey: EntityTypeKey[Command] = EntityTypeKey[Command](aggregateName)
-
-  final val encryptionAdapter: EncryptionAdapter = new EncryptionAdapter(protoEncryption)
 
   /**
    * Defines the aggregate name. The `aggregateName` must be unique
