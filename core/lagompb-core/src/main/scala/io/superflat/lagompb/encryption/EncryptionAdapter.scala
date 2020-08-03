@@ -27,7 +27,9 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
   def encrypt(any: Any): Try[Any] = {
     encryptor match {
       // if encryptor provided, attempt the encrypt
-      case Some(enc) => enc.encrypt(any).map(encryptedProto => Any.pack(encryptedProto))
+      case Some(enc) =>
+        log.debug(s"encrypting message ${any.typeUrl} using ${enc.getClass.getName}")
+        enc.encrypt(any).map(encryptedProto => Any.pack(encryptedProto))
       // if no encryptor provided, pass through
       case None => Success(any)
     }
@@ -43,6 +45,7 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
     encryptor match {
       // if an encryptor provided and it's an encrypted proto, attempt decrypt
       case Some(enc) if EncryptionAdapter.isEncryptedProto(any) =>
+        log.debug(s"decrypting message ${any.typeUrl} using ${enc.getClass.getName}")
         Try(any.unpack(EncryptedProto)).flatMap(enc.decrypt)
 
       // if ProtoEncryption is configured/provided but nested type is not encrypted proto,
