@@ -109,6 +109,7 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
 }
 
 object EncryptionAdapter {
+
   /**
    * helper method to tell if a given Any message contains an instance of
    * an EncryptedProto
