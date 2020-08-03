@@ -12,8 +12,6 @@ class TestApplication(context: LagomApplicationContext) extends BaseApplication(
 
   def commandHandler: CommandHandler[TestState] = wire[TestCommandHandler]
 
-  def encryptionAdapter: EncryptionAdapter = new EncryptionAdapter(encryptor = None)
-
   def aggregate: AggregateRoot[TestState] = wire[TestAggregateRoot]
 
   override def aggregateRoot: AggregateRoot[_] = aggregate

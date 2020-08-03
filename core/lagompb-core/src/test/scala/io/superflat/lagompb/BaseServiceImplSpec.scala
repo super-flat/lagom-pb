@@ -12,6 +12,7 @@ import io.superflat.lagompb.protobuf.tests.{TestCmd, TestState}
 import io.superflat.lagompb.testkit.BaseSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import io.superflat.lagompb.encryption.EncryptionAdapter
 
 class BaseServiceImplSpec extends BaseSpec {
   val companyId: String = UUID.randomUUID().toString
@@ -25,6 +26,8 @@ class BaseServiceImplSpec extends BaseSpec {
 
   val embeddedPostgres: EmbeddedPostgres.Builder = EmbeddedPostgres.builder()
 
+  val defaultEncryptionAdapter = new EncryptionAdapter(None)
+
   override protected def beforeAll(): Unit =
     embeddedPostgres.start()
 
@@ -33,7 +36,7 @@ class BaseServiceImplSpec extends BaseSpec {
       val commandHandler = new TestCommandHandler(null)
       val eventHandler = new TestEventHandler(null)
       val aggregate =
-        new TestAggregateRoot(null, commandHandler, eventHandler)
+        new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
       testImpl.parseAny[TestState](any) shouldBe
         TestState()
@@ -45,7 +48,7 @@ class BaseServiceImplSpec extends BaseSpec {
       val commandHandler = new TestCommandHandler(null)
       val eventHandler = new TestEventHandler(null)
       val aggregate =
-        new TestAggregateRoot(null, commandHandler, eventHandler)
+        new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
       an[RuntimeException] shouldBe thrownBy(
         testImpl.parseAny[TestState](
@@ -60,7 +63,7 @@ class BaseServiceImplSpec extends BaseSpec {
       val commandHandler = new TestCommandHandler(null)
       val eventHandler = new TestEventHandler(null)
       val aggregate =
-        new TestAggregateRoot(null, commandHandler, eventHandler)
+        new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
 
       val cmdReply = CommandReply()
@@ -86,7 +89,7 @@ class BaseServiceImplSpec extends BaseSpec {
       val commandHandler = new TestCommandHandler(null)
       val eventHandler = new TestEventHandler(null)
       val aggregate =
-        new TestAggregateRoot(null, commandHandler, eventHandler)
+        new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
       val rejected =
         CommandReply()
@@ -101,7 +104,7 @@ class BaseServiceImplSpec extends BaseSpec {
       val commandHandler = new TestCommandHandler(null)
       val eventHandler = new TestEventHandler(null)
       val aggregate =
-        new TestAggregateRoot(null, commandHandler, eventHandler)
+        new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
       case class WrongReply()
       an[RuntimeException] shouldBe thrownBy(
@@ -113,7 +116,7 @@ class BaseServiceImplSpec extends BaseSpec {
       val commandHandler = new TestCommandHandler(null)
       val eventHandler = new TestEventHandler(null)
       val aggregate =
-        new TestAggregateRoot(null, commandHandler, eventHandler)
+        new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
 
       testImpl
@@ -132,7 +135,7 @@ class BaseServiceImplSpec extends BaseSpec {
       val commandHandler = new TestCommandHandler(null)
       val eventHandler = new TestEventHandler(null)
       val aggregate =
-        new TestAggregateRoot(null, commandHandler, eventHandler)
+        new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
       an[RuntimeException] shouldBe thrownBy(
         testImpl.parseState[TestState](

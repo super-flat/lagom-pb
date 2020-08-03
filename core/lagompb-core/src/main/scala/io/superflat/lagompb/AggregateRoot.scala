@@ -182,9 +182,10 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
                           s"[Lagompb] user event handler returned ${resultingState.companion.scalaDescriptor.fullName}"
                         )
 
-                        val encryptedEvent = encryptionAdapter.encrypt(event).get
+                        val encryptedEvent: Any = encryptionAdapter.encryptOrThrow(event)
                         val anyResultingState: Any = Any.pack(resultingState)
-                        val encryptedResultingState = encryptionAdapter.encrypt(anyResultingState).get
+                        val encryptedResultingState: Any = encryptionAdapter.encryptOrThrow(anyResultingState)
+
                         val decryptedStateWrapper = StateWrapper()
                           .withState(anyResultingState)
                           .withMeta(eventMeta)

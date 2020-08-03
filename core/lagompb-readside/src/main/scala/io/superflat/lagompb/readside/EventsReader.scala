@@ -5,10 +5,8 @@ import akka.projection.eventsourced.EventEnvelope
 import akka.projection.slick.SlickHandler
 import com.google.protobuf.any
 import io.superflat.lagompb.{GlobalException, ProtosRegistry}
-import io.superflat.lagompb.encryption.{DecryptPermanentFailure, ProtoEncryption}
+import io.superflat.lagompb.encryption.{DecryptPermanentFailure, EncryptionAdapter}
 import io.superflat.lagompb.protobuf.core.EventWrapper
-import io.superflat.lagompb.encryption.EncryptionAdapter
-import io.superflat.lagompb.protobuf.encryption.EncryptedProto
 import org.slf4j.{Logger, LoggerFactory}
 import slick.dbio.{DBIO, DBIOAction}
 
@@ -34,7 +32,8 @@ final class EventsReader(eventTag: String, eventProcessor: EventProcessor, encry
    */
   final override def process(envelope: EventEnvelope[EventWrapper]): DBIO[Done] = {
     // decrypt the event/state as needed
-    decryptEventWrapper(envelope.event)
+    encryptionAdapter
+      .decryptEventWrapper(envelope.event)
       .map({
         case EventWrapper(Some(event: any.Any), Some(resultingState), Some(meta)) =>
           ProtosRegistry.companion(event) match {
@@ -61,21 +60,5 @@ final class EventsReader(eventTag: String, eventProcessor: EventProcessor, encry
       case Success(value)     => value
       case Failure(exception) => throw exception
     }
-  }
-
-  final def decryptEventWrapper(eventWrapper: EventWrapper): Try[EventWrapper] = {
-    Try(eventWrapper)
-      // decrypt the event
-      .flatMap(eventWrapper => {
-        encryptionAdapter
-          .decrypt(eventWrapper.getEvent)
-          .map(decryptedEvent => eventWrapper.withEvent(decryptedEvent))
-      })
-      // decrypt the state
-      .flatMap(eventWrapper => {
-        encryptionAdapter
-          .decrypt(eventWrapper.getResultingState)
-          .map(decryptedState => eventWrapper.withResultingState(decryptedState))
-      })
   }
 }
