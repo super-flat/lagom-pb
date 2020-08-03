@@ -16,6 +16,7 @@ import akka.actor.typed.scaladsl.adapter._
 import akka.actor.ActorSystem
 
 import scala.concurrent.duration.FiniteDuration
+import io.superflat.lagompb.encryption.EncryptionAdapter
 
 class AggregateRootSpec extends BaseActorTestKit(s"""
       akka.persistence.journal.plugin = "akka.persistence.journal.inmem"
@@ -48,7 +49,12 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
         createTestProbe[CommandReply]()
 
       val aggregate =
-        new TestAggregateRoot(actorSystem, new TestCommandHandler(actorSystem), new TestEventHandler(actorSystem))
+        new TestAggregateRoot(
+          actorSystem,
+          new TestCommandHandler(actorSystem),
+          new TestEventHandler(actorSystem),
+          new EncryptionAdapter(encryptor = None)
+        )
 
       // Let us create the aggregate
       val aggregateId: String = randomId()

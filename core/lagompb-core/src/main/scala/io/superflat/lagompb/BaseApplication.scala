@@ -14,6 +14,8 @@ import play.filters.cors.CORSComponents
 import play.filters.csrf.CSRFComponents
 import play.filters.headers.SecurityHeadersComponents
 import play.filters.hosts.AllowedHostsComponents
+import io.superflat.lagompb.encryption.EncryptionAdapter
+import io.superflat.lagompb.encryption.ProtoEncryption
 
 sealed trait BaseApplicationComponents
     extends AhcWSComponents
@@ -53,6 +55,12 @@ abstract class BaseApplication(context: LagomApplicationContext)
   // set the security filters
   override val httpFilters: Seq[EssentialFilter] =
     Seq(corsFilter, allowedHostsFilter, csrfFilter, securityHeadersFilter)
+
+  // define an encryptor (default to None)
+  def protoEncryption: Option[ProtoEncryption] = None
+
+  // create an encryption adapter with above ProtoEncryption
+  final lazy val encryptionAdapter: EncryptionAdapter = new EncryptionAdapter(protoEncryption)
 
   /**
    * Defines the persistent entity that will be used to handle commands

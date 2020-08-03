@@ -21,11 +21,7 @@ import scala.util.{Failure, Success, Try}
  * @param eventProcessor the actual event processor
  * @param encryptionAdapter handles encrypt/decrypt transformations
  */
-final class EventsReader(
-  eventTag: String,
-  eventProcessor: EventProcessor,
-  encryptionAdapter: EncryptionAdapter)
-
+final class EventsReader(eventTag: String, eventProcessor: EventProcessor, encryptionAdapter: EncryptionAdapter)
     extends SlickHandler[EventEnvelope[EventWrapper]] {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
@@ -69,17 +65,17 @@ final class EventsReader(
 
   final def decryptEventWrapper(eventWrapper: EventWrapper): Try[EventWrapper] = {
     Try(eventWrapper)
-    // decrypt the event
-    .flatMap(eventWrapper => {
-      encryptionAdapter
-      .decrypt(eventWrapper.getEvent)
-      .map(decryptedEvent => eventWrapper.withEvent(decryptedEvent))
-    })
-    // decrypt the state
-    .flatMap(eventWrapper => {
-      encryptionAdapter
-      .decrypt(eventWrapper.getResultingState)
-      .map(decryptedState => eventWrapper.withResultingState(decryptedState))
-    })
+      // decrypt the event
+      .flatMap(eventWrapper => {
+        encryptionAdapter
+          .decrypt(eventWrapper.getEvent)
+          .map(decryptedEvent => eventWrapper.withEvent(decryptedEvent))
+      })
+      // decrypt the state
+      .flatMap(eventWrapper => {
+        encryptionAdapter
+          .decrypt(eventWrapper.getResultingState)
+          .map(decryptedState => eventWrapper.withResultingState(decryptedState))
+      })
   }
 }

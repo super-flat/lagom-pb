@@ -14,9 +14,8 @@ import akka.projection.slick.SlickProjection
 import com.github.ghik.silencer.silent
 import com.google.protobuf.any
 import io.superflat.lagompb.ConfigReader
-import io.superflat.lagompb.encryption.ProtoEncryption
+import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.protobuf.core.MetaData
-import io.superflat.lagompb.protobuf.encryption.EncryptedProto
 import org.slf4j.{Logger, LoggerFactory}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.basic.DatabaseConfig
@@ -25,6 +24,7 @@ import slick.jdbc.PostgresProfile
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
+import io.superflat.lagompb.protobuf.core.EventWrapper
 
 /**
  * ReadSideProcessor helps implement multiple readSide processors where the offsets are
@@ -41,7 +41,7 @@ import scala.util.{Failure, Success, Try}
  * @param ec          the execution context
  * @tparam S the aggregate state type
  */
-@silent abstract class ReadSideProcessor[S <: scalapb.GeneratedMessage](encryption: ProtoEncryption)(implicit
+@silent abstract class ReadSideProcessor[S <: scalapb.GeneratedMessage](encryptionAdapter: EncryptionAdapter)(implicit
   ec: ExecutionContext,
   actorSystem: ActorSystem[_]
 ) extends EventProcessor {
@@ -100,13 +100,13 @@ import scala.util.{Failure, Success, Try}
    * @param tagName the event tag
    * @return the projection instance
    */
-  protected def exactlyOnceProjection(tagName: String): ExactlyOnceProjection[Offset, EventEnvelope[EncryptedProto]] =
+  protected def exactlyOnceProjection(tagName: String): ExactlyOnceProjection[Offset, EventEnvelope[EventWrapper]] =
     SlickProjection
       .exactlyOnce(
         projectionId = ProjectionId(projectionName, tagName),
         sourceProvider(tagName),
         offsetStoreDatabaseConfig,
-        handler = () => new EventsReader(tagName, encryption, this)
+        handler = () => new EventsReader(tagName, this, encryptionAdapter)
       )
 
   /**
@@ -115,9 +115,9 @@ import scala.util.{Failure, Success, Try}
    * @param tag the event tag
    * @return the event sourced provider
    */
-  protected def sourceProvider(tag: String): SourceProvider[Offset, EventEnvelope[EncryptedProto]] =
+  protected def sourceProvider(tag: String): SourceProvider[Offset, EventEnvelope[EventWrapper]] =
     EventSourcedProvider
-      .eventsByTag[EncryptedProto](actorSystem, readJournalPluginId = JdbcReadJournal.Identifier, tag)
+      .eventsByTag[EventWrapper](actorSystem, readJournalPluginId = JdbcReadJournal.Identifier, tag)
 
   /**
    * The projection Name must be unique

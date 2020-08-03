@@ -14,7 +14,7 @@ import akka.projection.slick.SlickProjection
 import com.google.protobuf.any
 import io.superflat.lagompb.{ConfigReader, GlobalException, ProtosRegistry}
 import io.superflat.lagompb.encryption.ProtoEncryption
-import io.superflat.lagompb.protobuf.core.{KafkaEvent, MetaData, StateWrapper}
+import io.superflat.lagompb.protobuf.core.{EventWrapper, KafkaEvent, MetaData, StateWrapper}
 import io.superflat.lagompb.protobuf.encryption.EncryptedProto
 import io.superflat.lagompb.protobuf.extensions.ExtensionsProto
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -27,6 +27,7 @@ import slick.dbio.{DBIO, DBIOAction}
 import slick.jdbc.PostgresProfile
 
 import scala.concurrent.ExecutionContext
+import io.superflat.lagompb.encryption.EncryptionAdapter
 
 /**
  * Helps handle readSide processor by pushing persisted events to kafka and storing the offsets
@@ -38,7 +39,7 @@ import scala.concurrent.ExecutionContext
  * @tparam S the aggregate state type
  */
 
-abstract class KafkaPublisher[S <: scalapb.GeneratedMessage](encryption: ProtoEncryption)(implicit
+abstract class KafkaPublisher[S <: scalapb.GeneratedMessage](encryptionAdapter: EncryptionAdapter)(implicit
   ec: ExecutionContext,
   actorSystem: ActorSystem[_]
 ) extends EventProcessor {
@@ -122,7 +123,7 @@ abstract class KafkaPublisher[S <: scalapb.GeneratedMessage](encryption: ProtoEn
               EventSourcedProvider
                 .eventsByTag[EventWrapper](actorSystem, readJournalPluginId = JdbcReadJournal.Identifier, tagName),
               offsetStoreDatabaseConfig,
-              handler = () => new EventsReader(tagName, encryption, this)
+              handler = () => new EventsReader(tagName, this, encryptionAdapter)
             )
         )
       },
