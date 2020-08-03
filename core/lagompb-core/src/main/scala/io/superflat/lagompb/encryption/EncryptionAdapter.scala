@@ -16,8 +16,6 @@ import scala.util.{Failure, Success, Try}
  */
 class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
 
-  import EncryptionAdapter.isEncryptedProto
-
   final val log: Logger = LoggerFactory.getLogger(getClass)
 
   /**
@@ -44,7 +42,7 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
   def decrypt(any: Any): Try[Any] = {
     encryptor match {
       // if an encryptor provided and it's an encrypted proto, attempt decrypt
-      case Some(enc) if isEncryptedProto(any) =>
+      case Some(enc) if EncryptionAdapter.isEncryptedProto(any) =>
         Try(any.unpack(EncryptedProto)).flatMap(enc.decrypt)
 
       // if ProtoEncryption is configured/provided but nested type is not encrypted proto,
