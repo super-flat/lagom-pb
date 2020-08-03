@@ -14,8 +14,7 @@ import play.filters.cors.CORSComponents
 import play.filters.csrf.CSRFComponents
 import play.filters.headers.SecurityHeadersComponents
 import play.filters.hosts.AllowedHostsComponents
-import io.superflat.lagompb.encryption.EncryptionAdapter
-import io.superflat.lagompb.encryption.ProtoEncryption
+import io.superflat.lagompb.encryption.{EncryptionAdapter, ProtoEncryption}
 
 sealed trait BaseApplicationComponents
     extends AhcWSComponents

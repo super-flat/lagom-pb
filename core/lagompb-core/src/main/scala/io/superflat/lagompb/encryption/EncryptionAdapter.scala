@@ -111,8 +111,6 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
 }
 
 object EncryptionAdapter {
-  lazy val ENCRYPTED_PROTO_NAME: String = EncryptedProto.scalaDescriptor.fullName
-
   /**
    * helper method to tell if a given Any message contains an instance of
    * an EncryptedProto
