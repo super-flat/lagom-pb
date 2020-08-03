@@ -49,8 +49,7 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
 
       // if ProtoEncryption is configured/provided but nested type is not encrypted proto,
       // just pass original message through. this is especially useful if someone turns
-      // on encryption after the fact and has some events in the journal that are
-      // not yet encrypted
+      // on encryption late and has events in the journal that are not yet encrypted
       case Some(_) =>
         log.warn(s"skipping decrypt because message was not an EncryptedProto, ${any.typeUrl}")
         Success(any)
