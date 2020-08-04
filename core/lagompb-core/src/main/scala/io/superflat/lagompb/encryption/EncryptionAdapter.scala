@@ -19,8 +19,8 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
   final val log: Logger = LoggerFactory.getLogger(getClass)
 
   encryptor match {
-    case Some(enc)  => log.info(s"instantiated with encryptor ${enc.getClass.getName}")
-    case _          => log.info(s"instantiated with no encryptor")
+    case Some(enc)  => log.info(s"[Lagompb] instantiated with encryptor ${enc.getClass.getName}")
+    case _          => log.info(s"[Lagompb] instantiated with no encryptor")
   }
 
   /**
@@ -33,7 +33,7 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
     encryptor match {
       // if encryptor provided, attempt the encrypt
       case Some(enc) =>
-        log.debug(s"encrypting message ${any.typeUrl} using ${enc.getClass.getName}")
+        log.debug(s"[Lagompb] encrypting message ${any.typeUrl} using ${enc.getClass.getName}")
         enc.encrypt(any).map(encryptedProto => Any.pack(encryptedProto))
       // if no encryptor provided, pass through
       case None => Success(any)
@@ -50,14 +50,14 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
     encryptor match {
       // if an encryptor provided and it's an encrypted proto, attempt decrypt
       case Some(enc) if EncryptionAdapter.isEncryptedProto(any) =>
-        log.debug(s"decrypting message ${any.typeUrl} using ${enc.getClass.getName}")
+        log.debug(s"[Lagompb] decrypting message ${any.typeUrl} using ${enc.getClass.getName}")
         Try(any.unpack(EncryptedProto)).flatMap(enc.decrypt)
 
       // if ProtoEncryption is configured/provided but nested type is not encrypted proto,
       // just pass original message through. this is especially useful if someone turns
       // on encryption late and has events in the journal that are not yet encrypted
       case Some(_) =>
-        log.warn(s"skipping decrypt because message was not an EncryptedProto, ${any.typeUrl}")
+        log.warn(s"[Lagompb] skipping decrypt because message was not an EncryptedProto, ${any.typeUrl}")
         Success(any)
 
       // if no encryptor provided, just pass through
