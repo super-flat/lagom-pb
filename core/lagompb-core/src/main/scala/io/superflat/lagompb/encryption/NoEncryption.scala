@@ -7,9 +7,8 @@ import io.superflat.lagompb.protobuf.encryption.EncryptedProto
 import scala.util.Try
 
 /**
- * Default implementation of ProtoEncryption that simply packs the
- * Any message's bytestring into the EncryptedProto. This is used
- * if no other encryptor is specified.
+ * Sample implementation of ProtoEncryption that packs the Any
+ * message's bytestring into the EncryptedProto.
  */
 object NoEncryption extends ProtoEncryption {
 
