@@ -111,9 +111,18 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
    */
   final def genericCommandHandler(stateWrapper: StateWrapper, cmd: Command): ReplyEffect[EventWrapper, StateWrapper] = {
 
-    encryptionAdapter
-      .decrypt(stateWrapper.getState)
-      .map(_.unpack[S](stateCompanion)) match {
+    {
+      // if no prior revisions, use default instance state
+      if (stateWrapper.getMeta.revisionNumber == 0L) {
+        Try(stateWrapper.getState.unpack(stateCompanion))
+      }
+      // otherwise attempt to decrypt prior state
+      else {
+        encryptionAdapter
+          .decrypt(stateWrapper.getState)
+          .map(_.unpack[S](stateCompanion))
+      }
+    } match {
 
       case Failure(exception) =>
         val errMsg: String = s"state parser failure, ${exception.getMessage}"
