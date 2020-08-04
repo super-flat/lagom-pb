@@ -3,7 +3,6 @@
 [![Build Status](https://travis-ci.org/super-flat/lagom-pb.svg?branch=master)](https://travis-ci.org/super-flat/lagom-pb)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/59e8747c2777466cb75d73d5fea8c8a8)](https://app.codacy.com/gh/super-flat/lagom-pb?utm_source=github.com&utm_medium=referral&utm_content=super-flat/lagom-pb&utm_campaign=Badge_Grade_Dashboard)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-![GitHub last commit](https://img.shields.io/github/last-commit/super-flat/lagom-pb)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.superflat/lagompb-core_2.13/badge.svg)]((https://maven-badges.herokuapp.com/maven-central/io.superflat/lagompb-core_2.13))
 [![Snapshot Artifacts][Badge-SonatypeSnapshots]][Link-SonatypeSnapshots]
 
