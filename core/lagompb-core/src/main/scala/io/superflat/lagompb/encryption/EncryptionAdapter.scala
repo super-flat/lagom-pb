@@ -19,9 +19,8 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
   final val log: Logger = LoggerFactory.getLogger(getClass)
 
   encryptor match {
-    case Some(enc) => log.info(s"instantiated EncryptionAdapter with encryptor ${enc.getClass.getName}")
-    case None => log.info(s"instantiated EncryptionAdapter with no encryptor")
-    case _ => log.error(s"WHAT IS GOING ON, encryptor=${encryptor}")
+    case Some(enc)  => log.info(s"instantiated with encryptor ${enc.getClass.getName}")
+    case _          => log.info(s"instantiated with no encryptor")
   }
 
   /**
