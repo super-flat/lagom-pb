@@ -4,7 +4,6 @@ import com.lightbend.lagom.scaladsl.server.{LagomApplicationContext, LagomServer
 import com.softwaremill.macwire.wire
 import io.superflat.lagompb.{AggregateRoot, BaseApplication, CommandHandler, EventHandler}
 import io.superflat.lagompb.protobuf.tests.TestState
-import io.superflat.lagompb.encryption.EncryptionAdapter
 
 class TestApplication(context: LagomApplicationContext) extends BaseApplication(context) with LocalServiceLocator {
 

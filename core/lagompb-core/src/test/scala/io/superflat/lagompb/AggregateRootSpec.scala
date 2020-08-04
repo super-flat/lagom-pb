@@ -5,18 +5,18 @@ import java.util.concurrent.TimeUnit
 
 import akka.actor.testkit.typed.scaladsl.TestProbe
 import akka.actor.typed.ActorRef
+import akka.actor.typed.scaladsl.adapter._
+import akka.actor.ActorSystem
 import akka.persistence.typed.PersistenceId
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.data.{TestAggregateRoot, TestCommandHandler, TestEventHandler}
+import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.protobuf.core._
 import io.superflat.lagompb.protobuf.core.CommandReply.Reply
 import io.superflat.lagompb.protobuf.tests._
 import io.superflat.lagompb.testkit.BaseActorTestKit
-import akka.actor.typed.scaladsl.adapter._
-import akka.actor.ActorSystem
 
 import scala.concurrent.duration.FiniteDuration
-import io.superflat.lagompb.encryption.EncryptionAdapter
 
 class AggregateRootSpec extends BaseActorTestKit(s"""
       akka.persistence.journal.plugin = "akka.persistence.journal.inmem"

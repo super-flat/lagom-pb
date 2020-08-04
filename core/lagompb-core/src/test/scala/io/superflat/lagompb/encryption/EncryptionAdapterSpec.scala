@@ -2,11 +2,10 @@ package io.superflat.lagompb.encryption
 
 import com.google.protobuf.any.Any
 import com.google.protobuf.wrappers.StringValue
-import com.google.protobuf.ByteString
-import io.superflat.lagompb.protobuf.encryption.EncryptedProto
 import io.superflat.lagompb.protobuf.core.{EventWrapper, MetaData}
+import io.superflat.lagompb.protobuf.encryption.EncryptedProto
 import io.superflat.lagompb.testkit.BaseSpec
-import org.scalamock.scalatest.MockFactory
+
 import scala.util.{Failure, Success, Try}
 
 class EncryptionAdapterSpec extends BaseSpec {

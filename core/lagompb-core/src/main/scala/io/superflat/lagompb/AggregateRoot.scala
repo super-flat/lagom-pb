@@ -8,7 +8,7 @@ import akka.cluster.sharding.typed.scaladsl.{EntityContext, EntityTypeKey}
 import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.{Effect, EventSourcedBehavior, ReplyEffect, RetentionCriteria}
 import com.google.protobuf.any.Any
-import io.superflat.lagompb.encryption.{EncryptionAdapter, ProtoEncryption}
+import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.protobuf.core._
 import io.superflat.lagompb.protobuf.core.CommandHandlerResponse.HandlerResponse.{
   Empty,
@@ -28,7 +28,7 @@ import scala.util.{Failure, Success, Try}
  * @param actorSystem     the underlying actor system
  * @param commandHandler  the commands handler
  * @param eventHandler    the events handler
- * @param protoEncryption optional ProtoEncryption implementation
+ * @param encryptionAdapter optional ProtoEncryption implementation
  * @tparam S the scala type of the aggregate state
  */
 abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
@@ -110,7 +110,6 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
    * @param cmd          the command to process
    */
   final def genericCommandHandler(stateWrapper: StateWrapper, cmd: Command): ReplyEffect[EventWrapper, StateWrapper] = {
-
     {
       // if no prior revisions, use default instance state
       if (stateWrapper.getMeta.revisionNumber == 0L) {

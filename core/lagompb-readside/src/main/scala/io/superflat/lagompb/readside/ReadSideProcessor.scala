@@ -15,7 +15,7 @@ import com.github.ghik.silencer.silent
 import com.google.protobuf.any
 import io.superflat.lagompb.ConfigReader
 import io.superflat.lagompb.encryption.EncryptionAdapter
-import io.superflat.lagompb.protobuf.core.MetaData
+import io.superflat.lagompb.protobuf.core.{EventWrapper, MetaData}
 import org.slf4j.{Logger, LoggerFactory}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.basic.DatabaseConfig
@@ -24,7 +24,6 @@ import slick.jdbc.PostgresProfile
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
-import io.superflat.lagompb.protobuf.core.EventWrapper
 
 /**
  * ReadSideProcessor helps implement multiple readSide processors where the offsets are
@@ -36,7 +35,7 @@ import io.superflat.lagompb.protobuf.core.EventWrapper
  * Please bear in mind that the akka.projection.slick is required to be set in the configuration file.
  *
  * @see https://doc.akka.io/docs/akka-projection/current/slick.html#configuration
- * @param encryption ProtoEncryption instance to use
+ * @param encryptionAdapter EncryptionAdapter instance to use
  * @param actorSystem the actor system
  * @param ec          the execution context
  * @tparam S the aggregate state type

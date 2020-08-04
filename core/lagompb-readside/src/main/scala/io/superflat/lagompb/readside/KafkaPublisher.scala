@@ -13,9 +13,8 @@ import akka.projection.eventsourced.scaladsl.EventSourcedProvider
 import akka.projection.slick.SlickProjection
 import com.google.protobuf.any
 import io.superflat.lagompb.{ConfigReader, GlobalException, ProtosRegistry}
-import io.superflat.lagompb.encryption.ProtoEncryption
+import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.protobuf.core.{EventWrapper, KafkaEvent, MetaData, StateWrapper}
-import io.superflat.lagompb.protobuf.encryption.EncryptedProto
 import io.superflat.lagompb.protobuf.extensions.ExtensionsProto
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
@@ -27,13 +26,12 @@ import slick.dbio.{DBIO, DBIOAction}
 import slick.jdbc.PostgresProfile
 
 import scala.concurrent.ExecutionContext
-import io.superflat.lagompb.encryption.EncryptionAdapter
 
 /**
  * Helps handle readSide processor by pushing persisted events to kafka and storing the offsets
  * in postgres.
  *
- * @param encryption ProtoEncryption instance to use
+ * @param encryptionAdapter EncryptionAdapter instance to use
  * @param actorSystem the actor system
  * @param ec the execution context
  * @tparam S the aggregate state type

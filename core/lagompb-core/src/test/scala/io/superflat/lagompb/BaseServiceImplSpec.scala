@@ -6,13 +6,13 @@ import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.testkit.ServiceTest
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import io.superflat.lagompb.data._
+import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.protobuf.core._
 import io.superflat.lagompb.protobuf.core.CommandReply.Reply
 import io.superflat.lagompb.protobuf.tests.{TestCmd, TestState}
 import io.superflat.lagompb.testkit.BaseSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import io.superflat.lagompb.encryption.EncryptionAdapter
 
 class BaseServiceImplSpec extends BaseSpec {
   val companyId: String = UUID.randomUUID().toString

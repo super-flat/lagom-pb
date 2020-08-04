@@ -1,9 +1,10 @@
 package io.superflat.lagompb.encryption
 
-import io.superflat.lagompb.protobuf.encryption.EncryptedProto
-import io.superflat.lagompb.protobuf.core.EventWrapper
 import com.google.protobuf.any.Any
+import io.superflat.lagompb.protobuf.core.EventWrapper
+import io.superflat.lagompb.protobuf.encryption.EncryptedProto
 import org.slf4j.{Logger, LoggerFactory}
+
 import scala.util.{Failure, Success, Try}
 
 /**
