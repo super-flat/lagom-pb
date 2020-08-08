@@ -39,7 +39,7 @@ object Dependencies {
     val PlayGrpcVersion = "0.8.2"
     val ReflectionsVersion = "0.9.12"
     val ScalaClassFinderVersion = "1.5.1"
-    val ApacheCommonValidatorVersion = "1.6"
+    val ApacheCommonValidatorVersion = "1.7"
     val GoogleRe2jVersion = "1.4"
     val GoogleProtobufUtilVersion = "3.12.4"
     val ScalapbCommonProtoVersion = "1.18.0-0"
