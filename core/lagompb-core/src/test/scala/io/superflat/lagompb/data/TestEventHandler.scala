@@ -3,7 +3,7 @@ package io.superflat.lagompb.data
 import akka.actor.ActorSystem
 import io.superflat.lagompb.EventHandler
 import io.superflat.lagompb.protobuf.core.MetaData
-import io.superflat.lagompb.protobuf.tests.{TestEvent, TestState}
+import io.superflat.lagompb.protobuf.tests.{TestEvent, TestEventFailure, TestState}
 
 class TestEventHandler(actorSystem: ActorSystem) extends EventHandler[TestState](actorSystem) {
 
@@ -11,7 +11,8 @@ class TestEventHandler(actorSystem: ActorSystem) extends EventHandler[TestState]
     event match {
       case TestEvent(companyUuid, name) =>
         handleTestEvent(companyUuid, name, currentState)
-      case _ => throw new NotImplementedError()
+      case TestEventFailure() => throw new NotImplementedError()
+      case _                  => throw new NotImplementedError()
     }
 
   private[this] def handleTestEvent(companyUuid: String, name: String, state: TestState): TestState =
