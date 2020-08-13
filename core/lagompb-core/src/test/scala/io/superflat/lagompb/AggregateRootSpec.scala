@@ -368,7 +368,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           reply match {
             case Reply.FailedReply(value) =>
               value.reason should include("an implementation is missing")
-              value.cause should ===(FailureCause.ValidationError)
+              value.cause should ===(FailureCause.InternalError)
             case _ => fail("unexpected message type")
           }
         case _ => fail("unexpected message type")
