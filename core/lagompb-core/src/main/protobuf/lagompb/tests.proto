@@ -43,6 +43,16 @@ message TestFailCmd {
     string company_uuid = 1 [(lagompb.command).entity_id = true];
 }
 
+// Used to test event handler failure in the aggregate root
+message TestEventFailureCmd{
+    string company_uuid = 1 [(lagompb.command).entity_id = true];
+}
+
+// Event emitted to test event handler failure in the aggregate root
+message TestEventFailure{
+
+}
+
 message NoCmd {
 }
 

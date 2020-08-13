@@ -342,5 +342,38 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       )
     }
 
+    "handle event handler failure" in {
+      // Let us create the sender of commands
+      val commandSender: TestProbe[CommandReply] =
+        createTestProbe[CommandReply]()
+
+      val aggregate =
+        new TestAggregateRoot(
+          actorSystem,
+          new TestCommandHandler(actorSystem),
+          new TestEventHandler(actorSystem),
+          new EncryptionAdapter(encryptor = None)
+        )
+
+      // Let us create the aggregate
+      val aggregateId: String = randomId()
+      val aggregateRef: ActorRef[Command] =
+        spawn(aggregate.create(PersistenceId("TestAggregate", aggregateId)))
+      val testCmd = TestEventFailureCmd(companyUUID)
+
+      // let us send the command to the aggregate
+      aggregateRef ! Command(testCmd, commandSender.ref, Map.empty)
+      commandSender.receiveMessage(replyTimeout) match {
+        case CommandReply(reply) =>
+          reply match {
+            case Reply.FailedReply(value) =>
+              value.reason should include("an implementation is missing")
+              value.cause should ===(FailureCause.InternalError)
+            case _ => fail("unexpected message type")
+          }
+        case _ => fail("unexpected message type")
+      }
+    }
+
   }
 }

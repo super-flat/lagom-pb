@@ -17,8 +17,9 @@ class TestCommandHandler(actorSystem: ActorSystem) extends CommandHandler[TestSt
     currentEventMeta: MetaData
   ): Try[CommandHandlerResponse] =
     command.command match {
-      case cmd: TestCmd    => handleTestCmd(cmd, currentState)
-      case cmd: TestGetCmd => handleTestGetCmd(cmd, currentState)
+      case cmd: TestCmd             => handleTestCmd(cmd, currentState)
+      case cmd: TestGetCmd          => handleTestGetCmd(cmd, currentState)
+      case cmd: TestEventFailureCmd => handleTestEventHandlerFailure(cmd, currentState)
       case _: TestEmptyCmd =>
         Try(
           CommandHandlerResponse()
@@ -44,6 +45,16 @@ class TestCommandHandler(actorSystem: ActorSystem) extends CommandHandler[TestSt
       case _: TestFailCmd => throw new RuntimeException("I am failing...")
       case _              => handleInvalidCommand()
     }
+
+  def handleTestEventHandlerFailure(cmd: TestEventFailureCmd, currentState: TestState): Try[CommandHandlerResponse] = {
+    Try(
+      CommandHandlerResponse()
+        .withSuccessResponse(
+          SuccessCommandHandlerResponse()
+            .withEvent(Any.pack(TestEventFailure.defaultInstance))
+        )
+    )
+  }
 
   def handleTestGetCmd(cmd: TestGetCmd, currentState: TestState): Try[CommandHandlerResponse] =
     Try(

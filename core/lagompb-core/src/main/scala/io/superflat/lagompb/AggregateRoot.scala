@@ -3,7 +3,7 @@ package io.superflat.lagompb
 import java.time.Instant
 
 import akka.actor.ActorSystem
-import akka.actor.typed.Behavior
+import akka.actor.typed.{ActorRef, Behavior}
 import akka.cluster.sharding.typed.scaladsl.{EntityContext, EntityTypeKey}
 import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.{Effect, EventSourcedBehavior, ReplyEffect, RetentionCriteria}
@@ -17,6 +17,7 @@ import io.superflat.lagompb.protobuf.core.CommandHandlerResponse.HandlerResponse
 }
 import io.superflat.lagompb.protobuf.core.SuccessCommandHandlerResponse.Response.{Event, NoEvent}
 import org.slf4j.{Logger, LoggerFactory}
+import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 import scala.util.{Failure, Success, Try}
 
@@ -87,10 +88,91 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
       )
   }
 
-  private[this] def initialState(entityId: String): StateWrapper =
+  private[lagompb] def initialState(entityId: String): StateWrapper =
     StateWrapper()
       .withState(Any.pack(stateCompanion.defaultInstance))
       .withMeta(MetaData.defaultInstance.withEntityId(entityId))
+
+  /**
+   * Encrypt the event to persist whenever an encryption is set.
+   *
+   * @param event the event to persist
+   * @param state the resulting state
+   * @param metaData the additional meta
+   */
+  private[lagompb] def encryptEvent(event: Any, state: S, metaData: MetaData): (Any, Any, StateWrapper) = {
+    val encryptedEvent: Any = encryptionAdapter.encryptOrThrow(event)
+
+    // compute the resulting state once and reuse it
+    val anyResultingState: Any = Any.pack(state)
+
+    val encryptedResultingState: Any = encryptionAdapter.encryptOrThrow(anyResultingState)
+
+    (encryptedEvent,
+     encryptedResultingState,
+     StateWrapper()
+       .withState(anyResultingState)
+       .withMeta(metaData)
+    )
+  }
+
+  /**
+   * Call safely the event handler and return the resulting state when successful
+   *
+   * @param event the event to handle
+   * @param comp the companion object of the event to handle
+   * @param state the priorState to the event to handle
+   * @param metaData the additional meta
+   * @param replyTo the actor ref to reply to
+   */
+  private[lagompb] def persistEvent(event: Any,
+                                    comp: GeneratedMessageCompanion[_ <: GeneratedMessage],
+                                    state: S,
+                                    metaData: MetaData,
+                                    replyTo: ActorRef[CommandReply]
+  ): ReplyEffect[EventWrapper, StateWrapper] = {
+    Try {
+      eventHandler.handle(event.unpack(comp), state, metaData)
+    } match {
+      case Failure(exception) =>
+        log.error(s"event handler breakdown, ${exception.getMessage}", exception)
+
+        Effect.reply(replyTo)(
+          CommandReply()
+            .withFailedReply(
+              FailedReply()
+                .withReason(
+                  s"[Lagompb] EventHandler failure: ${exception.getMessage}"
+                )
+                .withCause(FailureCause.InternalError)
+            )
+        )
+
+      case Success(resultingState) =>
+        log.debug(
+          s"[Lagompb] user event handler returned ${resultingState.companion.scalaDescriptor.fullName}"
+        )
+
+        val (encryptedEvent, encryptedResultingState, decryptedStateWrapper) =
+          encryptEvent(event, resultingState, metaData)
+
+        Effect
+          .persist(
+            EventWrapper()
+              .withEvent(encryptedEvent)
+              .withResultingState(encryptedResultingState)
+              .withMeta(metaData)
+          )
+          .thenReply(replyTo) { (_: StateWrapper) =>
+            CommandReply()
+              .withSuccessfulReply(
+                SuccessfulReply()
+                  // return decrypted state, not persisted (encrypted) state
+                  .withStateWrapper(decryptedStateWrapper)
+              )
+          }
+    }
+  }
 
   /**
    * unpacks the nested state in the event, throws away prior state
@@ -182,37 +264,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
                           // the priorState will always have the entityId set in its meta even for the initial state
                           .withEntityId(stateWrapper.getMeta.entityId)
 
-                        // let us the event handler
-                        val resultingState: S = eventHandler
-                          .handle(event.unpack(comp), decryptedState, eventMeta)
-
-                        log.debug(
-                          s"[Lagompb] user event handler returned ${resultingState.companion.scalaDescriptor.fullName}"
-                        )
-
-                        val encryptedEvent: Any = encryptionAdapter.encryptOrThrow(event)
-                        val anyResultingState: Any = Any.pack(resultingState)
-                        val encryptedResultingState: Any = encryptionAdapter.encryptOrThrow(anyResultingState)
-
-                        val decryptedStateWrapper = StateWrapper()
-                          .withState(anyResultingState)
-                          .withMeta(eventMeta)
-
-                        Effect
-                          .persist(
-                            EventWrapper()
-                              .withEvent(encryptedEvent)
-                              .withResultingState(encryptedResultingState)
-                              .withMeta(eventMeta)
-                          )
-                          .thenReply(cmd.replyTo) { (_: StateWrapper) =>
-                            CommandReply()
-                              .withSuccessfulReply(
-                                SuccessfulReply()
-                                  // return decrypted state, not persisted (encrypted) state
-                                  .withStateWrapper(decryptedStateWrapper)
-                              )
-                          }
+                        persistEvent(event, comp, decryptedState, eventMeta, cmd.replyTo)
                     }
 
                   // the command handler return some unhandled successful response
