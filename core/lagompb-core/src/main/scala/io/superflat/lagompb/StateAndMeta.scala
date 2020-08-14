@@ -1,6 +1,6 @@
 package io.superflat.lagompb
 
-import io.superflat.lagompb.v1.protobuf.core.MetaData
+import io.superflat.lagompb.protobuf.v1.core.MetaData
 
 /**
  * StateAndMeta wraps the actual aggregate state with some meta data about the state

@@ -2,8 +2,8 @@ package io.superflat.lagompb
 
 import akka.actor.testkit.typed.scaladsl.TestProbe
 import io.superflat.lagompb.testkit.BaseActorTestKit
-import io.superflat.lagompb.v1.protobuf.core.CommandReply
-import io.superflat.lagompb.v1.protobuf.tests.TestCmd
+import io.superflat.lagompb.protobuf.v1.core.CommandReply
+import io.superflat.lagompb.protobuf.v1.tests.TestCmd
 
 class CommandSerializerSpec extends BaseActorTestKit(s"""
     akka {

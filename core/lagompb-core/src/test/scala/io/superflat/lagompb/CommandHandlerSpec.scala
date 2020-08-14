@@ -7,8 +7,8 @@ import akka.actor.typed.scaladsl.adapter._
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.data.TestCommandHandler
 import io.superflat.lagompb.testkit.BaseActorTestKit
-import io.superflat.lagompb.v1.protobuf.core._
-import io.superflat.lagompb.v1.protobuf.tests.{NoCmd, TestCmd, TestEvent, TestState}
+import io.superflat.lagompb.protobuf.v1.core._
+import io.superflat.lagompb.protobuf.v1.tests.{NoCmd, TestCmd, TestEvent, TestState}
 
 import scala.util.Try
 

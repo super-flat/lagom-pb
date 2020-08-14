@@ -3,9 +3,9 @@ package io.superflat.lagompb.data
 import akka.actor.ActorSystem
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.{Command, CommandHandler}
-import io.superflat.lagompb.v1.protobuf.core._
-import io.superflat.lagompb.v1.protobuf.core.CommandHandlerResponse.HandlerResponse
-import io.superflat.lagompb.v1.protobuf.tests._
+import io.superflat.lagompb.protobuf.v1.core._
+import io.superflat.lagompb.protobuf.v1.core.CommandHandlerResponse.HandlerResponse
+import io.superflat.lagompb.protobuf.v1.tests._
 
 import scala.util.Try
 
