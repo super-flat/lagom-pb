@@ -7,10 +7,10 @@ import com.lightbend.lagom.scaladsl.testkit.ServiceTest
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import io.superflat.lagompb.data._
 import io.superflat.lagompb.encryption.EncryptionAdapter
-import io.superflat.lagompb.protobuf.core._
-import io.superflat.lagompb.protobuf.core.CommandReply.Reply
-import io.superflat.lagompb.protobuf.tests.{TestCmd, TestState}
 import io.superflat.lagompb.testkit.BaseSpec
+import io.superflat.lagompb.v1.protobuf.core._
+import io.superflat.lagompb.v1.protobuf.core.CommandReply.Reply
+import io.superflat.lagompb.v1.protobuf.tests.{TestCmd, TestState}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

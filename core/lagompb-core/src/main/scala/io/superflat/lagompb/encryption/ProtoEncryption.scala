@@ -1,7 +1,7 @@
 package io.superflat.lagompb.encryption
 
 import com.google.protobuf.any.Any
-import io.superflat.lagompb.protobuf.encryption.EncryptedProto
+import io.superflat.lagompb.v1.protobuf.encryption.EncryptedProto
 
 import scala.util.Try
 

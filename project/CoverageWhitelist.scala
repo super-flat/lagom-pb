@@ -2,7 +2,7 @@ object CoverageWhitelist {
 
   val whitelist = Seq(
     "<empty>",
-    "io.superflat.lagompb.protobuf.*",
+    "io.superflat.lagompb.v1.protobuf.*",
     "io.superflat.lagompb.data.*",
     "io.superflat.lagompb.testkit.*",
     "io.superflat.lagompb.readside.*",

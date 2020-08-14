@@ -14,8 +14,8 @@ import akka.projection.slick.SlickProjection
 import com.google.protobuf.any
 import io.superflat.lagompb.{ConfigReader, GlobalException, ProtosRegistry}
 import io.superflat.lagompb.encryption.EncryptionAdapter
-import io.superflat.lagompb.protobuf.core.{EventWrapper, KafkaEvent, MetaData, StateWrapper}
-import io.superflat.lagompb.protobuf.extensions.ExtensionsProto
+import io.superflat.lagompb.v1.protobuf.core.{EventWrapper, KafkaEvent, MetaData, StateWrapper}
+import io.superflat.lagompb.v1.protobuf.extensions.ExtensionsProto
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 import org.slf4j.{Logger, LoggerFactory}

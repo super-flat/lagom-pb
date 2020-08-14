@@ -3,7 +3,7 @@ package io.superflat.lagompb.data
 import com.lightbend.lagom.scaladsl.server.{LagomApplicationContext, LagomServer, LocalServiceLocator}
 import com.softwaremill.macwire.wire
 import io.superflat.lagompb.{AggregateRoot, BaseApplication, CommandHandler, EventHandler}
-import io.superflat.lagompb.protobuf.tests.TestState
+import io.superflat.lagompb.v1.protobuf.tests.TestState
 
 class TestApplication(context: LagomApplicationContext) extends BaseApplication(context) with LocalServiceLocator {
 

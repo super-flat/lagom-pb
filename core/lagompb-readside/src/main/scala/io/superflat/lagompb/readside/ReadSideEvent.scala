@@ -1,6 +1,6 @@
 package io.superflat.lagompb.readside
 
-import io.superflat.lagompb.protobuf.core.MetaData
+import io.superflat.lagompb.v1.protobuf.core.MetaData
 
 /**
  * Wraps events read from the journal and make it available to any consumer

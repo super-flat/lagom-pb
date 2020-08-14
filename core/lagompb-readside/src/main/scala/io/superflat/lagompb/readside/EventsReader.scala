@@ -6,7 +6,7 @@ import akka.projection.slick.SlickHandler
 import com.google.protobuf.any
 import io.superflat.lagompb.{GlobalException, ProtosRegistry}
 import io.superflat.lagompb.encryption.{DecryptPermanentFailure, EncryptionAdapter}
-import io.superflat.lagompb.protobuf.core.EventWrapper
+import io.superflat.lagompb.v1.protobuf.core.EventWrapper
 import org.slf4j.{Logger, LoggerFactory}
 import slick.dbio.{DBIO, DBIOAction}
 
@@ -22,7 +22,7 @@ import scala.util.{Failure, Success, Try}
 final class EventsReader(eventTag: String, eventProcessor: EventProcessor, encryptionAdapter: EncryptionAdapter)
     extends SlickHandler[EventEnvelope[EventWrapper]] {
 
-  final val log: Logger = LoggerFactory.getLogger(getClass)
+  val log: Logger = LoggerFactory.getLogger(getClass)
 
   /**
    * Processes events from the Journal by wrapping them in an envelope
@@ -30,7 +30,7 @@ final class EventsReader(eventTag: String, eventProcessor: EventProcessor, encry
    * @param envelope the event envelope
    * @return
    */
-  final override def process(envelope: EventEnvelope[EventWrapper]): DBIO[Done] = {
+  override def process(envelope: EventEnvelope[EventWrapper]): DBIO[Done] = {
     // decrypt the event/state as needed
     encryptionAdapter
       .decryptEventWrapper(envelope.event)

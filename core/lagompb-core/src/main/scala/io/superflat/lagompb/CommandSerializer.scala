@@ -7,7 +7,7 @@ import akka.actor.typed.{ActorRef, ActorRefResolver}
 import akka.actor.typed.scaladsl.adapter._
 import akka.serialization.SerializerWithStringManifest
 import com.google.protobuf.any.Any
-import io.superflat.lagompb.protobuf.core.{CommandReply, CommandWrapper}
+import io.superflat.lagompb.v1.protobuf.core.{CommandReply, CommandWrapper}
 import org.slf4j.{Logger, LoggerFactory}
 
 /**
