@@ -1,0 +1,3 @@
+[submodule "submodules/protobuf"]
+	path = submodules/protobuf
+	url = https://github.com/super-flat/lagom-pb-protos

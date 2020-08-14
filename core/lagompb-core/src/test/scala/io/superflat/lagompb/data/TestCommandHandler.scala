@@ -3,9 +3,9 @@ package io.superflat.lagompb.data
 import akka.actor.ActorSystem
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.{Command, CommandHandler}
-import io.superflat.lagompb.protobuf.core._
-import io.superflat.lagompb.protobuf.core.CommandHandlerResponse.HandlerResponse
-import io.superflat.lagompb.protobuf.tests._
+import io.superflat.lagompb.v1.protobuf.core._
+import io.superflat.lagompb.v1.protobuf.core.CommandHandlerResponse.HandlerResponse
+import io.superflat.lagompb.v1.protobuf.tests._
 
 import scala.util.Try
 
@@ -72,7 +72,7 @@ class TestCommandHandler(actorSystem: ActorSystem) extends CommandHandler[TestSt
           .withFailedResponse(
             FailedCommandHandlerResponse()
               .withReason("command is invalid")
-              .withCause(FailureCause.ValidationError)
+              .withCause(FailureCause.VALIDATION_ERROR)
           )
       )
     else
@@ -90,7 +90,7 @@ class TestCommandHandler(actorSystem: ActorSystem) extends CommandHandler[TestSt
         .withFailedResponse(
           FailedCommandHandlerResponse()
             .withReason("no such command")
-            .withCause(FailureCause.InternalError)
+            .withCause(FailureCause.INTERNAL_ERROR)
         )
     )
 

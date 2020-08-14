@@ -2,9 +2,9 @@ package io.superflat.lagompb
 
 import java.util.UUID
 
-import io.superflat.lagompb.protobuf.extensions.ExtensionsProto
-import io.superflat.lagompb.protobuf.tests.{TestCmd, TestEvent}
 import io.superflat.lagompb.testkit.BaseSpec
+import io.superflat.lagompb.v1.protobuf.extensions.ExtensionsProto
+import io.superflat.lagompb.v1.protobuf.tests.{TestCmd, TestEvent}
 import scalapb.descriptors.FieldDescriptor
 
 class ProtosExtensionSpec extends BaseSpec {

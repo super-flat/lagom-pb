@@ -2,8 +2,8 @@ package io.superflat.lagompb.data
 
 import akka.actor.ActorSystem
 import io.superflat.lagompb.EventHandler
-import io.superflat.lagompb.protobuf.core.MetaData
-import io.superflat.lagompb.protobuf.tests.{TestEvent, TestEventFailure, TestState}
+import io.superflat.lagompb.v1.protobuf.core.MetaData
+import io.superflat.lagompb.v1.protobuf.tests.{TestEvent, TestEventFailure, TestState}
 
 class TestEventHandler(actorSystem: ActorSystem) extends EventHandler[TestState](actorSystem) {
 

@@ -8,9 +8,9 @@ import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.api.transport.BadRequest
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import io.grpc.Status
-import io.superflat.lagompb.protobuf.core._
-import io.superflat.lagompb.protobuf.core.CommandReply.Reply
-import io.superflat.lagompb.protobuf.extensions.ExtensionsProto
+import io.superflat.lagompb.v1.protobuf.core._
+import io.superflat.lagompb.v1.protobuf.core.CommandReply.Reply
+import io.superflat.lagompb.v1.protobuf.extensions.ExtensionsProto
 import org.slf4j.{Logger, LoggerFactory}
 import scalapb.GeneratedMessage
 
@@ -66,9 +66,9 @@ sealed trait SharedBaseServiceImpl {
         parseState[S](successReply.getStateWrapper)
       case Reply.FailedReply(failureReply) =>
         failureReply.cause match {
-          case FailureCause.ValidationError =>
+          case FailureCause.VALIDATION_ERROR =>
             throw new InvalidCommandException(failureReply.reason)
-          case FailureCause.InternalError =>
+          case FailureCause.INTERNAL_ERROR =>
             throw new GlobalException(failureReply.reason)
           case _ => throw new GlobalException("reason unknown")
         }
