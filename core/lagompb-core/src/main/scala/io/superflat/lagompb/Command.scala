@@ -1,7 +1,7 @@
 package io.superflat.lagompb
 
 import akka.actor.typed.ActorRef
-import io.superflat.lagompb.v1.protobuf.core.CommandReply
+import io.superflat.lagompb.protobuf.v1.core.CommandReply
 
 /**
  * Defines the type of command to handle by the aggregate.

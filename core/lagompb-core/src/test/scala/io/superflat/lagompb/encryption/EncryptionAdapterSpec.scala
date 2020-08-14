@@ -3,8 +3,8 @@ package io.superflat.lagompb.encryption
 import com.google.protobuf.any.Any
 import com.google.protobuf.wrappers.StringValue
 import io.superflat.lagompb.testkit.BaseSpec
-import io.superflat.lagompb.v1.protobuf.core.{EventWrapper, MetaData}
-import io.superflat.lagompb.v1.protobuf.encryption.EncryptedProto
+import io.superflat.lagompb.protobuf.v1.core.{EventWrapper, MetaData}
+import io.superflat.lagompb.protobuf.v1.encryption.EncryptedProto
 
 import scala.util.{Failure, Success, Try}
 

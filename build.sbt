@@ -37,7 +37,7 @@ lazy val `lagompb-core` = project
     name := "lagompb-core",
     unmanagedResources / excludeFilter := HiddenFileFilter || "*tests*",
     coverageExcludedPackages := CoverageWhitelist.whitelist.mkString(";"),
-    PB.protoSources in Compile := Seq(file("core/lagompb-core/src/main/protobuf"), file(".protogen/src/main/protobuf")),
+    PB.protoSources in Compile := Seq(file("core/lagompb-core/src/main/protobuf")),
     PB.includePaths in Compile ++= Seq(file("core/lagompb-core/src/main/protobuf"), file(".")),
     PB.targets in Compile := Seq(
       scalapb.gen(flatPackage = false, javaConversions = false, grpc = false) -> (sourceManaged in Compile).value
@@ -55,7 +55,7 @@ lazy val protogen = project
                                 Dependencies.Runtime.ScalapbValidationRuntime
     ),
     coverageExcludedPackages := CoverageWhitelist.whitelist.mkString(";"),
-    PB.protoSources in Compile := Seq(file(".protogen/src/main/protobuf"), file("submodules/protobuf")),
+    PB.protoSources in Compile := Seq(file("submodules/protobuf")),
     PB.includePaths in Compile ++= Seq(file("submodules/protobuf")),
     PB.targets in Compile := Seq(
       scalapb.gen(flatPackage = false, javaConversions = false, grpc = false) -> (sourceManaged in Compile).value

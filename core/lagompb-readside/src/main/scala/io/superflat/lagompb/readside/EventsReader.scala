@@ -6,7 +6,7 @@ import akka.projection.slick.SlickHandler
 import com.google.protobuf.any
 import io.superflat.lagompb.{GlobalException, ProtosRegistry}
 import io.superflat.lagompb.encryption.{DecryptPermanentFailure, EncryptionAdapter}
-import io.superflat.lagompb.v1.protobuf.core.EventWrapper
+import io.superflat.lagompb.protobuf.v1.core.EventWrapper
 import org.slf4j.{Logger, LoggerFactory}
 import slick.dbio.{DBIO, DBIOAction}
 
@@ -35,7 +35,7 @@ final class EventsReader(eventTag: String, eventProcessor: EventProcessor, encry
     encryptionAdapter
       .decryptEventWrapper(envelope.event)
       .map({
-        case EventWrapper(Some(event: any.Any), Some(resultingState), Some(meta)) =>
+        case EventWrapper(Some(event: any.Any), Some(resultingState), Some(meta), _) =>
           ProtosRegistry.companion(event) match {
             case Some(comp) =>
               eventProcessor

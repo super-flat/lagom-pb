@@ -4,7 +4,7 @@ import com.google.protobuf.any.Any
 import com.google.protobuf.wrappers.StringValue
 import com.google.protobuf.ByteString
 import io.superflat.lagompb.testkit.BaseSpec
-import io.superflat.lagompb.v1.protobuf.encryption.EncryptedProto
+import io.superflat.lagompb.protobuf.v1.encryption.EncryptedProto
 
 import scala.util.Success
 
