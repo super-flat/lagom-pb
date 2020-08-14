@@ -20,4 +20,3 @@ project/metals.sbt
 .env
 .DS_Store
 *.iml
-.protogen/
