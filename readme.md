@@ -40,15 +40,17 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 1. Add to your `plugins.sbt`:
 
 ```scala
-addSbtPlugin("io.superflat" % "lagompb-plugin" % "0.6.0")
+val LagompbVersion = x.x.x
+addSbtPlugin("io.superflat" % "lagompb-plugin" % LagompbVersion)
 ```
 
 2. Add to your `build.sbt`:
 
 ```scala
+val LagompbVersion = x.x.x
 libraryDependencies ++= Seq(
-  "io.superflat" %% "lagompb-core" % "0.6.0",
-  "io.superflat" %% "lagompb-core" % "0.6.0 % "protobuf"
+  "io.superflat" %% "lagompb-core" % LagompbVersion,
+  "io.superflat" %% "lagompb-core" % LagompbVersion % "protobuf"
 )
 ```
 
