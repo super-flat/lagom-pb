@@ -1,10 +1,10 @@
 package io.superflat.lagompb
 
 import com.google.protobuf.any.Any
-import io.superflat.lagompb.protobuf.core.CoreProto
-import io.superflat.lagompb.protobuf.options.OptionsProto
-import io.superflat.lagompb.protobuf.tests.TestCmd
 import io.superflat.lagompb.testkit.BaseSpec
+import io.superflat.lagompb.protobuf.v1.core.CoreProto
+
+import io.superflat.lagompb.protobuf.v1.tests.TestCmd
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 class ProtosRegistrySpec extends BaseSpec {
@@ -14,7 +14,6 @@ class ProtosRegistrySpec extends BaseSpec {
     "succeed" in {
       val fos = ProtosRegistry.registry
       fos.size should be >= 1
-      fos should contain(OptionsProto)
       fos should contain(CoreProto)
     }
 
@@ -26,7 +25,7 @@ class ProtosRegistrySpec extends BaseSpec {
     "Contains the companions" in {
       val map: Map[String, GeneratedMessageCompanion[_ <: GeneratedMessage]] =
         ProtosRegistry.companionsMap
-      map.keySet should contain("lagompb.TestCmd")
+      map.keySet should contain("lagompb.v1.TestCmd")
     }
 
     "Gets scalapb GeneratedMessageCompanion object" in {

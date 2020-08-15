@@ -5,9 +5,9 @@ import java.util.UUID
 import akka.actor.typed.scaladsl.adapter._
 import akka.actor.ActorSystem
 import io.superflat.lagompb.data.TestEventHandler
-import io.superflat.lagompb.protobuf.core.MetaData
-import io.superflat.lagompb.protobuf.tests.{TestEvent, TestState, WrongEvent}
 import io.superflat.lagompb.testkit.BaseActorTestKit
+import io.superflat.lagompb.protobuf.v1.core.MetaData
+import io.superflat.lagompb.protobuf.v1.tests.{TestEvent, TestState, WrongEvent}
 
 class EventHandlerSpec extends BaseActorTestKit(s"""
       akka.persistence.journal.plugin = "akka.persistence.journal.inmem"

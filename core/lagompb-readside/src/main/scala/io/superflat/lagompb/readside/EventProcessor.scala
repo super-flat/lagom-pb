@@ -2,7 +2,7 @@ package io.superflat.lagompb.readside
 
 import akka.Done
 import com.google.protobuf.any
-import io.superflat.lagompb.protobuf.core.MetaData
+import io.superflat.lagompb.protobuf.v1.core.MetaData
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.dbio.DBIO
 

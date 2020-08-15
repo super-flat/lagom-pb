@@ -1,15 +1,14 @@
 syntax = "proto3";
 
-package lagompb;
+package lagompb.v1;
 
-option java_package = "io.superflat.lagompb.protobuf";
+option java_package = "io.superflat.lagompb.protobuf.v1";
 
-import "scalapb/scalapb.proto";
-import "lagompb/extensions.proto";
+import "submodules/protobuf/lagompb/v1/extensions.proto";
 import "google/protobuf/any.proto";
 
 message TestCmd {
-    string company_uuid = 1 [(lagompb.command).entity_id = true];
+    string company_uuid = 1 [(lagompb.v1.command).entity_id = true];
     string name = 2;
 }
 
@@ -17,39 +16,39 @@ message TestCmd {
 // handler response without persisting
 // an event
 message TestGetCmd {
-    string company_uuid = 1 [(lagompb.command).entity_id = true];
+    string company_uuid = 1 [(lagompb.v1.command).entity_id = true];
 }
 
 // It is used to test unhandled
 // command handler response
 message TestEmptyCmd {
-    string company_uuid = 1 [(lagompb.command).entity_id = true];
+    string company_uuid = 1 [(lagompb.v1.command).entity_id = true];
 }
 
 // Used to test Empty command handler
 // success response
 message TestEmptySuccessCmd {
-    string company_uuid = 1 [(lagompb.command).entity_id = true];
+    string company_uuid = 1 [(lagompb.v1.command).entity_id = true];
 }
 
 // Used to handle wrong event emitted by
 // the command handler
 message TestUnknownEventCmd {
-    string company_uuid = 1 [(lagompb.command).entity_id = true];
+    string company_uuid = 1 [(lagompb.v1.command).entity_id = true];
 }
 
 // Used to test a fail command handler response
 message TestFailCmd {
-    string company_uuid = 1 [(lagompb.command).entity_id = true];
+    string company_uuid = 1 [(lagompb.v1.command).entity_id = true];
 }
 
 // Used to test event handler failure in the aggregate root
-message TestEventFailureCmd{
-    string company_uuid = 1 [(lagompb.command).entity_id = true];
+message TestEventFailureCmd {
+    string company_uuid = 1 [(lagompb.v1.command).entity_id = true];
 }
 
 // Event emitted to test event handler failure in the aggregate root
-message TestEventFailure{
+message TestEventFailure {
 
 }
 
@@ -60,7 +59,7 @@ message WrongEventTagger {
 }
 
 message TestEvent {
-    string event_uuid = 1 [(lagompb.kafka).partition_key = true];
+    string event_uuid = 1 [(lagompb.v1.kafka).partition_key = true];
     string name = 2;
 }
 

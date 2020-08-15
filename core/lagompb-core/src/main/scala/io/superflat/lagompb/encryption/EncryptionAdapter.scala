@@ -1,8 +1,8 @@
 package io.superflat.lagompb.encryption
 
 import com.google.protobuf.any.Any
-import io.superflat.lagompb.protobuf.core.EventWrapper
-import io.superflat.lagompb.protobuf.encryption.EncryptedProto
+import io.superflat.lagompb.protobuf.v1.core.EventWrapper
+import io.superflat.lagompb.protobuf.v1.encryption.EncryptedProto
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.util.{Failure, Success, Try}
@@ -44,7 +44,7 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
   /**
    * decrypt adapter that only applies decryption if ProtoEncryption is provided
    *
-   * @param any
+   * @param any the data to decrypt
    * @return
    */
   def decrypt(any: Any): Try[Any] = {

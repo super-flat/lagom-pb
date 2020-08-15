@@ -2,7 +2,7 @@ import sbt.Keys.libraryDependencies
 
 lazy val root = project
   .in(file("."))
-  .aggregate(`lagompb-core`, `lagompb-readside`, `lagompb-plugin`, docs)
+  .aggregate(`lagompb-core`, `lagompb-readside`, `lagompb-plugin`, docs, protogen)
   .enablePlugins(CommonSettings)
   .enablePlugins(NoPublish)
   .settings(name := "lagompb")
@@ -35,13 +35,28 @@ lazy val `lagompb-core` = project
   .enablePlugins(Publish)
   .settings(
     name := "lagompb-core",
-    Compile / unmanagedResourceDirectories += baseDirectory.value / "src" / "main" / "protobuf",
     unmanagedResources / excludeFilter := HiddenFileFilter || "*tests*",
-    coverageExcludedPackages := CoverageWhitelist.whitelist.mkString(";")
-  )
-  .settings(
+    coverageExcludedPackages := CoverageWhitelist.whitelist.mkString(";"),
     PB.protoSources in Compile := Seq(file("core/lagompb-core/src/main/protobuf")),
-    PB.includePaths in Compile ++= Seq(file("core/lagompb-core/src/main/protobuf")),
+    PB.includePaths in Compile ++= Seq(file("core/lagompb-core/src/main/protobuf"), file(".")),
+    PB.targets in Compile := Seq(
+      scalapb.gen(flatPackage = false, javaConversions = false, grpc = false) -> (sourceManaged in Compile).value
+    )
+  )
+  .dependsOn(protogen)
+
+lazy val protogen = project
+  .in(file(".protogen"))
+  .enablePlugins(NoPublish)
+  .settings(
+    name := "protogen",
+    libraryDependencies ++= Seq(Dependencies.Runtime.ScalapbRuntime,
+                                Dependencies.Runtime.ScalapbCommonProtosRuntime,
+                                Dependencies.Runtime.ScalapbValidationRuntime
+    ),
+    coverageExcludedPackages := CoverageWhitelist.whitelist.mkString(";"),
+    PB.protoSources in Compile := Seq(file("submodules/protobuf")),
+    PB.includePaths in Compile ++= Seq(file("submodules/protobuf")),
     PB.targets in Compile := Seq(
       scalapb.gen(flatPackage = false, javaConversions = false, grpc = false) -> (sourceManaged in Compile).value
     )

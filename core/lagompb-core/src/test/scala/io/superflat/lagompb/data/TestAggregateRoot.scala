@@ -3,7 +3,7 @@ package io.superflat.lagompb.data
 import akka.actor.ActorSystem
 import io.superflat.lagompb.{AggregateRoot, CommandHandler, EventHandler}
 import io.superflat.lagompb.encryption.EncryptionAdapter
-import io.superflat.lagompb.protobuf.tests.TestState
+import io.superflat.lagompb.protobuf.v1.tests.TestState
 import scalapb.GeneratedMessageCompanion
 
 final class TestAggregateRoot(

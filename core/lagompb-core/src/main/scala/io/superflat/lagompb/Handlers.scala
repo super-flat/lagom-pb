@@ -1,7 +1,7 @@
 package io.superflat.lagompb
 
 import akka.actor.ActorSystem
-import io.superflat.lagompb.protobuf.core.{CommandHandlerResponse, MetaData}
+import io.superflat.lagompb.protobuf.v1.core.{CommandHandlerResponse, MetaData}
 
 import scala.util.Try
 
