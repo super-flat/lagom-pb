@@ -11,10 +11,10 @@ import akka.persistence.typed.PersistenceId
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.data.{TestAggregateRoot, TestCommandHandler, TestEventHandler}
 import io.superflat.lagompb.encryption.EncryptionAdapter
-import io.superflat.lagompb.protobuf.core._
-import io.superflat.lagompb.protobuf.core.CommandReply.Reply
-import io.superflat.lagompb.protobuf.tests._
 import io.superflat.lagompb.testkit.BaseActorTestKit
+import io.superflat.lagompb.protobuf.v1.core._
+import io.superflat.lagompb.protobuf.v1.core.CommandReply.Reply
+import io.superflat.lagompb.protobuf.v1.tests._
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -33,7 +33,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
     val typeUrl: String =
       any.typeUrl.substring(any.typeUrl.lastIndexOf('/') + 1)
     typeUrl match {
-      case "lagompb.TestState" =>
+      case "lagompb.v1.TestState" =>
         TestState.parseFrom(any.value.toByteArray)
       case _ => throw new RuntimeException(s"wrong state definition $typeUrl")
     }
@@ -67,7 +67,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
         Map("audit|employeeUuid" -> "1223", "audit|createdAt" -> "2020-04-17")
       aggregateRef ! Command(testCmd, commandSender.ref, data)
       commandSender.receiveMessage(replyTimeout) match {
-        case CommandReply(reply) =>
+        case CommandReply(reply, _) =>
           reply match {
             case Reply.Empty => fail("unexpected message state")
             case Reply.SuccessfulReply(value) =>
@@ -103,7 +103,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       aggregateRef ! Command(testCmd, commandSender.ref, Map.empty[String, String])
 
       commandSender.receiveMessage(replyTimeout) match {
-        case CommandReply(reply) =>
+        case CommandReply(reply, _) =>
           reply match {
             case Reply.FailedReply(value) =>
               value.reason shouldBe "command is invalid"
@@ -137,7 +137,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
         Map("audit|employeeUuid" -> "1223", "audit|createdAt" -> "2020-04-17")
       aggregateRef ! Command(testCmd, commandSender.ref, data)
       commandSender.receiveMessage(replyTimeout) match {
-        case CommandReply(reply) =>
+        case CommandReply(reply, _) =>
           reply match {
             case Reply.Empty => fail("unexpected message state")
             case Reply.SuccessfulReply(value) =>
@@ -172,7 +172,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       // let us send the command to the aggregate
       aggregateRef ! Command(testCmd, commandSender.ref, Map.empty)
       commandSender.receiveMessage(replyTimeout) match {
-        case CommandReply(reply) =>
+        case CommandReply(reply, _) =>
           reply match {
             case Reply.FailedReply(value) =>
               value.reason should include("unknown command handler response")
@@ -204,7 +204,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       // let us send the command to the aggregate
       aggregateRef ! Command(testCmd, commandSender.ref, Map.empty)
       commandSender.receiveMessage(replyTimeout) match {
-        case CommandReply(reply) =>
+        case CommandReply(reply, _) =>
           reply match {
             case Reply.FailedReply(value) =>
               value.reason should include("unknown command handler success response")
@@ -236,11 +236,11 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       // let us send the command to the aggregate
       aggregateRef ! Command(testCmd, commandSender.ref, Map.empty)
       commandSender.receiveMessage(replyTimeout) match {
-        case CommandReply(reply) =>
+        case CommandReply(reply, _) =>
           reply match {
             case Reply.FailedReply(value) =>
               value.reason should include("[Lagompb] unable to parse event")
-              value.cause should ===(FailureCause.InternalError)
+              value.cause should ===(FailureCause.INTERNAL_ERROR)
             case _ => fail("unexpected message type")
           }
         case _ => fail("unexpected message type")
@@ -364,11 +364,11 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       // let us send the command to the aggregate
       aggregateRef ! Command(testCmd, commandSender.ref, Map.empty)
       commandSender.receiveMessage(replyTimeout) match {
-        case CommandReply(reply) =>
+        case CommandReply(reply, _) =>
           reply match {
             case Reply.FailedReply(value) =>
               value.reason should include("an implementation is missing")
-              value.cause should ===(FailureCause.InternalError)
+              value.cause should ===(FailureCause.INTERNAL_ERROR)
             case _ => fail("unexpected message type")
           }
         case _ => fail("unexpected message type")

@@ -6,9 +6,9 @@ import akka.actor.ActorSystem
 import akka.actor.typed.scaladsl.adapter._
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.data.TestCommandHandler
-import io.superflat.lagompb.protobuf.core._
-import io.superflat.lagompb.protobuf.tests.{NoCmd, TestCmd, TestEvent, TestState}
 import io.superflat.lagompb.testkit.BaseActorTestKit
+import io.superflat.lagompb.protobuf.v1.core._
+import io.superflat.lagompb.protobuf.v1.tests.{NoCmd, TestCmd, TestEvent, TestState}
 
 import scala.util.Try
 
@@ -48,7 +48,7 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
           .withFailedResponse(
             FailedCommandHandlerResponse()
               .withReason("command is invalid")
-              .withCause(FailureCause.ValidationError)
+              .withCause(FailureCause.VALIDATION_ERROR)
           )
     }
 
@@ -79,7 +79,7 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
           .withFailedResponse(
             FailedCommandHandlerResponse()
               .withReason("command is invalid")
-              .withCause(FailureCause.ValidationError)
+              .withCause(FailureCause.VALIDATION_ERROR)
           )
     }
 
@@ -89,7 +89,7 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
           .withFailedResponse(
             FailedCommandHandlerResponse()
               .withReason("no such command")
-              .withCause(FailureCause.InternalError)
+              .withCause(FailureCause.INTERNAL_ERROR)
           )
     }
 
@@ -104,7 +104,7 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
           .withFailedResponse(
             FailedCommandHandlerResponse()
               .withReason("no such command")
-              .withCause(FailureCause.InternalError)
+              .withCause(FailureCause.INTERNAL_ERROR)
           )
     }
   }

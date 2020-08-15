@@ -15,7 +15,7 @@ import com.github.ghik.silencer.silent
 import com.google.protobuf.any
 import io.superflat.lagompb.ConfigReader
 import io.superflat.lagompb.encryption.EncryptionAdapter
-import io.superflat.lagompb.protobuf.core.{EventWrapper, MetaData}
+import io.superflat.lagompb.protobuf.v1.core.{EventWrapper, MetaData}
 import org.slf4j.{Logger, LoggerFactory}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.basic.DatabaseConfig

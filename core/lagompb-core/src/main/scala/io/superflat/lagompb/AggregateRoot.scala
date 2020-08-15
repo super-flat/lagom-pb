@@ -9,13 +9,13 @@ import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.{Effect, EventSourcedBehavior, ReplyEffect, RetentionCriteria}
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.encryption.EncryptionAdapter
-import io.superflat.lagompb.protobuf.core._
-import io.superflat.lagompb.protobuf.core.CommandHandlerResponse.HandlerResponse.{
+import io.superflat.lagompb.protobuf.v1.core._
+import io.superflat.lagompb.protobuf.v1.core.CommandHandlerResponse.HandlerResponse.{
   Empty,
   FailedResponse,
   SuccessResponse
 }
-import io.superflat.lagompb.protobuf.core.SuccessCommandHandlerResponse.Response.{Event, NoEvent}
+import io.superflat.lagompb.protobuf.v1.core.SuccessCommandHandlerResponse.Response.{Event, NoEvent}
 import org.slf4j.{Logger, LoggerFactory}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
@@ -144,7 +144,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
                 .withReason(
                   s"[Lagompb] EventHandler failure: ${exception.getMessage}"
                 )
-                .withCause(FailureCause.InternalError)
+                .withCause(FailureCause.INTERNAL_ERROR)
             )
         )
 
@@ -250,7 +250,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
                               .withReason(
                                 s"[Lagompb] unable to parse event ${event.typeUrl} emitted by the command handler"
                               )
-                              .withCause(FailureCause.InternalError)
+                              .withCause(FailureCause.INTERNAL_ERROR)
                           )
                         )
 
@@ -277,7 +277,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
                             .withReason(
                               s"unknown command handler success response ${successResponse.response.getClass.getName}"
                             )
-                            .withCause(FailureCause.ValidationError)
+                            .withCause(FailureCause.VALIDATION_ERROR)
                         )
                     )
                 }
@@ -303,7 +303,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
                         .withReason(
                           s"unknown command handler response ${commandHandlerResponse.handlerResponse.getClass.getName}"
                         )
-                        .withCause(FailureCause.ValidationError)
+                        .withCause(FailureCause.VALIDATION_ERROR)
                     )
                 )
             }

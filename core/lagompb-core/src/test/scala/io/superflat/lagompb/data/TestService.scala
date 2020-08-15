@@ -9,7 +9,7 @@ import com.lightbend.lagom.scaladsl.api.Service.restCall
 import com.lightbend.lagom.scaladsl.api.transport.Method
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import io.superflat.lagompb.{AggregateRoot, BaseService, BaseServiceImpl, StateAndMeta}
-import io.superflat.lagompb.protobuf.tests.{TestCmd, TestState}
+import io.superflat.lagompb.protobuf.v1.tests.{TestCmd, TestState}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 import scala.concurrent.ExecutionContext

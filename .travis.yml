@@ -8,6 +8,7 @@ jdk:
 
 before_install:
   - git fetch --tags
+  - git submodule update --init
 
 stages:
   - name: test

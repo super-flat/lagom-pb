@@ -2,9 +2,9 @@ package io.superflat.lagompb.encryption
 
 import com.google.protobuf.any.Any
 import com.google.protobuf.wrappers.StringValue
-import io.superflat.lagompb.protobuf.core.{EventWrapper, MetaData}
-import io.superflat.lagompb.protobuf.encryption.EncryptedProto
 import io.superflat.lagompb.testkit.BaseSpec
+import io.superflat.lagompb.protobuf.v1.core.{EventWrapper, MetaData}
+import io.superflat.lagompb.protobuf.v1.encryption.EncryptedProto
 
 import scala.util.{Failure, Success, Try}
 
@@ -13,7 +13,7 @@ class EncryptionAdapterSpec extends BaseSpec {
     "pass through with no ProtoEncryption provided" in {
       val adapter = new EncryptionAdapter(encryptor = None)
       val any: Any = Any.pack(StringValue("value"))
-      adapter.encrypt(any) shouldBe (Success(any))
+      adapter.encrypt(any) shouldBe Success(any)
     }
 
     "use provided ProtoEncryption" in {
@@ -32,7 +32,7 @@ class EncryptionAdapterSpec extends BaseSpec {
       val actual: Try[Any] = adapter.encrypt(Any.pack(StringValue("value")))
       val expected: Try[Any] = Success(Any.pack(encryptedProto))
 
-      actual shouldBe (expected)
+      actual shouldBe expected
     }
 
     "handle failing encryption" in {
@@ -46,7 +46,7 @@ class EncryptionAdapterSpec extends BaseSpec {
 
       val adapter = new EncryptionAdapter(encryptor = Some(encryptor))
       val actual: Try[Any] = adapter.encrypt(Any.pack(StringValue("value")))
-      actual shouldBe (expected)
+      actual shouldBe expected
     }
   }
 
@@ -54,7 +54,7 @@ class EncryptionAdapterSpec extends BaseSpec {
     "pass through with no ProtoEncryption provided" in {
       val adapter = new EncryptionAdapter(encryptor = None)
       val any: Any = Any.pack(StringValue("value"))
-      adapter.decrypt(any) shouldBe (Success(any))
+      adapter.decrypt(any) shouldBe Success(any)
     }
 
     "use provided ProtoEncryption" in {
@@ -69,7 +69,7 @@ class EncryptionAdapterSpec extends BaseSpec {
 
       val adapter = new EncryptionAdapter(encryptor = Some(encryptor))
       val actual: Try[Any] = adapter.decrypt(Any.pack(EncryptedProto.defaultInstance))
-      actual shouldBe (Success(any))
+      actual shouldBe Success(any)
     }
 
     "skip decryption if not an EncryptedProto" in {
@@ -85,7 +85,7 @@ class EncryptionAdapterSpec extends BaseSpec {
       val notEncrypted = Any.pack(StringValue("not encrypted"))
       val actual: Try[Any] = adapter.decrypt(notEncrypted)
 
-      actual shouldBe (Success(notEncrypted))
+      actual shouldBe Success(notEncrypted)
     }
 
     "handle failing decryption" in {
@@ -99,7 +99,7 @@ class EncryptionAdapterSpec extends BaseSpec {
 
       val adapter = new EncryptionAdapter(encryptor = Some(encryptor))
       val actual: Try[Any] = adapter.decrypt(Any.pack(EncryptedProto.defaultInstance))
-      actual shouldBe (decryptFailure)
+      actual shouldBe decryptFailure
     }
   }
 
@@ -107,7 +107,7 @@ class EncryptionAdapterSpec extends BaseSpec {
     "pass through success" in {
       val adapter = new EncryptionAdapter(encryptor = None)
       val any: Any = Any.pack(StringValue("value"))
-      Try(adapter.encryptOrThrow(any)) shouldBe (Success(any))
+      Try(adapter.encryptOrThrow(any)) shouldBe Success(any)
     }
 
     "throw on failure" in {
@@ -121,7 +121,7 @@ class EncryptionAdapterSpec extends BaseSpec {
 
       val adapter = new EncryptionAdapter(encryptor = Some(encryptor))
       val actual: Try[Any] = Try(adapter.encryptOrThrow(Any.pack(StringValue("value"))))
-      actual shouldBe (expected)
+      actual shouldBe expected
     }
   }
 
@@ -129,7 +129,7 @@ class EncryptionAdapterSpec extends BaseSpec {
     "pass through success" in {
       val adapter = new EncryptionAdapter(encryptor = None)
       val any: Any = Any.pack(StringValue("value"))
-      Try(adapter.decryptOrThrow(any)) shouldBe (Success(any))
+      Try(adapter.decryptOrThrow(any)) shouldBe Success(any)
     }
 
     "throw on failure" in {
@@ -143,7 +143,7 @@ class EncryptionAdapterSpec extends BaseSpec {
 
       val adapter = new EncryptionAdapter(encryptor = Some(encryptor))
       val actual: Try[Any] = Try(adapter.decryptOrThrow(Any.pack(EncryptedProto.defaultInstance)))
-      actual shouldBe (decryptFailure)
+      actual shouldBe decryptFailure
     }
   }
 
@@ -172,7 +172,7 @@ class EncryptionAdapterSpec extends BaseSpec {
       val actual: Try[EventWrapper] = adapter.decryptEventWrapper(encryptedWrapper)
 
       // manually define expected wrapper with decrypted event & state
-      actual shouldBe (Success(decryptedWrapper))
+      actual shouldBe Success(decryptedWrapper)
     }
 
     "handle failed event decryption" in {
@@ -209,7 +209,7 @@ class EncryptionAdapterSpec extends BaseSpec {
 
       val adapter = new EncryptionAdapter(encryptor = Some(encryptor))
 
-      adapter.decryptEventWrapper(encryptedWrapper) shouldBe (decryptFailure)
+      adapter.decryptEventWrapper(encryptedWrapper) shouldBe decryptFailure
     }
 
     "handle failed state decryption" in {
@@ -246,19 +246,19 @@ class EncryptionAdapterSpec extends BaseSpec {
 
       val adapter = new EncryptionAdapter(encryptor = Some(encryptor))
 
-      adapter.decryptEventWrapper(encryptedWrapper) shouldBe (decryptFailure)
+      adapter.decryptEventWrapper(encryptedWrapper) shouldBe decryptFailure
     }
   }
 
   ".isEncryptedProto" should {
     "return true when Any contains an EncryptedProto" in {
       val proto = Any.pack(EncryptedProto.defaultInstance)
-      EncryptionAdapter.isEncryptedProto(proto) shouldBe (true)
+      EncryptionAdapter.isEncryptedProto(proto) shouldBe true
     }
 
     "return false when Any does not contain EncryptedProto" in {
       val proto = Any.pack(StringValue("not encrypted"))
-      EncryptionAdapter.isEncryptedProto(proto) shouldBe (false)
+      EncryptionAdapter.isEncryptedProto(proto) shouldBe false
     }
   }
 
