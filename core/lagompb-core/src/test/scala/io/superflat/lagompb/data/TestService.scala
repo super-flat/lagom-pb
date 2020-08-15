@@ -44,7 +44,7 @@ class TestServiceImpl(
   override def testHello: ServiceCall[TestCmd, TestState] = { req =>
     val companyId: String = UUID.randomUUID().toString
     val cmd = req.update(_.companyUuid := companyId)
-    sendCommand[TestCmd, TestState](cmd)
+    sendCommand[TestCmd, TestState](companyId, cmd, Map.empty[String, String])
       .map((rst: StateAndMeta[TestState]) => rst.state)
   }
 }

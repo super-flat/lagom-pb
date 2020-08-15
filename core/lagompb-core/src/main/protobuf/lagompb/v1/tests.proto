@@ -4,11 +4,10 @@ package lagompb.v1;
 
 option java_package = "io.superflat.lagompb.protobuf.v1";
 
-import "submodules/protobuf/lagompb/v1/extensions.proto";
 import "google/protobuf/any.proto";
 
 message TestCmd {
-    string company_uuid = 1 [(lagompb.v1.command).entity_id = true];
+    string company_uuid = 1;
     string name = 2;
 }
 
@@ -16,35 +15,35 @@ message TestCmd {
 // handler response without persisting
 // an event
 message TestGetCmd {
-    string company_uuid = 1 [(lagompb.v1.command).entity_id = true];
+    string company_uuid = 1;
 }
 
 // It is used to test unhandled
 // command handler response
 message TestEmptyCmd {
-    string company_uuid = 1 [(lagompb.v1.command).entity_id = true];
+    string company_uuid = 1;
 }
 
 // Used to test Empty command handler
 // success response
 message TestEmptySuccessCmd {
-    string company_uuid = 1 [(lagompb.v1.command).entity_id = true];
+    string company_uuid = 1;
 }
 
 // Used to handle wrong event emitted by
 // the command handler
 message TestUnknownEventCmd {
-    string company_uuid = 1 [(lagompb.v1.command).entity_id = true];
+    string company_uuid = 1;
 }
 
 // Used to test a fail command handler response
 message TestFailCmd {
-    string company_uuid = 1 [(lagompb.v1.command).entity_id = true];
+    string company_uuid = 1;
 }
 
 // Used to test event handler failure in the aggregate root
 message TestEventFailureCmd {
-    string company_uuid = 1 [(lagompb.v1.command).entity_id = true];
+    string company_uuid = 1;
 }
 
 // Event emitted to test event handler failure in the aggregate root
@@ -59,7 +58,7 @@ message WrongEventTagger {
 }
 
 message TestEvent {
-    string event_uuid = 1 [(lagompb.v1.kafka).partition_key = true];
+    string event_uuid = 1;
     string name = 2;
 }
 
