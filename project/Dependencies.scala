@@ -44,7 +44,7 @@ object Dependencies {
     val GoogleProtobufUtilVersion = "3.13.0"
     val ScalapbCommonProtoVersion = "1.18.0-0"
     val EmbeddedPostgresVersion = "0.13.3"
-    val EmbeddedKafkaVersion = "2.5.0"
+    val EmbeddedKafkaVersion = "2.5.1"
     val AkkaProjectionVersion = "0.3"
     val CatsVersion = "2.1.1"
 
