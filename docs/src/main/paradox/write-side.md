@@ -11,7 +11,7 @@ Write Side helps define the persistence entity/aggregate and how data come to th
 
 Let us now dive into the details of these components.
 
-To be able to implement the write side the following dependency is required:
+To implement the write side you require the following dependencies:
 
 @@dependency[sbt,Maven] {
   group="io.superflat"
@@ -87,6 +87,13 @@ Events handler must extend the `io.superflat.lagompb.EventHandler[TState]` must 
 The only function to override is `handle(event: scalapb.GeneratedMessage, state: TState): TState`. 
 As one can see the event handler makes available the current state of the aggregate/entity.
 
+## Journal and Snapshot encryption
+One has the ability to add an encryption Journal and Snapshot persistence. This can come in handy in GDPR-like deletion cases and general message security.
+These are the features to expect:
+* It encrypts event and state Any messages in place in the wrapper
+* The encryption happens in the command handler
+* The default behavior is to encrypt nothing in cases where you have not provided encryption.
+
 ## Aggregate Root
 The aggregate root or model is defined in terms of **_Commands_**, **_Events_**, and **_State_** in the world of ES/CQRS and that has been the approach taken into lagom-pb. 
 The aggregate root must extend the `io.superflat.lagompb.AggregateRoot[TState]` where `TState` is the generated scala case class from the state proto definition. See [state section](#state).
@@ -95,6 +102,7 @@ There are only four attributes to override:
 
 * Commands handler. See [commands handler section](#commands-handler)
 * Events handler. See [events handler section](#events-handler)
+* Encryption Adapter. See [journal and snapshot encryption section](#journal-and-snapshot-encryption)
 * Initial state
 * Aggregate name
 
@@ -105,18 +113,19 @@ package io.superflat.lagompb.samples.account
 
 import akka.actor.ActorSystem
 import io.superflat.lagompb.{AggregateRoot, CommandHandler, EventHandler}
+import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.samples.protobuf.account.state.BankAccount
 import scalapb.GeneratedMessageCompanion
 
 final class AccountAggregate(
     actorSystem: ActorSystem,
     commandHandler: CommandHandler[BankAccount],
-    eventHandler: EventHandler[BankAccount]
-) extends AggregateRoot[BankAccount](actorSystem, commandHandler, eventHandler) {
+    eventHandler: EventHandler[BankAccount],
+    encryptionAdapter: EncryptionAdapter
+) extends AggregateRoot[BankAccount](actorSystem, commandHandler, eventHandler, encryptionAdapter) {
 
   override def aggregateName: String = "Account"
 
   override def stateCompanion: GeneratedMessageCompanion[BankAccount] = BankAccount
 }
 ```
-

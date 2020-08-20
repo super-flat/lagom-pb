@@ -23,15 +23,15 @@ package io.superflat.lagompb.samples.account.api
 
 import akka.NotUsed
 import com.lightbend.lagom.scaladsl.api.{Descriptor, ServiceCall}
-import com.lightbend.lagom.scaladsl.api.Service.restCall
 import com.lightbend.lagom.scaladsl.api.transport.Method
+import com.lightbend.lagom.scaladsl.api.Service.restCall
+import io.superflat.lagompb.BaseService
 import io.superflat.lagompb.samples.protobuf.account.apis.{
   ApiResponse,
   OpenAccountRequest,
   ReceiveMoneyRequest,
   TransferMoneyRequest
 }
-import io.superflat.lagompb.BaseService
 
 trait AccountService extends BaseService {
 
@@ -49,14 +49,13 @@ trait AccountService extends BaseService {
 }
 ```
 
-_**Note: The api service definition must be done in a separate sbt module(recommended way). So a lagom-pb/lagom service requires at least two sbt modules in an sdbt multi-modules project.**_
+_**Note: The api service definition must be done in a separate sbt module(recommended way). So a lagom-pb/lagom service requires at least two sbt modules in an sbt multi-modules project.**_
 
 ## Api Service implementation
-Once the api service is defined, we can implement the api service by extending the `io.superflat.lagompb.BaseServiceImpl` mixed in with the api definition trait [See api definition section](#api-service-definition).
+Once you have defined your service, you can implement the api service by extending the `io.superflat.lagompb.BaseServiceImpl` mixed in with the api definition trait [See api definition section](#api-service-definition).
 
 ## Application Loader
-
-The application loader defines how your lagom-pb/lagom based application should start. Two loading are available:
+The application loader defines how your lagom-pb/lagom based application should start. Two loading modes are available:
 
 * the development mode (for local development)
 * the production mode
@@ -93,18 +92,19 @@ abstract class AccountApplication(context: LagomApplicationContext) extends Base
   lazy val eventHandler: EventHandler[BankAccount] = wire[AccountEventHandler]
   lazy val commandHandler: CommandHandler[BankAccount] = wire[AccountCommandHandler]
   lazy val aggregate: AggregateRoot[BankAccount] = wire[AccountAggregate]
-  lazy val encryption: ProtoEncryption = NoEncryption
-  lazy val accountProjection: AccountReadProjection = wire[AccountReadProjection]
+  lazy val encryptor: ProtoEncryption = NoEncryption
 
   override def aggregateRoot: AggregateRoot[_] = aggregate
 
   override def server: LagomServer =
     serverFor[AccountService](wire[AccountServiceImpl])
       .additionalRouter(wire[AccountGrpcServiceImpl])
-  lazy val accountKafkaProjection: AccountKafkaProjection = wire[AccountKafkaProjection]
 
-  accountProjection.init()
-  accountKafkaProjection.init()
+  lazy val accountReadProcessor: AccountReadProcessor = wire[AccountReadProcessor]
+  lazy val kafkaPublisher: AccountKafkaPublisher = wire[AccountKafkaPublisher]
+
+  accountReadProcessor.init()
+  kafkaPublisher.init()
 }
 
 class AccountApplicationLoader extends LagomApplicationLoader {
@@ -116,5 +116,4 @@ class AccountApplicationLoader extends LagomApplicationLoader {
 
   override def describeService: Option[Descriptor] = Some(readDescriptor[AccountService])
 }
-
 ```
