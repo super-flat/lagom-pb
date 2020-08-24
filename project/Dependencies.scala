@@ -36,7 +36,7 @@ object Dependencies {
     val H2Version = "1.4.200"
     val JaninoVersion = "3.1.2"
     val ScalapbJson4sVersion = "0.10.1"
-    val PlayGrpcVersion = "0.8.2"
+    val PlayGrpcVersion = "0.9.0"
     val ReflectionsVersion = "0.9.12"
     val ScalaClassFinderVersion = "1.5.1"
     val ApacheCommonValidatorVersion = "1.7"
