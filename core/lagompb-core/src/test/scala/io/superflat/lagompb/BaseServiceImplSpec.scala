@@ -97,7 +97,7 @@ class BaseServiceImplSpec extends BaseSpec {
             FailedReply()
               .withReason("failed")
           )
-      an[RuntimeException] shouldBe thrownBy(testImpl.handleLagompbCommandReply[TestState](rejected))
+      testImpl.handleLagompbCommandReply[TestState](rejected).failure.exception shouldBe an[RuntimeException]
     }
 
     "failed to handle CommandReply" in {
@@ -107,9 +107,10 @@ class BaseServiceImplSpec extends BaseSpec {
         new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
       case class WrongReply()
-      an[RuntimeException] shouldBe thrownBy(
-        testImpl.handleLagompbCommandReply[TestState](CommandReply().withReply(Reply.Empty))
-      )
+      testImpl
+        .handleLagompbCommandReply[TestState](CommandReply().withReply(Reply.Empty))
+        .failure
+        .exception shouldBe an[RuntimeException]
     }
 
     "parse State" in {
