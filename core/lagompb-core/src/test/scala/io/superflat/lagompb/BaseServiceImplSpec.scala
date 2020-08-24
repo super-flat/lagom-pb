@@ -77,7 +77,7 @@ class BaseServiceImplSpec extends BaseSpec {
         )
 
       val result: StateAndMeta[TestState] =
-        testImpl.handleLagompbCommandReply[TestState](cmdReply)
+        testImpl.handleLagompbCommandReply[TestState](cmdReply).success.value
 
       result.state shouldBe
         TestState()
