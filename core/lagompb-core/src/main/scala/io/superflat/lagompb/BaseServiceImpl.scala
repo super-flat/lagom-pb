@@ -56,24 +56,21 @@ sealed trait SharedBaseServiceImpl {
     clusterSharding
       .entityRefFor(aggregateRoot.typeKey, entityId)
       .ask[CommandReply](replyTo => Command(cmd, replyTo, data))
-      .map((value: CommandReply) => handleLagompbCommandReply[S](value))
+      .flatMap((value: CommandReply) => Future.fromTry(handleLagompbCommandReply[S](value)))
 
   private[lagompb] def handleLagompbCommandReply[S <: scalapb.GeneratedMessage](
     commandReply: CommandReply
-  ): StateAndMeta[S] =
+  ): Try[StateAndMeta[S]] =
     commandReply.reply match {
       case Reply.SuccessfulReply(successReply) =>
-        parseState[S](successReply.getStateWrapper)
+        Success(parseState[S](successReply.getStateWrapper))
       case Reply.FailedReply(failureReply) =>
         failureReply.cause match {
-          case FailureCause.VALIDATION_ERROR =>
-            throw new InvalidCommandException(failureReply.reason)
-          case FailureCause.INTERNAL_ERROR =>
-            throw new GlobalException(failureReply.reason)
-          case _ => throw new GlobalException("reason unknown")
+          case FailureCause.VALIDATION_ERROR => Failure(new InvalidCommandException(failureReply.reason))
+          case FailureCause.INTERNAL_ERROR   => Failure(new GlobalException(failureReply.reason))
+          case _                             => Failure(new GlobalException("reason unknown"))
         }
-      case _ =>
-        throw new GlobalException(s"unknown CommandReply ${commandReply.reply.getClass.getName}")
+      case _ => Failure(new GlobalException(s"unknown CommandReply ${commandReply.reply.getClass.getName}"))
     }
 
   private[lagompb] def parseState[S <: scalapb.GeneratedMessage](
