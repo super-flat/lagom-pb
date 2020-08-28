@@ -8,6 +8,7 @@ import com.lightbend.lagom.scaladsl.persistence.slick.SlickPersistenceComponents
 import com.lightbend.lagom.scaladsl.playjson.{EmptyJsonSerializerRegistry, JsonSerializerRegistry}
 import com.lightbend.lagom.scaladsl.server.{LagomApplication, LagomApplicationContext, LagomServer}
 import io.superflat.lagompb.encryption.{EncryptionAdapter, ProtoEncryption}
+import kamon.Kamon
 import play.api.db.HikariCPComponents
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.mvc.EssentialFilter
@@ -93,11 +94,19 @@ abstract class BaseApplication(context: LagomApplicationContext)
     aggregateRoot.create(entityContext, shardIndex)
   })
 
+  // initialize instrumentation and tracing if it is enabled
+  initInstrumentation()
+
   def loadProtosRegistry(): Unit = {
     ProtosRegistry.registry
     ProtosRegistry.typeRegistry
   }
 
+  def initInstrumentation(): Unit = {
+    if (config.getBoolean("lagompb.instrumentation.enabled")) {
+      Kamon.init()
+    }
+  }
   // $COVERAGE-ON$
 }
 

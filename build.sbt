@@ -31,7 +31,6 @@ lazy val `lagompb-core` = project
   .enablePlugins(LagomScala)
   .settings(lagomForkedTestSettings: _*)
   .enablePlugins(LagomSettings)
-  .enablePlugins(LagomAkka)
   .enablePlugins(Publish)
   .settings(
     name := "lagompb-core",
@@ -48,7 +47,6 @@ lazy val `lagompb-readside` = project
   .in(file("core/lagompb-readside"))
   .enablePlugins(LagomScala)
   .enablePlugins(LagomSettings)
-  .enablePlugins(LagomAkka)
   .enablePlugins(Publish)
   .settings(name := "lagompb-readside", coverageExcludedPackages := CoverageWhitelist.whitelist.mkString(";"))
   .dependsOn(`lagompb-core`)

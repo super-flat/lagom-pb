@@ -1,3 +1,4 @@
+
 import com.lightbend.lagom.core.LagomVersion
 import com.lightbend.lagom.sbt.LagomImport._
 import play.sbt.PlayImport.filters
@@ -28,11 +29,10 @@ object Dependencies {
     val SlickMigrationApiVersion = "0.7.0"
     val ScalaMockVersion = "5.0.0"
     val KamonVersion = "2.1.4"
-    val KanelaVersion = "1.0.5"
+    val KanelaVersion = "1.0.6"
     val LogstashLogbackVersion = "6.3"
     val SilencerVersion = "1.6.0"
     val AkkaGrpcVersion = "1.0.0"
-    val AkkaVersion: String = "2.6.8"
     val H2Version = "1.4.200"
     val JaninoVersion = "3.1.2"
     val ScalapbJson4sVersion = "0.10.1"
@@ -53,7 +53,6 @@ object Dependencies {
     val ScalapbCompilerVersion = "0.10.7"
     val ScalapbValidationVersion = "0.1.2"
     val CrossScalaForPlugin = Seq(Scala212)
-    val AkkaHttpVersion = "10.1.12"
   }
 
   object Compile {
@@ -109,8 +108,7 @@ object Dependencies {
       "com.lightbend.akka" %% "akka-projection-eventsourced" % Versions.AkkaProjectionVersion
 
     val CatsCore = "org.typelevel" %% "cats-core" % Versions.CatsVersion
-    // TODO remove after upgrade Akka and play gRPC
-    val AkkaHttp = "com.typesafe.akka" %% "akka-http2-support" % Versions.AkkaHttpVersion
+    val AkkaHttp = "com.typesafe.akka" %% "akka-http2-support" % LagomVersion.akkaHttp
   }
 
   object Runtime {
@@ -132,10 +130,10 @@ object Dependencies {
   object Test {
     val ScalaTest: ModuleID = "org.scalatest" %% "scalatest" % Versions.ScalaTestVersion
     val ScalaMock: ModuleID = "org.scalamock" %% "scalamock" % Versions.ScalaMockVersion
-    val AkkaMultiNodeTestkit: ModuleID = "com.typesafe.akka" %% "akka-multi-node-testkit" % Versions.AkkaVersion
-    val AkkaTestkit: ModuleID = "com.typesafe.akka" %% "akka-testkit" % Versions.AkkaVersion
-    val AkkaStreamTestkit: ModuleID = "com.typesafe.akka" %% "akka-stream-testkit" % Versions.AkkaVersion
-    val AkkaActorTestkitTyped: ModuleID = "com.typesafe.akka" %% "akka-actor-testkit-typed" % Versions.AkkaVersion
+    val AkkaMultiNodeTestkit: ModuleID = "com.typesafe.akka" %% "akka-multi-node-testkit" % LagomVersion.akka
+    val AkkaTestkit: ModuleID = "com.typesafe.akka" %% "akka-testkit" % LagomVersion.akka
+    val AkkaStreamTestkit: ModuleID = "com.typesafe.akka" %% "akka-stream-testkit" % LagomVersion.akka
+    val AkkaActorTestkitTyped: ModuleID = "com.typesafe.akka" %% "akka-actor-testkit-typed" % LagomVersion.akka
     val EmbeddedPostgres: ModuleID = "com.opentable.components" % "otj-pg-embedded" % Versions.EmbeddedPostgresVersion
     val EmbeddedKafka: ModuleID = "io.github.embeddedkafka" %% "embedded-kafka" % Versions.EmbeddedKafkaVersion
   }
