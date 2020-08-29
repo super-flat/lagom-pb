@@ -28,20 +28,14 @@ object Dependencies {
     val SlickMigrationApiVersion = "0.7.0"
     val ScalaMockVersion = "5.0.0"
     val KamonVersion = "2.1.4"
-    val KanelaVersion = "1.0.5"
-    val LogstashLogbackVersion = "6.3"
+    val KanelaVersion = "1.0.6"
     val SilencerVersion = "1.6.0"
     val AkkaGrpcVersion = "1.0.0"
-    val AkkaVersion: String = "2.6.8"
     val H2Version = "1.4.200"
-    val JaninoVersion = "3.1.2"
     val ScalapbJson4sVersion = "0.10.1"
     val PlayGrpcVersion = "0.9.0"
     val ReflectionsVersion = "0.9.12"
-    val ScalaClassFinderVersion = "1.5.1"
     val ApacheCommonValidatorVersion = "1.7"
-    val GoogleRe2jVersion = "1.4"
-    val GoogleProtobufUtilVersion = "3.13.0"
     val ScalapbCommonProtoVersion = "1.18.0-0"
     val EmbeddedPostgresVersion = "0.13.3"
     val EmbeddedKafkaVersion = "2.6.0"
@@ -50,17 +44,13 @@ object Dependencies {
 
     val LagomVersion = "1.6.4"
     val SbtProtocVersion = "0.99.34"
-    val ScalapbCompilerVersion = "0.10.7"
+    val ScalapbCompilerVersion = "0.10.8"
     val ScalapbValidationVersion = "0.1.2"
     val CrossScalaForPlugin = Seq(Scala212)
-    val AkkaHttpVersion = "10.1.12"
   }
 
   object Compile {
     val Macwire: ModuleID = "com.softwaremill.macwire" %% "macros" % Versions.MacwireVersion
-
-    val PlayJsonDerivedCodecs: ModuleID =
-      "org.julienrf" %% "play-json-derived-codecs" % Versions.PlayJsonDerivedCodecsVersion
 
     val LagomScaladslAkkaDiscovery: ModuleID =
       "com.lightbend.lagom" %% "lagom-scaladsl-akka-discovery-service-locator" % LagomVersion.current
@@ -86,18 +76,11 @@ object Dependencies {
     val KamonJaeger: ModuleID = "io.kamon" %% "kamon-jaeger" % Versions.KamonVersion
     val Kanela: ModuleID = "io.kamon" % "kanela-agent" % Versions.KanelaVersion
 
-    val LogstashLogback: ModuleID =
-      "net.logstash.logback" % "logstash-logback-encoder" % Versions.LogstashLogbackVersion
     val H2Driver: ModuleID = "com.h2database" % "h2" % Versions.H2Version
-    val Janino: ModuleID = "org.codehaus.janino" % "janino" % Versions.JaninoVersion
     val ScalapbJson4s: ModuleID = "com.thesamet.scalapb" %% "scalapb-json4s" % Versions.ScalapbJson4sVersion
     val Reflections: ModuleID = "org.reflections" % "reflections" % Versions.ReflectionsVersion
-    val ScalaClassFinder: ModuleID = "org.clapper" %% "classutil" % Versions.ScalaClassFinderVersion
-
     val ApacheCommonValidator: ModuleID =
       "commons-validator" % "commons-validator" % Versions.ApacheCommonValidatorVersion
-    val GoogleRe2j: ModuleID = "com.google.re2j" % "re2j" % Versions.GoogleRe2jVersion
-    val GoogleProtobufUtil: ModuleID = "com.google.protobuf" % "protobuf-java-util" % Versions.GoogleProtobufUtilVersion
 
     val ScalapbCommonProtos: ModuleID =
       "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % Versions.ScalapbCommonProtoVersion
@@ -109,8 +92,8 @@ object Dependencies {
       "com.lightbend.akka" %% "akka-projection-eventsourced" % Versions.AkkaProjectionVersion
 
     val CatsCore = "org.typelevel" %% "cats-core" % Versions.CatsVersion
-    // TODO remove after upgrade Akka and play gRPC
-    val AkkaHttp = "com.typesafe.akka" %% "akka-http2-support" % Versions.AkkaHttpVersion
+    val AkkaHttp = "com.typesafe.akka" %% "akka-http2-support" % LagomVersion.akkaHttp
+    val AkkaStream = "com.typesafe.akka" %% "akka-stream" % LagomVersion.akka
   }
 
   object Runtime {
@@ -132,10 +115,10 @@ object Dependencies {
   object Test {
     val ScalaTest: ModuleID = "org.scalatest" %% "scalatest" % Versions.ScalaTestVersion
     val ScalaMock: ModuleID = "org.scalamock" %% "scalamock" % Versions.ScalaMockVersion
-    val AkkaMultiNodeTestkit: ModuleID = "com.typesafe.akka" %% "akka-multi-node-testkit" % Versions.AkkaVersion
-    val AkkaTestkit: ModuleID = "com.typesafe.akka" %% "akka-testkit" % Versions.AkkaVersion
-    val AkkaStreamTestkit: ModuleID = "com.typesafe.akka" %% "akka-stream-testkit" % Versions.AkkaVersion
-    val AkkaActorTestkitTyped: ModuleID = "com.typesafe.akka" %% "akka-actor-testkit-typed" % Versions.AkkaVersion
+    val AkkaMultiNodeTestkit: ModuleID = "com.typesafe.akka" %% "akka-multi-node-testkit" % LagomVersion.akka
+    val AkkaTestkit: ModuleID = "com.typesafe.akka" %% "akka-testkit" % LagomVersion.akka
+    val AkkaStreamTestkit: ModuleID = "com.typesafe.akka" %% "akka-stream-testkit" % LagomVersion.akka
+    val AkkaActorTestkitTyped: ModuleID = "com.typesafe.akka" %% "akka-actor-testkit-typed" % LagomVersion.akka
     val EmbeddedPostgres: ModuleID = "com.opentable.components" % "otj-pg-embedded" % Versions.EmbeddedPostgresVersion
     val EmbeddedKafka: ModuleID = "io.github.embeddedkafka" %% "embedded-kafka" % Versions.EmbeddedKafkaVersion
   }
@@ -152,7 +135,6 @@ object Dependencies {
     lagomScaladslPersistenceCassandra,
     lagomScaladslKafkaBroker,
     lagomScaladslTestKit,
-    Dependencies.Compile.PlayJsonDerivedCodecs,
     Dependencies.Compile.LagomScaladslAkkaDiscovery,
     Dependencies.Compile.postgresDriver,
     Dependencies.Compile.Macwire,
@@ -163,16 +145,11 @@ object Dependencies {
     Dependencies.Compile.AkkaKubernetesDiscoveryApi,
     Dependencies.Compile.JwtPlayJson,
     Dependencies.Compile.ScalapbJson4s,
-    Dependencies.Compile.Janino,
     Dependencies.Compile.Reflections,
     Dependencies.Compile.KamonBundle,
     Dependencies.Compile.KamonPrometheus,
     Dependencies.Compile.KamonJaeger,
-    Dependencies.Compile.LogstashLogback,
-    Dependencies.Compile.ScalaClassFinder,
     Dependencies.Compile.ApacheCommonValidator,
-    Dependencies.Compile.GoogleRe2j,
-    Dependencies.Compile.GoogleProtobufUtil,
     Dependencies.Compile.ScalapbCommonProtos,
     Dependencies.Compile.AkkaProjectionCore,
     Dependencies.Compile.AkkaProjectionKafka,
