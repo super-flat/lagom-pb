@@ -1,5 +1,4 @@
-import Dependencies.Compile
-import Dependencies.Runtime
+import Dependencies.{Compile, Runtime}
 import com.lightbend.lagom.sbt.LagomImport._
 import play.sbt.PlayImport.filters
 import sbt.Keys.libraryDependencies
@@ -22,7 +21,6 @@ object LagomSettings extends AutoPlugin {
         lagomScaladslPersistenceCassandra,
         lagomScaladslKafkaBroker,
         lagomScaladslTestKit,
-        Compile.PlayJsonDerivedCodecs,
         Compile.LagomScaladslAkkaDiscovery,
         Compile.postgresDriver,
         Compile.Macwire,
@@ -33,16 +31,11 @@ object LagomSettings extends AutoPlugin {
         Compile.AkkaKubernetesDiscoveryApi,
         Compile.JwtPlayJson,
         Compile.ScalapbJson4s,
-        Compile.Janino,
         Compile.Reflections,
         Compile.KamonBundle,
         Compile.KamonPrometheus,
         Compile.KamonJaeger,
-        Compile.LogstashLogback,
-        Compile.ScalaClassFinder,
         Compile.ApacheCommonValidator,
-        Compile.GoogleRe2j,
-        Compile.GoogleProtobufUtil,
         Compile.ScalapbCommonProtos,
         Compile.AkkaProjectionCore,
         Compile.AkkaProjectionKafka,
@@ -50,6 +43,7 @@ object LagomSettings extends AutoPlugin {
         Compile.AkkaProjectionEventSourced,
         Compile.CatsCore,
         Compile.AkkaHttp,
+        Compile.AkkaStream,
         Runtime.AkkaGrpcRuntime,
         Runtime.ScalapbRuntime,
         Runtime.ScalapbValidationRuntime,

@@ -57,11 +57,11 @@ object CommonSettings extends AutoPlugin {
         // ignore imports in templates
         "-P:silencer:pathFilters=.*.txt"
       ),
+      resolvers ++= Seq(Resolver.jcenterRepo, Resolver.sonatypeRepo("public"), Resolver.sonatypeRepo("snapshots")),
       libraryDependencies ++= Seq(
-        compilerPlugin(("com.github.ghik" % "silencer-plugin" % Versions.SilencerVersion).cross(CrossVersion.full)),
-        ("com.github.ghik" % "silencer-lib" % Versions.SilencerVersion % Provided).cross(CrossVersion.full)
+        compilerPlugin("com.github.ghik" % "silencer-plugin" %  Versions.SilencerVersion cross CrossVersion.full),
+        "com.github.ghik" % "silencer-lib" % Versions.SilencerVersion % Provided cross CrossVersion.full
       ),
-      resolvers ++= Seq(Resolver.jcenterRepo),
       scalafmtOnCompile := true
     )
 }
