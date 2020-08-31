@@ -153,6 +153,7 @@ object Dependencies {
     Dependencies.Compile.KamonBundle,
     Dependencies.Compile.KamonPrometheus,
     Dependencies.Compile.KamonJaeger,
+    Dependencies.Compile.KamonZipkin,
     Dependencies.Compile.ApacheCommonValidator,
     Dependencies.Compile.ScalapbCommonProtos,
     Dependencies.Compile.AkkaProjectionCore,

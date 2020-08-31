@@ -40,6 +40,7 @@ object BuildSettings extends AutoPlugin {
         Compile.KamonBundle,
         Compile.KamonPrometheus,
         Compile.KamonJaeger,
+        Compile.KamonZipkin,
         Compile.ApacheCommonValidator,
         Compile.ScalapbCommonProtos,
         Compile.AkkaProjectionCore,
