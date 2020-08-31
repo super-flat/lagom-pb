@@ -43,7 +43,7 @@ abstract class BaseApplication(context: LagomApplicationContext)
 
   // $COVERAGE-OFF$
   // initialize instrumentation and tracing if it is enabled
-  initInstrumentation()
+  Kamon.init()
 
   loadProtosRegistry()
 
@@ -101,11 +101,6 @@ abstract class BaseApplication(context: LagomApplicationContext)
     ProtosRegistry.typeRegistry
   }
 
-  def initInstrumentation(): Unit = {
-    if (config.getBoolean("lagompb.instrumentation.enabled")) {
-      Kamon.init()
-    }
-  }
   // $COVERAGE-ON$
 }
 
