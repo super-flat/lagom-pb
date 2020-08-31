@@ -59,9 +59,9 @@ object Dependencies {
       "com.lightbend.akka.discovery" %% "akka-discovery-kubernetes-api" % Versions.AkkaDiscoveryKubernetesApiVersion
     val postgresDriver: ModuleID = "org.postgresql" % "postgresql" % Versions.PostgresDriverVersion
 
-    val AkkaServiceLocator: ModuleID =
+    val LagomAkkaServiceLocator: ModuleID =
       "com.lightbend.lagom" %% "lagom-scaladsl-akka-discovery-service-locator" % LagomVersion.current
-    val akkaManagement: ModuleID = "com.lightbend.akka.management" %% "akka-management" % Versions.AkkaManagementVersion
+    val AkkaManagement: ModuleID = "com.lightbend.akka.management" %% "akka-management" % Versions.AkkaManagementVersion
 
     val AkkaManagementClusterBootstrap: ModuleID =
       "com.lightbend.akka.management" %% "akka-management-cluster-bootstrap" % Versions.AkkaManagementClusterBootstrapVersion
@@ -94,6 +94,9 @@ object Dependencies {
     val CatsCore = "org.typelevel" %% "cats-core" % Versions.CatsVersion
     val AkkaHttp = "com.typesafe.akka" %% "akka-http2-support" % LagomVersion.akkaHttp
     val AkkaStream = "com.typesafe.akka" %% "akka-stream" % LagomVersion.akka
+    val AkkaClusterSharding = "com.typesafe.akka" %% "akka-cluster-sharding" % LagomVersion.akka
+    val AkkaDiscovery = "com.typesafe.akka" %% "akka-discovery" % LagomVersion.akka
+    val AkkaCluster = "com.typesafe.akka" %% "akka-cluster-typed" % LagomVersion.akka
   }
 
   object Runtime {
@@ -138,8 +141,8 @@ object Dependencies {
     Dependencies.Compile.LagomScaladslAkkaDiscovery,
     Dependencies.Compile.postgresDriver,
     Dependencies.Compile.Macwire,
-    Dependencies.Compile.AkkaServiceLocator,
-    Dependencies.Compile.akkaManagement,
+    Dependencies.Compile.LagomAkkaServiceLocator,
+    Dependencies.Compile.AkkaManagement,
     Dependencies.Compile.AkkaManagementClusterBootstrap,
     Dependencies.Compile.AkkaManagementClusterHttp,
     Dependencies.Compile.AkkaKubernetesDiscoveryApi,
