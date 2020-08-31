@@ -39,13 +39,14 @@ object Dependencies {
     val ScalapbCommonProtoVersion = "1.18.0-0"
     val EmbeddedPostgresVersion = "0.13.3"
     val EmbeddedKafkaVersion = "2.6.0"
-    val AkkaProjectionVersion = "1.0.0-RC2"
+    val AkkaProjectionVersion = "1.0.0-RC3"
     val CatsVersion = "2.1.1"
 
     val LagomVersion = "1.6.4"
     val SbtProtocVersion = "0.99.34"
     val ScalapbCompilerVersion = "0.10.8"
     val ScalapbValidationVersion = "0.1.2"
+    val JavaAgentVersion = "0.1.5"
     val CrossScalaForPlugin = Seq(Scala212)
   }
 

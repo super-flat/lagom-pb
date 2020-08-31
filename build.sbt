@@ -1,5 +1,3 @@
-import sbt.Keys.libraryDependencies
-
 lazy val root = project
   .in(file("."))
   .aggregate(`lagompb-core`, `lagompb-readside`, `lagompb-plugin`, docs)
@@ -59,11 +57,12 @@ lazy val `lagompb-plugin` = project
     name := "lagompb-plugin",
     crossScalaVersions := Dependencies.Versions.CrossScalaForPlugin,
     scalaVersion := Dependencies.Versions.Scala212,
+    resolvers += Resolver.bintrayRepo("playframework", "maven"),
+    resolvers ++= Seq(Resolver.jcenterRepo, Resolver.sonatypeRepo("public"), Resolver.sonatypeRepo("snapshots")),
     addSbtPlugin("com.lightbend.lagom" % "lagom-sbt-plugin" % Dependencies.Versions.LagomVersion),
     addSbtPlugin("com.lightbend.akka.grpc" %% "sbt-akka-grpc" % Dependencies.Versions.AkkaGrpcVersion),
     addSbtPlugin("com.thesamet" % "sbt-protoc" % Dependencies.Versions.SbtProtocVersion),
-    resolvers += Resolver.bintrayRepo("playframework", "maven"),
-    resolvers += Resolver.sonatypeRepo("snapshots"),
+    addSbtPlugin("com.lightbend.sbt" % "sbt-javaagent" % Dependencies.Versions.JavaAgentVersion),
     libraryDependencies ++= Dependencies.SbtPlugin
   )
 
