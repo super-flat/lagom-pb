@@ -7,7 +7,7 @@ import sbt.{plugins, AutoPlugin, Plugins}
 /**
  * Dependencies that will be used by any lagompb based project
  */
-object LagomSettings extends AutoPlugin {
+object BuildSettings extends AutoPlugin {
   override def requires: Plugins = plugins.JvmPlugin
 
   override def projectSettings =

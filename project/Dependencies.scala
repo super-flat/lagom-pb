@@ -27,7 +27,7 @@ object Dependencies {
     val JwtPlayJsonVersion = "4.3.0"
     val SlickMigrationApiVersion = "0.7.0"
     val ScalaMockVersion = "5.0.0"
-    val KamonVersion = "2.1.5"
+    val KamonVersion = "2.1.6"
     val KanelaVersion = "1.0.6"
     val SilencerVersion = "1.6.0"
     val AkkaGrpcVersion = "1.0.0"
