@@ -42,6 +42,8 @@ abstract class BaseApplication(context: LagomApplicationContext)
     with BaseApplicationComponents {
 
   // $COVERAGE-OFF$
+  // initialize instrumentation and tracing if it is enabled
+  initInstrumentation()
 
   loadProtosRegistry()
 
@@ -93,9 +95,6 @@ abstract class BaseApplication(context: LagomApplicationContext)
       selectShard(ConfigReader.eventsConfig.numShards, entityContext.entityId)
     aggregateRoot.create(entityContext, shardIndex)
   })
-
-  // initialize instrumentation and tracing if it is enabled
-  initInstrumentation()
 
   def loadProtosRegistry(): Unit = {
     ProtosRegistry.registry
