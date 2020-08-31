@@ -30,7 +30,7 @@ object Dependencies {
     val KamonVersion = "2.1.5"
     val KanelaVersion = "1.0.6"
     val SilencerVersion = "1.6.0"
-    val AkkaGrpcVersion = "1.0.1"
+    val AkkaGrpcVersion = "1.0.0"
     val H2Version = "1.4.200"
     val ScalapbJson4sVersion = "0.10.1"
     val PlayGrpcVersion = "0.9.0"
