@@ -209,7 +209,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
       case Success(decryptedState) =>
         log.debug(s"[Lagompb] plugin data ${cmd.data} is valid...")
 
-        commandHandler.handle(cmd, decryptedState, stateWrapper.getMeta) match {
+        commandHandler.handle(cmd.command, decryptedState, stateWrapper.getMeta) match {
 
           case Success(commandHandlerResponse: CommandHandlerResponse) =>
             commandHandlerResponse.handlerResponse match {

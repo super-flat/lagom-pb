@@ -7,10 +7,7 @@ import io.superflat.lagompb.protobuf.v1.core.{CommandHandlerResponse, MetaData}
 import scala.util.{Failure, Success, Try}
 
 trait CommandHandler {
-  // TODO: make the command here an Any
-  // accomplish by making the command serializer pass around an Any first class,
-  // which eliminates the need for the proto registry in that serializer!
-  def handle(command: Command, currentState: Any, currentMetaData: MetaData): Try[CommandHandlerResponse]
+  def handle(command: Any, currentState: Any, currentMetaData: MetaData): Try[CommandHandlerResponse]
 }
 
 trait EventHandler {
@@ -27,14 +24,15 @@ abstract class SimpleCommandHandler[S <: scalapb.GeneratedMessage](actorSystem: 
                                                                    protosRegistry: ProtosRegistry
 ) extends CommandHandler {
 
-  final def handle(command: Command, currentState: Any, currentMetaData: MetaData): Try[CommandHandlerResponse] = {
-    protosRegistry.unpackAny(currentState) match {
+  final def handle(command: Any, currentState: Any, currentMetaData: MetaData): Try[CommandHandlerResponse] = {
+    protosRegistry.unpackAnys(currentState, command) match {
       case Failure(exception) =>
         throw exception
 
-      case Success(message) =>
-        val stateUnpacked: S = message.asInstanceOf[S]
-        handleTyped(command = command, currentState = stateUnpacked, currentMetaData = currentMetaData)
+      case Success(messages) =>
+        val stateUnpacked: S = messages(0).asInstanceOf[S]
+        val cmdUnpacked = messages(1)
+        handleTyped(command = cmdUnpacked, currentState = stateUnpacked, currentMetaData = currentMetaData)
     }
   }
 
@@ -46,7 +44,7 @@ abstract class SimpleCommandHandler[S <: scalapb.GeneratedMessage](actorSystem: 
    * @param currentMetaData the current event meta before the command was triggered
    * @return CommandHandlerResponse
    */
-  def handleTyped(command: Command, currentState: S, currentMetaData: MetaData): Try[CommandHandlerResponse]
+  def handleTyped(command: scalapb.GeneratedMessage, currentState: S, currentMetaData: MetaData): Try[CommandHandlerResponse]
 }
 
 /**
