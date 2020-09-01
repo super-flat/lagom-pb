@@ -44,7 +44,10 @@ abstract class SimpleCommandHandler[S <: scalapb.GeneratedMessage](actorSystem: 
    * @param currentMetaData the current event meta before the command was triggered
    * @return CommandHandlerResponse
    */
-  def handleTyped(command: scalapb.GeneratedMessage, currentState: S, currentMetaData: MetaData): Try[CommandHandlerResponse]
+  def handleTyped(command: scalapb.GeneratedMessage,
+                  currentState: S,
+                  currentMetaData: MetaData
+  ): Try[CommandHandlerResponse]
 }
 
 /**
