@@ -21,3 +21,4 @@ project/metals.sbt
 .DS_Store
 *.iml
 .protogen/
+.vscode/
