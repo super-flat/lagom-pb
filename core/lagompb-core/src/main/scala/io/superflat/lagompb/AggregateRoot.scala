@@ -34,8 +34,8 @@ import scala.util.{Failure, Success, Try}
  */
 abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
   actorSystem: ActorSystem,
-  commandHandler: SimpleCommandHandler[S],
-  eventHandler: SimpleEventHandler[S],
+  commandHandler: CommandHandler,
+  eventHandler: EventHandler,
   encryptionAdapter: EncryptionAdapter
 ) {
 
