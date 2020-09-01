@@ -55,7 +55,7 @@ class ProtosRegistry(private[lagompb] val registry: Seq[GeneratedFileObject]) {
    * @param any the protobuf message
    * @return the maybe scalapb GeneratedMessageCompanion object
    */
-  def companion(any: Any): Option[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
+  def getCompanion(any: Any): Option[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
     companionsMap.get(any.typeUrl.split('/').lastOption.getOrElse(""))
 
   /**
@@ -65,7 +65,7 @@ class ProtosRegistry(private[lagompb] val registry: Seq[GeneratedFileObject]) {
    * @return Successful unpacked message or a Failure
    */
   def unpackAny(any: Any): Try[_ <: GeneratedMessage] = {
-    companion(any) match {
+    getCompanion(any) match {
       case None       => Failure(new Exception(s"could not unpack unrecognized proto ${any.typeUrl}"))
       case Some(comp) => Try(any.unpack(comp))
     }
@@ -94,48 +94,6 @@ class ProtosRegistry(private[lagompb] val registry: Seq[GeneratedFileObject]) {
  */
 object ProtosRegistry {
   private val logger: Logger = LoggerFactory.getLogger(getClass)
-
-  private[lagompb] lazy val registry: Seq[GeneratedFileObject] = load()
-
-  /**
-   * scalapb generated message companions list
-   */
-  private[lagompb] lazy val companions: Vector[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
-    registry
-      .foldLeft[Vector[scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]]](Vector.empty) {
-        (s, fileObject) =>
-          s ++ fileObject.messagesCompanions
-      }
-
-  /**
-   * Creates a map between the generated message typeUrl and the appropriate message companion
-   */
-  private[lagompb] lazy val companionsMap
-    : Map[String, scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]] =
-    companions
-      .map(companion => (companion.scalaDescriptor.fullName, companion))
-      .toMap
-
-  private[lagompb] lazy val typeRegistry: TypeRegistry =
-    registry
-      .foldLeft(TypeRegistry.empty) { (reg: TypeRegistry, fileObject) =>
-        reg.addFile(fileObject)
-      }
-
-  private[lagompb] lazy val parser: Parser =
-    new Parser().withTypeRegistry(typeRegistry)
-
-  private[lagompb] lazy val printer: Printer =
-    new Printer().includingDefaultValueFields
-      .withTypeRegistry(typeRegistry)
-
-  /**
-   * Gets the maybe scalapb GeneratedMessageCompanion object defining an Any protobuf message
-   * @param any the protobuf message
-   * @return the maybe scalapb GeneratedMessageCompanion object
-   */
-  def companion(any: Any): Option[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
-    companionsMap.get(any.typeUrl.split('/').lastOption.getOrElse(""))
 
   /**
    * Load scalapb generated  fileobjects that contain proto companions messages
