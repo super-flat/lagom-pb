@@ -56,7 +56,7 @@ class ProtosRegistry(private[lagompb] val registry: Seq[GeneratedFileObject]) {
    * @return the maybe scalapb GeneratedMessageCompanion object
    */
   def getCompanion(any: Any): Option[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
-    companionsMap.get(any.typeUrl.split('/').lastOption.getOrElse(""))
+    any.typeUrl.split('/').lastOption.flatMap(companionsMap.get)
 
   /**
    * Unpack a proto Any into its scalapb class, or fail
