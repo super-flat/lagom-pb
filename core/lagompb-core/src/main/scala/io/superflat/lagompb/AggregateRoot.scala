@@ -34,8 +34,8 @@ import scala.util.{Failure, Success, Try}
  */
 abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
   actorSystem: ActorSystem,
-  commandHandler: CommandHandler[S],
-  eventHandler: EventHandler[S],
+  commandHandler: SimpleCommandHandler[S],
+  eventHandler: SimpleEventHandler[S],
   encryptionAdapter: EncryptionAdapter
 ) {
 
@@ -132,7 +132,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
                                     replyTo: ActorRef[CommandReply]
   ): ReplyEffect[EventWrapper, StateWrapper] = {
     Try {
-      eventHandler.handle(event.unpack(comp), state, metaData)
+      eventHandler.handleTyped(event.unpack(comp), state, metaData)
     } match {
       case Failure(exception) =>
         log.error(s"event handler breakdown, ${exception.getMessage}", exception)
@@ -142,7 +142,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
             .withFailedReply(
               FailedReply()
                 .withReason(
-                  s"[Lagompb] EventHandler failure: ${exception.getMessage}"
+                  s"[Lagompb] SimpleEventHandler failure: ${exception.getMessage}"
                 )
                 .withCause(FailureCause.INTERNAL_ERROR)
             )
@@ -214,7 +214,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
       case Success(decryptedState) =>
         log.debug(s"[Lagompb] plugin data ${cmd.data} is valid...")
 
-        commandHandler.handle(cmd, decryptedState, stateWrapper.getMeta) match {
+        commandHandler.handleTyped(cmd, decryptedState, stateWrapper.getMeta) match {
 
           case Success(commandHandlerResponse: CommandHandlerResponse) =>
             commandHandlerResponse.handlerResponse match {

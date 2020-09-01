@@ -9,8 +9,92 @@ import scalapb.json4s.{Parser, Printer, TypeRegistry}
 import scala.jdk.CollectionConverters._
 import scala.reflect.runtime.universe
 import scala.util.{Failure, Success, Try}
+import scala.collection.mutable
 
+/**
+ * Helpful registry of scalapb protobuf classes that can be used to find
+ * companion objects, do JSON serialization, and unpack "Any" messages
+ *
+ * @param registry a sequence of GeneratedFileObjects (likely from reflection)
+ */
+class ProtosRegistry(private[lagompb] val registry: Seq[GeneratedFileObject]) {
+
+  /**
+   * scalapb generated message companions list
+   */
+  private[lagompb] val companions: Vector[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
+    registry
+      .foldLeft[Vector[scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]]](Vector.empty) {
+        (s, fileObject) =>
+          s ++ fileObject.messagesCompanions
+      }
+
+  /**
+   * Creates a map between the generated message typeUrl and the appropriate message companion
+   */
+  private[lagompb] val companionsMap: Map[String, scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]] =
+    companions
+      .map(companion => (companion.scalaDescriptor.fullName, companion))
+      .toMap
+
+  private[lagompb] val typeRegistry: TypeRegistry =
+    registry
+      .foldLeft(TypeRegistry.empty) { (reg: TypeRegistry, fileObject) =>
+        reg.addFile(fileObject)
+      }
+
+  private[lagompb] val parser: Parser =
+    new Parser().withTypeRegistry(typeRegistry)
+
+  private[lagompb] val printer: Printer =
+    new Printer().includingDefaultValueFields
+      .withTypeRegistry(typeRegistry)
+
+  /**
+   * Gets the maybe scalapb GeneratedMessageCompanion object defining an Any protobuf message
+   * @param any the protobuf message
+   * @return the maybe scalapb GeneratedMessageCompanion object
+   */
+  def companion(any: Any): Option[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
+    companionsMap.get(any.typeUrl.split('/').lastOption.getOrElse(""))
+
+  /**
+   * Unpack a proto Any into its scalapb class, or fail
+   *
+   * @param any scalapb google Any protobuf
+   * @return Successful unpacked message or a Failure
+   */
+  def unpackAny(any: Any): Try[_ <: GeneratedMessage] = {
+    companion(any) match {
+      case None       => Failure(new Exception(s"could not unpack unrecognized proto ${any.typeUrl}"))
+      case Some(comp) => Try(any.unpack(comp))
+    }
+  }
+
+  /**
+   * unpack many Any messages or exit on first failure
+   *
+   * @param anys many any messages
+   * @return array with unpacked messages in the same order as the input anys
+   */
+  def unpackAnys(anys: Any*): Try[Seq[GeneratedMessage]] = {
+
+    val folder = (tryBuffer: Try[mutable.ListBuffer[GeneratedMessage]], any: Any) => {
+      tryBuffer.flatMap(buffer => unpackAny(any).map(msg => buffer.append(msg)))
+    }
+
+    val buffer: mutable.ListBuffer[GeneratedMessage] = mutable.ListBuffer[GeneratedMessage]()
+
+    anys.foldLeft(Try(buffer))(folder).map(_.toSeq)
+  }
+}
+
+/**
+ * Companion object for ProtosRegistry
+ */
 object ProtosRegistry {
+  private val logger: Logger = LoggerFactory.getLogger(getClass)
+
   private[lagompb] lazy val registry: Seq[GeneratedFileObject] = load()
 
   /**
@@ -44,7 +128,6 @@ object ProtosRegistry {
   private[lagompb] lazy val printer: Printer =
     new Printer().includingDefaultValueFields
       .withTypeRegistry(typeRegistry)
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   /**
    * Gets the maybe scalapb GeneratedMessageCompanion object defining an Any protobuf message
@@ -94,5 +177,15 @@ object ProtosRegistry {
           seq :+ fileObject
       }
     }
+  }
+
+  /**
+   * instantiate a ProtosRegistry by reflecting all scalapb objects
+   *
+   * @return instantiated ProtosRegistry
+   */
+  def fromReflection(): ProtosRegistry = {
+    val registry = load()
+    new ProtosRegistry(registry)
   }
 }
