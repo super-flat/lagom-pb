@@ -139,7 +139,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
             .withFailedReply(
               FailedReply()
                 .withReason(
-                  s"[Lagompb] SimpleEventHandler failure: ${exception.getMessage}"
+                  s"[Lagompb] EventHandler failure: ${exception.getMessage}"
                 )
                 .withCause(FailureCause.INTERNAL_ERROR)
             )
