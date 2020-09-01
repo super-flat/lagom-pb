@@ -47,7 +47,7 @@ abstract class BaseApplication(context: LagomApplicationContext)
     Kamon.init()
   }
 
-  loadProtosRegistry()
+  val protosRegistry: ProtosRegistry = ProtosRegistry.fromReflection()
 
   // Json Serializer registry not needed
   final override lazy val jsonSerializerRegistry: JsonSerializerRegistry =
@@ -97,11 +97,6 @@ abstract class BaseApplication(context: LagomApplicationContext)
       selectShard(ConfigReader.eventsConfig.numShards, entityContext.entityId)
     aggregateRoot.create(entityContext, shardIndex)
   })
-
-  def loadProtosRegistry(): Unit = {
-    ProtosRegistry.registry
-    ProtosRegistry.typeRegistry
-  }
 
   // $COVERAGE-ON$
 }

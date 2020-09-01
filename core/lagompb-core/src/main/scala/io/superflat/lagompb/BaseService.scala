@@ -11,8 +11,10 @@ trait BaseService extends Service {
   protected val serviceName: String =
     ConfigReader.serviceName
 
+  def protosRegistry: ProtosRegistry
+
   implicit def messageSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]: ApiSerializer[A] =
-    new ApiSerializer[A]
+    new ApiSerializer[A](protosRegistry)
 
   final override def descriptor: Descriptor = {
     import Service._

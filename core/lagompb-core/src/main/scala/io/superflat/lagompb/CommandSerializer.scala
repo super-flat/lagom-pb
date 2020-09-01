@@ -16,12 +16,6 @@ import org.slf4j.{Logger, LoggerFactory}
  */
 sealed class CommandSerializer(val system: ExtendedActorSystem) extends SerializerWithStringManifest {
 
-  // construct a map of type_url -> companion object parser
-  final lazy val msgMap: Map[String, Array[Byte] => scalapb.GeneratedMessage] =
-    ProtosRegistry.companions
-      .map(companion => (companion.scalaDescriptor.fullName, (s: Array[Byte]) => companion.parseFrom(s)))
-      .toMap
-
   final val commandManifest: String = classOf[Command].getName
 
   final val log: Logger =
@@ -41,7 +35,7 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
         log.debug(s"serializing Command [${cmd.companion.scalaDescriptor.fullName}]")
 
         CommandWrapper()
-          .withCommand(Any.pack(cmd))
+          .withCommand(cmd)
           .withActorRef(com.google.protobuf.ByteString.copyFrom(actorBytes))
           .withData(pluginData)
           .toByteArray
@@ -55,22 +49,15 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
     manifest match {
       case `commandManifest` =>
         val wrapper: CommandWrapper = CommandWrapper.parseFrom(bytes)
+
         val actorRefStr: String =
           new String(wrapper.actorRef.toByteArray, StandardCharsets.UTF_8)
+
         val ref: ActorRef[CommandReply] =
           actorRefResolver.resolveActorRef[CommandReply](actorRefStr)
 
-        wrapper.command.fold(throw new GlobalException("error deserializing command")) { any =>
-          log.debug(s"deserializing Command #[${any.typeUrl}]")
+        Command(wrapper.getCommand, ref, wrapper.data)
 
-          msgMap
-            .get(any.typeUrl.split('/').lastOption.getOrElse(""))
-            .fold(throw new GlobalException(s"unable to deserialize command ${any.typeUrl}. ")) { mesg =>
-              val protoCmd: scalapb.GeneratedMessage =
-                mesg(any.value.toByteArray)
-              Command(protoCmd, ref, wrapper.data)
-            }
-        }
       case _ => throw new GlobalException("Wrong Command manifest....")
     }
 }
