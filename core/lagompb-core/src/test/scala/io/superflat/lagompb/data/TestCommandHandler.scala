@@ -2,21 +2,22 @@ package io.superflat.lagompb.data
 
 import akka.actor.ActorSystem
 import com.google.protobuf.any.Any
-import io.superflat.lagompb.{Command, CommandHandler}
+import io.superflat.lagompb.{Command, SimpleCommandHandler}
 import io.superflat.lagompb.protobuf.v1.core._
 import io.superflat.lagompb.protobuf.v1.core.CommandHandlerResponse.HandlerResponse
 import io.superflat.lagompb.protobuf.v1.tests._
 
 import scala.util.Try
+import io.superflat.lagompb.ProtosRegistry
 
-class TestCommandHandler(actorSystem: ActorSystem) extends CommandHandler[TestState](actorSystem) {
+class TestCommandHandler(actorSystem: ActorSystem, protosRegistry: ProtosRegistry) extends SimpleCommandHandler[TestState](actorSystem, protosRegistry) {
 
-  override def handle(
-    command: Command,
+  override def handleTyped(
+    command: scalapb.GeneratedMessage,
     currentState: TestState,
     currentEventMeta: MetaData
   ): Try[CommandHandlerResponse] =
-    command.command match {
+    command match {
       case cmd: TestCmd             => handleTestCmd(cmd, currentState)
       case cmd: TestGetCmd          => handleTestGetCmd(cmd, currentState)
       case cmd: TestEventFailureCmd => handleTestEventHandlerFailure(cmd, currentState)
