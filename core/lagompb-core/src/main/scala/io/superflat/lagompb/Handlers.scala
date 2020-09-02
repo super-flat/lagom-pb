@@ -54,7 +54,7 @@ abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](actorSystem: A
    *
    * @param command an Any message with a command
    * @param currentState an Any message with current state
-   * @param metaData lagomPb MetaData
+   * @param currentMetaData lagomPb MetaData
    * @return a command handler response or Failure
    */
   final def handle(command: Any, currentState: Any, currentMetaData: MetaData): Try[CommandHandlerResponse] = {
