@@ -9,8 +9,7 @@ import io.superflat.lagompb.{ProtosRegistry, TypedCommandHandler}
 
 import scala.util.Try
 
-class TestCommandHandler(actorSystem: ActorSystem, protosRegistry: ProtosRegistry)
-    extends TypedCommandHandler[TestState](actorSystem, protosRegistry) {
+class TestCommandHandler(actorSystem: ActorSystem) extends TypedCommandHandler[TestState](actorSystem) {
 
   override def handleTyped(
     command: scalapb.GeneratedMessage,

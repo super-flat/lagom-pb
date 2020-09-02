@@ -19,11 +19,8 @@ import scala.util.{Failure, Success, Try}
  * @param eventProcessor the actual event processor
  * @param encryptionAdapter handles encrypt/decrypt transformations
  */
-final class EventsReader(eventTag: String,
-                         eventProcessor: EventProcessor,
-                         encryptionAdapter: EncryptionAdapter,
-                         protosRegistry: ProtosRegistry
-) extends SlickHandler[EventEnvelope[EventWrapper]] {
+final class EventsReader(eventTag: String, eventProcessor: EventProcessor, encryptionAdapter: EncryptionAdapter)
+    extends SlickHandler[EventEnvelope[EventWrapper]] {
 
   val log: Logger = LoggerFactory.getLogger(getClass)
 
@@ -39,7 +36,7 @@ final class EventsReader(eventTag: String,
       .decryptEventWrapper(envelope.event)
       .map({
         case EventWrapper(Some(event: any.Any), Some(resultingState), Some(meta), _) =>
-          protosRegistry.getCompanion(event) match {
+          ProtosRegistry.getCompanion(event) match {
             case Some(comp) =>
               eventProcessor
                 .process(comp, event, eventTag, resultingState, meta)

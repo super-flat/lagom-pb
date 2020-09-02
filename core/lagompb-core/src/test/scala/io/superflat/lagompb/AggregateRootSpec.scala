@@ -40,7 +40,6 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
   }
 
   val actorSystem: ActorSystem = testKit.system.toClassic
-  val protosRegistry: ProtosRegistry = ProtosRegistry.fromReflection()
 
   "Aggregate Implementation" should {
 
@@ -52,8 +51,8 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       val aggregate =
         new TestAggregateRoot(
           actorSystem,
-          new TestCommandHandler(actorSystem, protosRegistry),
-          new TestEventHandler(actorSystem, protosRegistry),
+          new TestCommandHandler(actorSystem),
+          new TestEventHandler(actorSystem),
           new EncryptionAdapter(encryptor = None)
         )
 
@@ -89,8 +88,8 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
 
       val aggregate =
         new TestAggregateRoot(actorSystem,
-                              new TestCommandHandler(actorSystem, protosRegistry),
-                              new TestEventHandler(actorSystem, protosRegistry),
+                              new TestCommandHandler(actorSystem),
+                              new TestEventHandler(actorSystem),
                               new EncryptionAdapter(None)
         )
 
@@ -122,8 +121,8 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       val aggregate =
         new TestAggregateRoot(
           actorSystem,
-          new TestCommandHandler(actorSystem, protosRegistry),
-          new TestEventHandler(actorSystem, protosRegistry),
+          new TestCommandHandler(actorSystem),
+          new TestEventHandler(actorSystem),
           new EncryptionAdapter(None)
         )
 
@@ -159,8 +158,8 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
 
       val aggregate =
         new TestAggregateRoot(actorSystem,
-                              new TestCommandHandler(actorSystem, protosRegistry),
-                              new TestEventHandler(actorSystem, protosRegistry),
+                              new TestCommandHandler(actorSystem),
+                              new TestEventHandler(actorSystem),
                               new EncryptionAdapter(None)
         )
 
@@ -191,8 +190,8 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       val aggregate =
         new TestAggregateRoot(
           actorSystem,
-          new TestCommandHandler(actorSystem, protosRegistry),
-          new TestEventHandler(actorSystem, protosRegistry),
+          new TestCommandHandler(actorSystem),
+          new TestEventHandler(actorSystem),
           new EncryptionAdapter(None)
         )
 
@@ -223,8 +222,8 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       val aggregate =
         new TestAggregateRoot(
           actorSystem,
-          new TestCommandHandler(actorSystem, protosRegistry),
-          new TestEventHandler(actorSystem, protosRegistry),
+          new TestCommandHandler(actorSystem),
+          new TestEventHandler(actorSystem),
           new EncryptionAdapter(None)
         )
 
@@ -255,8 +254,8 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
 
       val aggregate =
         new TestAggregateRoot(actorSystem,
-                              new TestCommandHandler(actorSystem, protosRegistry),
-                              new TestEventHandler(actorSystem, protosRegistry),
+                              new TestCommandHandler(actorSystem),
+                              new TestEventHandler(actorSystem),
                               new EncryptionAdapter(None)
         )
 
@@ -274,8 +273,8 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
     "handle wrong state parsing" in {
       val aggregate =
         new TestAggregateRoot(actorSystem,
-                              new TestCommandHandler(actorSystem, protosRegistry),
-                              new TestEventHandler(actorSystem, protosRegistry),
+                              new TestCommandHandler(actorSystem),
+                              new TestEventHandler(actorSystem),
                               new EncryptionAdapter(None)
         )
 
@@ -299,8 +298,8 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       val companyUuid = "12234"
       val aggregate =
         new TestAggregateRoot(actorSystem,
-                              new TestCommandHandler(actorSystem, protosRegistry),
-                              new TestEventHandler(actorSystem, protosRegistry),
+                              new TestCommandHandler(actorSystem),
+                              new TestEventHandler(actorSystem),
                               new EncryptionAdapter(None)
         )
 
@@ -351,8 +350,8 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       val aggregate =
         new TestAggregateRoot(
           actorSystem,
-          new TestCommandHandler(actorSystem, protosRegistry),
-          new TestEventHandler(actorSystem, protosRegistry),
+          new TestCommandHandler(actorSystem),
+          new TestEventHandler(actorSystem),
           new EncryptionAdapter(encryptor = None)
         )
 

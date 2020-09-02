@@ -112,8 +112,7 @@ sealed trait SharedBaseServiceImpl {
 abstract class BaseServiceImpl(
   val clusterSharding: ClusterSharding,
   val persistentEntityRegistry: PersistentEntityRegistry,
-  val aggregate: AggregateRoot[_],
-  val protosRegistry: ProtosRegistry
+  val aggregate: AggregateRoot[_]
 )(implicit ec: ExecutionContext)
     extends BaseService
     with SharedBaseServiceImpl {

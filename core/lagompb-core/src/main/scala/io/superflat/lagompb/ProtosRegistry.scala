@@ -14,15 +14,17 @@ import scala.util.{Failure, Success, Try}
 /**
  * Helpful registry of scalapb protobuf classes that can be used to find
  * companion objects, do JSON serialization, and unpack "Any" messages
- *
- * @param registry a sequence of GeneratedFileObjects (likely from reflection)
  */
-class ProtosRegistry(private[lagompb] val registry: Seq[GeneratedFileObject]) {
+object ProtosRegistry {
+
+  private val logger: Logger = LoggerFactory.getLogger(getClass)
+
+  private[lagompb] lazy val registry: Seq[GeneratedFileObject] = reflectFileObjects()
 
   /**
    * scalapb generated message companions list
    */
-  private[lagompb] val companions: Vector[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
+  private[lagompb] lazy val companions: Vector[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
     registry
       .foldLeft[Vector[scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]]](Vector.empty) {
         (s, fileObject) =>
@@ -32,21 +34,22 @@ class ProtosRegistry(private[lagompb] val registry: Seq[GeneratedFileObject]) {
   /**
    * Creates a map between the generated message typeUrl and the appropriate message companion
    */
-  private[lagompb] val companionsMap: Map[String, scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]] =
+  private[lagompb] lazy val companionsMap
+    : Map[String, scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]] =
     companions
       .map(companion => (companion.scalaDescriptor.fullName, companion))
       .toMap
 
-  private[lagompb] val typeRegistry: TypeRegistry =
+  private[lagompb] lazy val typeRegistry: TypeRegistry =
     registry
       .foldLeft(TypeRegistry.empty) { (reg: TypeRegistry, fileObject) =>
         reg.addFile(fileObject)
       }
 
-  private[lagompb] val parser: Parser =
+  private[lagompb] lazy val parser: Parser =
     new Parser().withTypeRegistry(typeRegistry)
 
-  private[lagompb] val printer: Printer =
+  private[lagompb] lazy val printer: Printer =
     new Printer().includingDefaultValueFields
       .withTypeRegistry(typeRegistry)
 
@@ -64,7 +67,7 @@ class ProtosRegistry(private[lagompb] val registry: Seq[GeneratedFileObject]) {
    * @param any scalapb google Any protobuf
    * @return Successful unpacked message or a Failure
    */
-  def unpackAny(any: Any): Try[_ <: GeneratedMessage] = {
+  def unpackAny(any: Any): Try[GeneratedMessage] = {
     getCompanion(any) match {
       case None       => Failure(new Exception(s"could not unpack unrecognized proto ${any.typeUrl}"))
       case Some(comp) => Try(any.unpack(comp))
@@ -87,20 +90,13 @@ class ProtosRegistry(private[lagompb] val registry: Seq[GeneratedFileObject]) {
 
     anys.foldLeft(Try(buffer))(folder).map(_.toSeq)
   }
-}
-
-/**
- * Companion object for ProtosRegistry
- */
-object ProtosRegistry {
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   /**
    * Load scalapb generated  fileobjects that contain proto companions messages
    * @return the sequence of scalapb.GeneratedFileObject
    */
   @throws(classOf[ScalaReflectionException])
-  private def load(): Seq[GeneratedFileObject] = {
+  private def reflectFileObjects(): Seq[GeneratedFileObject] = {
     val fileObjects: Seq[Class[_ <: GeneratedFileObject]] =
       new Reflections(ConfigReader.protosPackage)
         .getSubTypesOf(classOf[scalapb.GeneratedFileObject])
@@ -138,12 +134,14 @@ object ProtosRegistry {
   }
 
   /**
-   * instantiate a ProtosRegistry by reflecting all scalapb objects
-   *
-   * @return instantiated ProtosRegistry
+   * temporary helper method to force loading the lazy vals when needed
    */
-  def fromReflection(): ProtosRegistry = {
-    val registry: Seq[GeneratedFileObject] = load()
-    new ProtosRegistry(registry)
+  def load(): Unit = {
+    registry
+    companions
+    companionsMap
+    typeRegistry
+    parser
+    printer
   }
 }

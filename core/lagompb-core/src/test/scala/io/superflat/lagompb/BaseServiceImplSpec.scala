@@ -16,7 +16,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class BaseServiceImplSpec extends BaseSpec {
   val companyId: String = UUID.randomUUID().toString
-  val protosRegistry: ProtosRegistry = ProtosRegistry.fromReflection()
 
   val any: Any =
     Any.pack(
@@ -34,11 +33,11 @@ class BaseServiceImplSpec extends BaseSpec {
 
   "Service implementation" should {
     "parse proto Any and return a State" in {
-      val commandHandler = new TestCommandHandler(null, protosRegistry)
-      val eventHandler = new TestEventHandler(null, protosRegistry)
+      val commandHandler = new TestCommandHandler(null)
+      val eventHandler = new TestEventHandler(null)
       val aggregate =
         new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
-      val testImpl = new TestServiceImpl(null, null, null, aggregate, protosRegistry)
+      val testImpl = new TestServiceImpl(null, null, null, aggregate)
       testImpl.parseAny[TestState](any) shouldBe
         TestState()
           .withCompanyUuid(companyId)
@@ -46,11 +45,11 @@ class BaseServiceImplSpec extends BaseSpec {
     }
 
     "fail to handle wrong proto Any" in {
-      val commandHandler = new TestCommandHandler(null, protosRegistry)
-      val eventHandler = new TestEventHandler(null, protosRegistry)
+      val commandHandler = new TestCommandHandler(null)
+      val eventHandler = new TestEventHandler(null)
       val aggregate =
         new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
-      val testImpl = new TestServiceImpl(null, null, null, aggregate, protosRegistry)
+      val testImpl = new TestServiceImpl(null, null, null, aggregate)
       an[RuntimeException] shouldBe thrownBy(
         testImpl.parseAny[TestState](
           Any()
@@ -61,11 +60,11 @@ class BaseServiceImplSpec extends BaseSpec {
     }
 
     "handle SuccessfulReply" in {
-      val commandHandler = new TestCommandHandler(null, protosRegistry)
-      val eventHandler = new TestEventHandler(null, protosRegistry)
+      val commandHandler = new TestCommandHandler(null)
+      val eventHandler = new TestEventHandler(null)
       val aggregate =
         new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
-      val testImpl = new TestServiceImpl(null, null, null, aggregate, protosRegistry)
+      val testImpl = new TestServiceImpl(null, null, null, aggregate)
 
       val cmdReply = CommandReply()
         .withSuccessfulReply(
@@ -87,11 +86,11 @@ class BaseServiceImplSpec extends BaseSpec {
     }
 
     "handle FailedReply" in {
-      val commandHandler = new TestCommandHandler(null, protosRegistry)
-      val eventHandler = new TestEventHandler(null, protosRegistry)
+      val commandHandler = new TestCommandHandler(null)
+      val eventHandler = new TestEventHandler(null)
       val aggregate =
         new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
-      val testImpl = new TestServiceImpl(null, null, null, aggregate, protosRegistry)
+      val testImpl = new TestServiceImpl(null, null, null, aggregate)
       val rejected =
         CommandReply()
           .withFailedReply(
@@ -102,11 +101,11 @@ class BaseServiceImplSpec extends BaseSpec {
     }
 
     "failed to handle CommandReply" in {
-      val commandHandler = new TestCommandHandler(null, protosRegistry)
-      val eventHandler = new TestEventHandler(null, protosRegistry)
+      val commandHandler = new TestCommandHandler(null)
+      val eventHandler = new TestEventHandler(null)
       val aggregate =
         new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
-      val testImpl = new TestServiceImpl(null, null, null, aggregate, protosRegistry)
+      val testImpl = new TestServiceImpl(null, null, null, aggregate)
       case class WrongReply()
       testImpl
         .handleLagompbCommandReply[TestState](CommandReply().withReply(Reply.Empty))
@@ -115,11 +114,11 @@ class BaseServiceImplSpec extends BaseSpec {
     }
 
     "parse State" in {
-      val commandHandler = new TestCommandHandler(null, protosRegistry)
-      val eventHandler = new TestEventHandler(null, protosRegistry)
+      val commandHandler = new TestCommandHandler(null)
+      val eventHandler = new TestEventHandler(null)
       val aggregate =
         new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
-      val testImpl = new TestServiceImpl(null, null, null, aggregate, protosRegistry)
+      val testImpl = new TestServiceImpl(null, null, null, aggregate)
 
       testImpl
         .parseState[TestState](
@@ -134,11 +133,11 @@ class BaseServiceImplSpec extends BaseSpec {
     }
 
     "fail to parse state[No State provided]" in {
-      val commandHandler = new TestCommandHandler(null, protosRegistry)
-      val eventHandler = new TestEventHandler(null, protosRegistry)
+      val commandHandler = new TestCommandHandler(null)
+      val eventHandler = new TestEventHandler(null)
       val aggregate =
         new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
-      val testImpl = new TestServiceImpl(null, null, null, aggregate, protosRegistry)
+      val testImpl = new TestServiceImpl(null, null, null, aggregate)
       an[RuntimeException] shouldBe thrownBy(
         testImpl.parseState[TestState](
           StateWrapper()

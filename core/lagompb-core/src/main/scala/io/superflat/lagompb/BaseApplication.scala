@@ -47,7 +47,7 @@ abstract class BaseApplication(context: LagomApplicationContext)
     Kamon.init()
   }
 
-  val protosRegistry: ProtosRegistry = ProtosRegistry.fromReflection()
+  ProtosRegistry.load()
 
   // Json Serializer registry not needed
   final override lazy val jsonSerializerRegistry: JsonSerializerRegistry =

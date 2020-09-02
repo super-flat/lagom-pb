@@ -17,11 +17,10 @@ class EventHandlerSpec extends BaseActorTestKit(s"""
     """) {
 
   val actorSystem: ActorSystem = testKit.system.toClassic
-  val protosRegistry: ProtosRegistry = ProtosRegistry.fromReflection()
 
   "EventHandler implementation" must {
     val companyId: String = UUID.randomUUID().toString
-    val eventHandler: TestEventHandler = new TestEventHandler(actorSystem, protosRegistry)
+    val eventHandler: TestEventHandler = new TestEventHandler(actorSystem)
 
     "handle event and return the new state" in {
       val prevState: TestState = TestState(companyId, "state")

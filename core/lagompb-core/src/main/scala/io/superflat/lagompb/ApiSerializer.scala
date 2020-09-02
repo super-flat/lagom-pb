@@ -22,19 +22,14 @@ case class ApiSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]()
     acceptedMessageProtocols: Seq[MessageProtocol]
   ): MessageSerializer.NegotiatedSerializer[A, ByteString] =
     negotiateResponse(acceptedMessageProtocols)
-
-  // FIXME: find a better way to inject this or rewrite the api serializer and inject it via DI
-  override def protosRegistry: ProtosRegistry = ProtosRegistry.fromReflection()
 }
 
 sealed trait GenericSerializers[T <: GeneratedMessage] {
 
-  def protosRegistry: ProtosRegistry
-
   def deserializer(implicit T: GeneratedMessageCompanion[T]): NegotiatedDeserializer[T, ByteString] = {
     (wire: ByteString) =>
       {
-        protosRegistry.parser.fromJsonString(wire.utf8String)
+        ProtosRegistry.parser.fromJsonString(wire.utf8String)
       }
   }
 
@@ -58,7 +53,7 @@ sealed trait GenericSerializers[T <: GeneratedMessage] {
         MessageProtocol(Some("application/json"))
 
       override def serialize(message: T): ByteString =
-        ByteString(protosRegistry.printer.print(message))
+        ByteString(ProtosRegistry.printer.print(message))
     }
 
   def serializerProtobuf: NegotiatedSerializer[T, ByteString] =

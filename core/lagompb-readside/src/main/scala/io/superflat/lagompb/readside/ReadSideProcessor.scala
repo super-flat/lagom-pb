@@ -40,9 +40,7 @@ import scala.util.{Failure, Success, Try}
  * @param ec          the execution context
  * @tparam S the aggregate state type
  */
-@silent abstract class ReadSideProcessor[S <: scalapb.GeneratedMessage](encryptionAdapter: EncryptionAdapter,
-                                                                        protosRegistry: ProtosRegistry
-)(implicit
+@silent abstract class ReadSideProcessor[S <: scalapb.GeneratedMessage](encryptionAdapter: EncryptionAdapter)(implicit
   ec: ExecutionContext,
   actorSystem: ActorSystem[_]
 ) extends EventProcessor {
@@ -107,7 +105,7 @@ import scala.util.{Failure, Success, Try}
         projectionId = ProjectionId(projectionName, tagName),
         sourceProvider(tagName),
         offsetStoreDatabaseConfig,
-        handler = () => new EventsReader(tagName, this, encryptionAdapter, protosRegistry)
+        handler = () => new EventsReader(tagName, this, encryptionAdapter)
       )
 
   /**

@@ -18,10 +18,9 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
       akka.persistence.snapshot-store.local.dir = "tmp/snapshot"
     """) {
 
-  val protosRegistry = ProtosRegistry.fromReflection()
   val actorSystem: ActorSystem = testKit.system.toClassic
   val companyId: String = UUID.randomUUID().toString
-  val cmdHandler = new TestCommandHandler(actorSystem, protosRegistry)
+  val cmdHandler = new TestCommandHandler(actorSystem)
 
   "CommandHandler implementation" should {
     "handle valid command as expected" in {

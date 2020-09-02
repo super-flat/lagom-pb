@@ -29,10 +29,9 @@ class TestServiceImpl(
   sys: ActorSystem,
   clusterSharding: ClusterSharding,
   persistentEntityRegistry: PersistentEntityRegistry,
-  aggregate: AggregateRoot[TestState],
-  protosRegistry: ProtosRegistry
+  aggregate: AggregateRoot[TestState]
 )(implicit ec: ExecutionContext)
-    extends BaseServiceImpl(clusterSharding, persistentEntityRegistry, aggregate, protosRegistry)
+    extends BaseServiceImpl(clusterSharding, persistentEntityRegistry, aggregate)
     with TestService {
 
   /**

@@ -28,12 +28,10 @@ trait EventHandler {
  * @param actorSystem the actor system
  * @tparam S the aggregate state type
  */
-abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](actorSystem: ActorSystem,
-                                                                  protosRegistry: ProtosRegistry
-) extends CommandHandler {
+abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](actorSystem: ActorSystem) extends CommandHandler {
 
   final def handle(command: Any, currentState: Any, currentMetaData: MetaData): Try[CommandHandlerResponse] = {
-    protosRegistry.unpackAnys(currentState, command) match {
+    ProtosRegistry.unpackAnys(currentState, command) match {
       case Failure(exception) =>
         Failure(exception)
 
@@ -68,9 +66,7 @@ abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](actorSystem: A
  * @param actorSystem the actor system
  * @tparam S the aggregate state type
  */
-abstract class TypedEventHandler[S <: scalapb.GeneratedMessage](actorSystem: ActorSystem,
-                                                                protosRegistry: ProtosRegistry
-) extends EventHandler {
+abstract class TypedEventHandler[S <: scalapb.GeneratedMessage](actorSystem: ActorSystem) extends EventHandler {
 
   /**
    * uses protosRegistry to unmarshal proto messages and invoke implemented handleTyped
@@ -81,7 +77,7 @@ abstract class TypedEventHandler[S <: scalapb.GeneratedMessage](actorSystem: Act
    * @return an Any message with a resulting state
    */
   final def handle(event: Any, currentState: Any, metaData: MetaData): Any = {
-    protosRegistry.unpackAnys(currentState, event) match {
+    ProtosRegistry.unpackAnys(currentState, event) match {
       case Failure(exception) =>
         throw exception
 
