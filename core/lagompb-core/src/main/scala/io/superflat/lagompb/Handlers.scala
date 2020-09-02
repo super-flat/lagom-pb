@@ -6,33 +6,43 @@ import io.superflat.lagompb.protobuf.v1.core.{CommandHandlerResponse, MetaData}
 
 import scala.util.{Failure, Success, Try}
 
+/**
+ * CommandHandler is a generic command handler
+ */
 trait CommandHandler {
   def handle(command: Any, currentState: Any, currentMetaData: MetaData): Try[CommandHandlerResponse]
 }
 
+/**
+ * EventHandler is a generic event handler
+ */
 trait EventHandler {
   def handle(event: Any, currentState: Any, metaData: MetaData): Any
 }
 
 /**
- * LagompbCommandHandler
+ * TypedCommandHandler is a typed command handler.
+ * It makes use the protos registry to properly unpack the actual user command and state into a scalapb.GeneratedMessage
+ * that can be easily pattern match
  *
  * @param actorSystem the actor system
  * @tparam S the aggregate state type
  */
-abstract class SimpleCommandHandler[S <: scalapb.GeneratedMessage](actorSystem: ActorSystem,
-                                                                   protosRegistry: ProtosRegistry
+abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](actorSystem: ActorSystem,
+                                                                  protosRegistry: ProtosRegistry
 ) extends CommandHandler {
 
   final def handle(command: Any, currentState: Any, currentMetaData: MetaData): Try[CommandHandlerResponse] = {
     protosRegistry.unpackAnys(currentState, command) match {
       case Failure(exception) =>
-        throw exception
+        Failure(exception)
 
       case Success(messages) =>
-        val stateUnpacked: S = messages(0).asInstanceOf[S]
-        val cmdUnpacked = messages(1)
-        handleTyped(command = cmdUnpacked, currentState = stateUnpacked, currentMetaData = currentMetaData)
+        handleTyped(
+          command = messages.lift(1).head,
+          currentState = messages.head.asInstanceOf[S],
+          currentMetaData = currentMetaData
+        )
     }
   }
 
@@ -51,13 +61,15 @@ abstract class SimpleCommandHandler[S <: scalapb.GeneratedMessage](actorSystem: 
 }
 
 /**
- * LagomPbEventHandler
+ * TypedEventHandler is a typed event handler. It makes use the protos registry
+ * to properly unpack the actual user event and state into a scalapb.GeneratedMessage that can be
+ * easily pattern match
  *
  * @param actorSystem the actor system
  * @tparam S the aggregate state type
  */
-abstract class SimpleEventHandler[S <: scalapb.GeneratedMessage](actorSystem: ActorSystem,
-                                                                 protosRegistry: ProtosRegistry
+abstract class TypedEventHandler[S <: scalapb.GeneratedMessage](actorSystem: ActorSystem,
+                                                                protosRegistry: ProtosRegistry
 ) extends EventHandler {
 
   /**
@@ -74,9 +86,13 @@ abstract class SimpleEventHandler[S <: scalapb.GeneratedMessage](actorSystem: Ac
         throw exception
 
       case Success(messages) =>
-        val stateUnpacked: S = messages(0).asInstanceOf[S]
-        val eventUnpacked = messages(1)
-        Any.pack(handleTyped(eventUnpacked, stateUnpacked, metaData))
+        Any.pack(
+          handleTyped(
+            messages.lift(1).head,
+            messages.head.asInstanceOf[S],
+            metaData
+          )
+        )
     }
   }
 

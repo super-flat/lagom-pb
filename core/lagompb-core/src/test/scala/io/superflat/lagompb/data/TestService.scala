@@ -8,7 +8,7 @@ import com.lightbend.lagom.scaladsl.api.{Descriptor, ServiceCall}
 import com.lightbend.lagom.scaladsl.api.Service.restCall
 import com.lightbend.lagom.scaladsl.api.transport.Method
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
-import io.superflat.lagompb.{AggregateRoot, BaseService, BaseServiceImpl, StateAndMeta}
+import io.superflat.lagompb.{AggregateRoot, BaseService, BaseServiceImpl, ProtosRegistry, StateAndMeta}
 import io.superflat.lagompb.protobuf.v1.tests.{TestCmd, TestState}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
@@ -29,9 +29,10 @@ class TestServiceImpl(
   sys: ActorSystem,
   clusterSharding: ClusterSharding,
   persistentEntityRegistry: PersistentEntityRegistry,
-  aggregate: AggregateRoot[TestState]
+  aggregate: AggregateRoot[TestState],
+  protosRegistry: ProtosRegistry
 )(implicit ec: ExecutionContext)
-    extends BaseServiceImpl(clusterSharding, persistentEntityRegistry, aggregate)
+    extends BaseServiceImpl(clusterSharding, persistentEntityRegistry, aggregate, protosRegistry)
     with TestService {
 
   /**

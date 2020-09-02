@@ -17,7 +17,6 @@ import io.superflat.lagompb.protobuf.v1.core.CommandHandlerResponse.HandlerRespo
 }
 import io.superflat.lagompb.protobuf.v1.core.SuccessCommandHandlerResponse.Response.{Event, NoEvent}
 import org.slf4j.{Logger, LoggerFactory}
-import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 import scala.util.{Failure, Success, Try}
 
@@ -78,7 +77,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
     persistenceId: PersistenceId
   ): EventSourcedBehavior[Command, EventWrapper, StateWrapper] = {
     val splitter: Char = PersistenceId.DefaultSeparator(0)
-    val entityId = persistenceId.id.split(splitter).lastOption.getOrElse("")
+    val entityId: String = persistenceId.id.split(splitter).lastOption.getOrElse("")
     EventSourcedBehavior
       .withEnforcedReplies[Command, EventWrapper, StateWrapper](
         persistenceId = persistenceId,
@@ -117,8 +116,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
   /**
    * Call safely the event handler and return the resulting state when successful
    *
-   * @param event the event to handle
-   * @param comp the companion object of the event to handle
+   * @param event the event to handlecompanion object of the event to handle
    * @param state the priorState to the event to handle
    * @param metaData the additional meta
    * @param replyTo the actor ref to reply to
@@ -147,7 +145,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
 
       case Success(resultingState) =>
         log.debug(
-          s"[Lagompb] user event handler returned ${resultingState.companion.scalaDescriptor.fullName}"
+          s"[Lagompb] user event handler returned ${resultingState.typeUrl}"
         )
 
         val (encryptedEvent, encryptedResultingState, decryptedStateWrapper) =

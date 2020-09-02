@@ -112,10 +112,11 @@ sealed trait SharedBaseServiceImpl {
 abstract class BaseServiceImpl(
   val clusterSharding: ClusterSharding,
   val persistentEntityRegistry: PersistentEntityRegistry,
-  val aggregate: AggregateRoot[_]
+  val aggregate: AggregateRoot[_],
+  val protosRegistry: ProtosRegistry
 )(implicit ec: ExecutionContext)
-    extends SharedBaseServiceImpl
-    with BaseService {
+    extends BaseService
+    with SharedBaseServiceImpl {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
 

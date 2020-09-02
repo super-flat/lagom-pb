@@ -9,7 +9,7 @@ import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 /**
  * ApiSerializer helps serialize json REST payload into protobuf messages and vice versa.
  */
-class ApiSerializer[A <: GeneratedMessage: GeneratedMessageCompanion](val protosRegistry: ProtosRegistry)
+case class ApiSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]()
     extends StrictMessageSerializer[A]
     with GenericSerializers[A] {
 
@@ -22,6 +22,9 @@ class ApiSerializer[A <: GeneratedMessage: GeneratedMessageCompanion](val protos
     acceptedMessageProtocols: Seq[MessageProtocol]
   ): MessageSerializer.NegotiatedSerializer[A, ByteString] =
     negotiateResponse(acceptedMessageProtocols)
+
+  // FIXME: find a better way to inject this or rewrite the api serializer and inject it via DI
+  override def protosRegistry: ProtosRegistry = ProtosRegistry.fromReflection()
 }
 
 sealed trait GenericSerializers[T <: GeneratedMessage] {
@@ -30,7 +33,9 @@ sealed trait GenericSerializers[T <: GeneratedMessage] {
 
   def deserializer(implicit T: GeneratedMessageCompanion[T]): NegotiatedDeserializer[T, ByteString] = {
     (wire: ByteString) =>
-      protosRegistry.parser.fromJsonString(wire.utf8String)
+      {
+        protosRegistry.parser.fromJsonString(wire.utf8String)
+      }
   }
 
   def negotiateResponse(acceptedMessageProtocols: Seq[MessageProtocol]): NegotiatedSerializer[T, ByteString] =

@@ -37,7 +37,9 @@ import scala.concurrent.ExecutionContext
  * @tparam S the aggregate state type
  */
 
-abstract class KafkaPublisher[S <: scalapb.GeneratedMessage](encryptionAdapter: EncryptionAdapter)(implicit
+abstract class KafkaPublisher[S <: scalapb.GeneratedMessage](encryptionAdapter: EncryptionAdapter,
+                                                             protosRegistry: ProtosRegistry
+)(implicit
   ec: ExecutionContext,
   actorSystem: ActorSystem[_]
 ) extends EventProcessor {
@@ -77,7 +79,7 @@ abstract class KafkaPublisher[S <: scalapb.GeneratedMessage](encryptionAdapter: 
               new ProducerRecord(
                 producerConfig.topic,
                 comp.parseFrom(event.value.toByteArray).getField(fd).as[String],
-                ProtosRegistry.printer.print(
+                protosRegistry.printer.print(
                   KafkaEvent.defaultInstance
                     .withEvent(event)
                     .withState(StateWrapper().withMeta(meta).withState(resultingState))
@@ -121,7 +123,7 @@ abstract class KafkaPublisher[S <: scalapb.GeneratedMessage](encryptionAdapter: 
               EventSourcedProvider
                 .eventsByTag[EventWrapper](actorSystem, readJournalPluginId = JdbcReadJournal.Identifier, tagName),
               offsetStoreDatabaseConfig,
-              handler = () => new EventsReader(tagName, this, encryptionAdapter)
+              handler = () => new EventsReader(tagName, this, encryptionAdapter, protosRegistry)
             )
         )
       },

@@ -6,10 +6,10 @@ import org.slf4j.{Logger, LoggerFactory}
 import scalapb.{GeneratedFileObject, GeneratedMessage, GeneratedMessageCompanion}
 import scalapb.json4s.{Parser, Printer, TypeRegistry}
 
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.reflect.runtime.universe
 import scala.util.{Failure, Success, Try}
-import scala.collection.mutable
 
 /**
  * Helpful registry of scalapb protobuf classes that can be used to find
@@ -143,7 +143,7 @@ object ProtosRegistry {
    * @return instantiated ProtosRegistry
    */
   def fromReflection(): ProtosRegistry = {
-    val registry = load()
+    val registry: Seq[GeneratedFileObject] = load()
     new ProtosRegistry(registry)
   }
 }

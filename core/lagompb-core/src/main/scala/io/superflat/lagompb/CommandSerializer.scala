@@ -6,7 +6,6 @@ import akka.actor.ExtendedActorSystem
 import akka.actor.typed.{ActorRef, ActorRefResolver}
 import akka.actor.typed.scaladsl.adapter._
 import akka.serialization.SerializerWithStringManifest
-import com.google.protobuf.any.Any
 import io.superflat.lagompb.protobuf.v1.core.{CommandReply, CommandWrapper}
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -21,7 +20,7 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
   final val log: Logger =
     LoggerFactory.getLogger(classOf[CommandSerializer])
 
-  private val actorRefResolver = ActorRefResolver(system.toTyped)
+  private val actorRefResolver: ActorRefResolver = ActorRefResolver(system.toTyped)
 
   override def manifest(o: AnyRef): String = o.getClass.getName
 
@@ -32,7 +31,7 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
           .toSerializationFormat(actorRef)
           .getBytes(StandardCharsets.UTF_8)
 
-        log.debug(s"serializing Command [${cmd.companion.scalaDescriptor.fullName}]")
+        log.debug(s"serializing Command [${cmd.companion.typeUrl}]")
 
         CommandWrapper()
           .withCommand(cmd)

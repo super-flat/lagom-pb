@@ -18,9 +18,10 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
       akka.persistence.snapshot-store.local.dir = "tmp/snapshot"
     """) {
 
+  val protosRegistry = ProtosRegistry.fromReflection()
   val actorSystem: ActorSystem = testKit.system.toClassic
   val companyId: String = UUID.randomUUID().toString
-  val cmdHandler = new TestCommandHandler(actorSystem)
+  val cmdHandler = new TestCommandHandler(actorSystem, protosRegistry)
 
   "CommandHandler implementation" should {
     "handle valid command as expected" in {
@@ -57,7 +58,7 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
       val state = TestState(companyId, "state")
       val meta = MetaData(revisionNumber = 1)
       val result: Try[CommandHandlerResponse] =
-        cmdHandler.handle(Command(testCmd, null, Map.empty[String, String]), state, meta)
+        cmdHandler.handle(Any.pack(testCmd), Any.pack(state), meta)
 
       result.success.value shouldBe
         CommandHandlerResponse()
@@ -72,7 +73,7 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
       val state = TestState(UUID.randomUUID().toString, "state")
       val meta = MetaData(revisionNumber = 1)
       val result: Try[CommandHandlerResponse] =
-        cmdHandler.handle(Command(testCmd, null, Map.empty[String, String]), state, meta)
+        cmdHandler.handle(Any.pack(testCmd), Any.pack(state), meta)
 
       result.success.value shouldBe
         CommandHandlerResponse()
@@ -97,7 +98,7 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
       val noCmd = NoCmd()
       val meta = MetaData(revisionNumber = 1)
       cmdHandler
-        .handle(Command(noCmd, null, Map.empty[String, String]), TestState(companyId, "state"), meta)
+        .handle(Any.pack(noCmd), Any.pack(TestState(companyId, "state")), meta)
         .success
         .value shouldBe
         CommandHandlerResponse()

@@ -4,6 +4,7 @@ import akka.actor.testkit.typed.scaladsl.TestProbe
 import io.superflat.lagompb.testkit.BaseActorTestKit
 import io.superflat.lagompb.protobuf.v1.core.CommandReply
 import io.superflat.lagompb.protobuf.v1.tests.TestCmd
+import com.google.protobuf.any.Any
 
 class CommandSerializerSpec extends BaseActorTestKit(s"""
     akka {
@@ -27,6 +28,6 @@ class CommandSerializerSpec extends BaseActorTestKit(s"""
     val command = TestCmd(companyUUID, "John Ross")
     val data =
       Map("audit|employeeUuid" -> "1223", "audit|createdAt" -> "2020-04-17")
-    serializationTestKit.verifySerialization(Command(command, probe.ref, data))
+    serializationTestKit.verifySerialization(Command(Any.pack(command), probe.ref, data))
   }
 }

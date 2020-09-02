@@ -11,26 +11,27 @@ class ProtosRegistrySpec extends BaseSpec {
 
   "Loading GeneratedFileObject" should {
 
+    val protosRegistry = ProtosRegistry.fromReflection()
     "succeed" in {
-      val fos = ProtosRegistry.registry
+      val fos = protosRegistry.registry
       fos.size should be >= 1
       fos should contain(CoreProto)
     }
 
     "should be loaded" in {
-      val size: Int = ProtosRegistry.companions.size
+      val size: Int = protosRegistry.companions.size
       size should be >= 1
     }
 
     "Contains the companions" in {
       val map: Map[String, GeneratedMessageCompanion[_ <: GeneratedMessage]] =
-        ProtosRegistry.companionsMap
+        protosRegistry.companionsMap
       map.keySet should contain("lagompb.v1.TestCmd")
     }
 
     "Gets scalapb GeneratedMessageCompanion object" in {
       val any = Any.pack(TestCmd.defaultInstance)
-      ProtosRegistry.companion(any) should be(Symbol("defined"))
+      protosRegistry.getCompanion(any) should be(Symbol("defined"))
     }
   }
 }
