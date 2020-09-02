@@ -13,7 +13,7 @@ import akka.projection.scaladsl.{ExactlyOnceProjection, SourceProvider}
 import akka.projection.slick.SlickProjection
 import com.github.ghik.silencer.silent
 import com.google.protobuf.any
-import io.superflat.lagompb.ConfigReader
+import io.superflat.lagompb.{ConfigReader, ProtosRegistry}
 import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.protobuf.v1.core.{EventWrapper, MetaData}
 import org.slf4j.{Logger, LoggerFactory}

@@ -6,12 +6,20 @@ import org.slf4j.{Logger, LoggerFactory}
 import scalapb.{GeneratedFileObject, GeneratedMessage, GeneratedMessageCompanion}
 import scalapb.json4s.{Parser, Printer, TypeRegistry}
 
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.reflect.runtime.universe
 import scala.util.{Failure, Success, Try}
 
+/**
+ * Helpful registry of scalapb protobuf classes that can be used to find
+ * companion objects, do JSON serialization, and unpack "Any" messages
+ */
 object ProtosRegistry {
-  private[lagompb] lazy val registry: Seq[GeneratedFileObject] = load()
+
+  private val logger: Logger = LoggerFactory.getLogger(getClass)
+
+  private[lagompb] lazy val registry: Seq[GeneratedFileObject] = reflectFileObjects()
 
   /**
    * scalapb generated message companions list
@@ -44,22 +52,51 @@ object ProtosRegistry {
   private[lagompb] lazy val printer: Printer =
     new Printer().includingDefaultValueFields
       .withTypeRegistry(typeRegistry)
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   /**
    * Gets the maybe scalapb GeneratedMessageCompanion object defining an Any protobuf message
    * @param any the protobuf message
    * @return the maybe scalapb GeneratedMessageCompanion object
    */
-  def companion(any: Any): Option[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
-    companionsMap.get(any.typeUrl.split('/').lastOption.getOrElse(""))
+  def getCompanion(any: Any): Option[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
+    any.typeUrl.split('/').lastOption.flatMap(companionsMap.get)
+
+  /**
+   * Unpack a proto Any into its scalapb class, or fail
+   *
+   * @param any scalapb google Any protobuf
+   * @return Successful unpacked message or a Failure
+   */
+  def unpackAny(any: Any): Try[GeneratedMessage] = {
+    getCompanion(any) match {
+      case None       => Failure(new Exception(s"could not unpack unrecognized proto ${any.typeUrl}"))
+      case Some(comp) => Try(any.unpack(comp))
+    }
+  }
+
+  /**
+   * unpack many Any messages or exit on first failure
+   *
+   * @param anys many any messages
+   * @return array with unpacked messages in the same order as the input anys
+   */
+  def unpackAnys(anys: Any*): Try[Seq[GeneratedMessage]] = {
+
+    val folder = (tryBuffer: Try[mutable.ListBuffer[GeneratedMessage]], any: Any) => {
+      tryBuffer.flatMap(buffer => unpackAny(any).map(msg => buffer.append(msg)))
+    }
+
+    val buffer: mutable.ListBuffer[GeneratedMessage] = mutable.ListBuffer[GeneratedMessage]()
+
+    anys.foldLeft(Try(buffer))(folder).map(_.toSeq)
+  }
 
   /**
    * Load scalapb generated  fileobjects that contain proto companions messages
    * @return the sequence of scalapb.GeneratedFileObject
    */
   @throws(classOf[ScalaReflectionException])
-  private def load(): Seq[GeneratedFileObject] = {
+  private def reflectFileObjects(): Seq[GeneratedFileObject] = {
     val fileObjects: Seq[Class[_ <: GeneratedFileObject]] =
       new Reflections(ConfigReader.protosPackage)
         .getSubTypesOf(classOf[scalapb.GeneratedFileObject])
@@ -94,5 +131,17 @@ object ProtosRegistry {
           seq :+ fileObject
       }
     }
+  }
+
+  /**
+   * temporary helper method to force loading the lazy vals when needed
+   */
+  def load(): Unit = {
+    registry
+    companions
+    companionsMap
+    typeRegistry
+    parser
+    printer
   }
 }

@@ -154,7 +154,7 @@ class BaseServiceImplSpec extends BaseSpec {
     "process request as expected" in ServiceTest.withServer(ServiceTest.defaultSetup.withCluster()) { context =>
       new TestApplication(context)
     } { server =>
-      val testCmd = TestCmd().withCompanyUuid(companyId).withName("John")
+      val testCmd: TestCmd = TestCmd().withCompanyUuid(companyId).withName("John")
       val client: TestService = server.serviceClient.implement[TestService]
       client.testHello.invoke(testCmd).map { response: TestState =>
         response should ===(

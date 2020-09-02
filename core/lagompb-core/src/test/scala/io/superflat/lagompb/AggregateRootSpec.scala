@@ -65,7 +65,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       // let us send the command to the aggregate
       val data =
         Map("audit|employeeUuid" -> "1223", "audit|createdAt" -> "2020-04-17")
-      aggregateRef ! Command(testCmd, commandSender.ref, data)
+      aggregateRef ! Command(Any.pack(testCmd), commandSender.ref, data)
       commandSender.receiveMessage(replyTimeout) match {
         case CommandReply(reply, _) =>
           reply match {
@@ -100,7 +100,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       val testCmd = TestCmd("", "first test")
 
       // let us send the command to the aggregate
-      aggregateRef ! Command(testCmd, commandSender.ref, Map.empty[String, String])
+      aggregateRef ! Command(Any.pack(testCmd), commandSender.ref, Map.empty[String, String])
 
       commandSender.receiveMessage(replyTimeout) match {
         case CommandReply(reply, _) =>
@@ -135,7 +135,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       // let us send the command to the aggregate
       val data =
         Map("audit|employeeUuid" -> "1223", "audit|createdAt" -> "2020-04-17")
-      aggregateRef ! Command(testCmd, commandSender.ref, data)
+      aggregateRef ! Command(Any.pack(testCmd), commandSender.ref, data)
       commandSender.receiveMessage(replyTimeout) match {
         case CommandReply(reply, _) =>
           reply match {
@@ -170,7 +170,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       val testCmd = TestEmptyCmd.defaultInstance.withCompanyUuid(companyUUID)
 
       // let us send the command to the aggregate
-      aggregateRef ! Command(testCmd, commandSender.ref, Map.empty)
+      aggregateRef ! Command(Any.pack(testCmd), commandSender.ref, Map.empty)
       commandSender.receiveMessage(replyTimeout) match {
         case CommandReply(reply, _) =>
           reply match {
@@ -202,7 +202,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       val testCmd = TestEmptySuccessCmd.defaultInstance.withCompanyUuid(companyUUID)
 
       // let us send the command to the aggregate
-      aggregateRef ! Command(testCmd, commandSender.ref, Map.empty)
+      aggregateRef ! Command(Any.pack(testCmd), commandSender.ref, Map.empty)
       commandSender.receiveMessage(replyTimeout) match {
         case CommandReply(reply, _) =>
           reply match {
@@ -234,12 +234,12 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       val testCmd = TestUnknownEventCmd.defaultInstance.withCompanyUuid(companyUUID)
 
       // let us send the command to the aggregate
-      aggregateRef ! Command(testCmd, commandSender.ref, Map.empty)
+      aggregateRef ! Command(Any.pack(testCmd), commandSender.ref, Map.empty)
       commandSender.receiveMessage(replyTimeout) match {
         case CommandReply(reply, _) =>
           reply match {
             case Reply.FailedReply(value) =>
-              value.reason should include("[Lagompb] unable to parse event")
+              value.reason should include("[Lagompb] EventHandler failure")
               value.cause should ===(FailureCause.INTERNAL_ERROR)
             case _ => fail("unexpected message type")
           }
@@ -266,7 +266,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       val testCmd = TestFailCmd.defaultInstance.withCompanyUuid(companyUUID)
 
       // let us send the command to the aggregate
-      aggregateRef ! Command(testCmd, commandSender.ref, Map.empty)
+      aggregateRef ! Command(Any.pack(testCmd), commandSender.ref, Map.empty)
       commandSender.expectNoMessage()
     }
 
@@ -289,8 +289,8 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
         createTestProbe[CommandReply]()
       val testCmd = TestCmd.defaultInstance
 
-      an[GlobalException] shouldBe thrownBy(
-        aggregate.genericCommandHandler(stateWrapper, Command(testCmd, commandSender.ref, Map.empty))
+      an[Throwable] shouldBe thrownBy(
+        aggregate.genericCommandHandler(stateWrapper, Command(Any.pack(testCmd), commandSender.ref, Map.empty))
       )
     }
 
@@ -362,7 +362,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       val testCmd = TestEventFailureCmd(companyUUID)
 
       // let us send the command to the aggregate
-      aggregateRef ! Command(testCmd, commandSender.ref, Map.empty)
+      aggregateRef ! Command(Any.pack(testCmd), commandSender.ref, Map.empty)
       commandSender.receiveMessage(replyTimeout) match {
         case CommandReply(reply, _) =>
           reply match {

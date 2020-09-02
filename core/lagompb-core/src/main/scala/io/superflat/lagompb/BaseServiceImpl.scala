@@ -52,11 +52,12 @@ sealed trait SharedBaseServiceImpl {
     entityId: String,
     cmd: C,
     data: Map[String, String]
-  )(implicit ec: ExecutionContext): Future[StateAndMeta[S]] =
+  )(implicit ec: ExecutionContext): Future[StateAndMeta[S]] = {
     clusterSharding
       .entityRefFor(aggregateRoot.typeKey, entityId)
-      .ask[CommandReply](replyTo => Command(cmd, replyTo, data))
+      .ask[CommandReply](replyTo => Command(Any.pack(cmd), replyTo, data))
       .flatMap((value: CommandReply) => Future.fromTry(handleLagompbCommandReply[S](value)))
+  }
 
   private[lagompb] def handleLagompbCommandReply[S <: scalapb.GeneratedMessage](
     commandReply: CommandReply
@@ -113,8 +114,8 @@ abstract class BaseServiceImpl(
   val persistentEntityRegistry: PersistentEntityRegistry,
   val aggregate: AggregateRoot[_]
 )(implicit ec: ExecutionContext)
-    extends SharedBaseServiceImpl
-    with BaseService {
+    extends BaseService
+    with SharedBaseServiceImpl {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
 

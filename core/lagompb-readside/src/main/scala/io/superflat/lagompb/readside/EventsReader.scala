@@ -36,7 +36,7 @@ final class EventsReader(eventTag: String, eventProcessor: EventProcessor, encry
       .decryptEventWrapper(envelope.event)
       .map({
         case EventWrapper(Some(event: any.Any), Some(resultingState), Some(meta), _) =>
-          ProtosRegistry.companion(event) match {
+          ProtosRegistry.getCompanion(event) match {
             case Some(comp) =>
               eventProcessor
                 .process(comp, event, eventTag, resultingState, meta)

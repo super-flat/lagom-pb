@@ -30,7 +30,7 @@ class ProtosRegistrySpec extends BaseSpec {
 
     "Gets scalapb GeneratedMessageCompanion object" in {
       val any = Any.pack(TestCmd.defaultInstance)
-      ProtosRegistry.companion(any) should be(Symbol("defined"))
+      ProtosRegistry.getCompanion(any) should be(Symbol("defined"))
     }
   }
 }

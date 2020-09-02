@@ -57,7 +57,7 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
       val state = TestState(companyId, "state")
       val meta = MetaData(revisionNumber = 1)
       val result: Try[CommandHandlerResponse] =
-        cmdHandler.handle(Command(testCmd, null, Map.empty[String, String]), state, meta)
+        cmdHandler.handle(Any.pack(testCmd), Any.pack(state), meta)
 
       result.success.value shouldBe
         CommandHandlerResponse()
@@ -72,7 +72,7 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
       val state = TestState(UUID.randomUUID().toString, "state")
       val meta = MetaData(revisionNumber = 1)
       val result: Try[CommandHandlerResponse] =
-        cmdHandler.handle(Command(testCmd, null, Map.empty[String, String]), state, meta)
+        cmdHandler.handle(Any.pack(testCmd), Any.pack(state), meta)
 
       result.success.value shouldBe
         CommandHandlerResponse()
@@ -97,7 +97,7 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
       val noCmd = NoCmd()
       val meta = MetaData(revisionNumber = 1)
       cmdHandler
-        .handle(Command(noCmd, null, Map.empty[String, String]), TestState(companyId, "state"), meta)
+        .handle(Any.pack(noCmd), Any.pack(TestState(companyId, "state")), meta)
         .success
         .value shouldBe
         CommandHandlerResponse()
