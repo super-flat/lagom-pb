@@ -10,6 +10,15 @@ import scala.util.{Failure, Success, Try}
  * CommandHandler is a generic command handler
  */
 trait CommandHandler {
+
+  /**
+   * generic method signature for handling commands
+   *
+   * @param command an Any message with a command inside
+   * @param currentState an Any message with a State inside
+   * @param currentMetaData lagom-pb meta data
+   * @return a command handler response or Failure
+   */
   def handle(command: Any, currentState: Any, currentMetaData: MetaData): Try[CommandHandlerResponse]
 }
 
@@ -17,6 +26,15 @@ trait CommandHandler {
  * EventHandler is a generic event handler
  */
 trait EventHandler {
+
+  /**
+   * generic method signature for handling events
+   *
+   * @param event an Any message with an event inside
+   * @param currentState an Any message with a State inside
+   * @param metaData lagom-pb meta data
+   * @return an Any message with the resulting state
+   */
   def handle(event: Any, currentState: Any, metaData: MetaData): Any
 }
 
@@ -30,6 +48,15 @@ trait EventHandler {
  */
 abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](actorSystem: ActorSystem) extends CommandHandler {
 
+  /**
+   * implements CommandHandler.handle and uses proto registry to unmarshal
+   * proto messages and invoke implemented handleTyped
+   *
+   * @param command an Any message with a command
+   * @param currentState an Any message with current state
+   * @param metaData lagomPb MetaData
+   * @return a command handler response or Failure
+   */
   final def handle(command: Any, currentState: Any, currentMetaData: MetaData): Try[CommandHandlerResponse] = {
     ProtosRegistry.unpackAnys(currentState, command) match {
       case Failure(exception) =>
