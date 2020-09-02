@@ -31,7 +31,7 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
           .toSerializationFormat(actorRef)
           .getBytes(StandardCharsets.UTF_8)
 
-        log.debug(s"serializing Command [${cmd.companion.typeUrl}]")
+        log.debug(s"serializing Command [${cmd.typeUrl}]")
 
         CommandWrapper()
           .withCommand(cmd)
