@@ -22,3 +22,4 @@ project/metals.sbt
 *.iml
 .protogen/
 .vscode/
+metals.sbt

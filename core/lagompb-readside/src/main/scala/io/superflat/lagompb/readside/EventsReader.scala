@@ -13,7 +13,8 @@ import slick.dbio.{DBIO, DBIOAction}
 import scala.util.{Failure, Success, Try}
 
 /**
- * Reads the journal events by persisting the read offset onto postgres
+ * Reads the journal events, runs provided eventProcessor, and
+ * presists the offset into postgres
  *
  * @param eventTag the event tag read
  * @param eventProcessor the actual event processor
@@ -35,15 +36,8 @@ final class EventsReader(eventTag: String, eventProcessor: EventProcessor, encry
     encryptionAdapter
       .decryptEventWrapper(envelope.event)
       .map({
-        case EventWrapper(Some(event: any.Any), Some(resultingState), Some(meta), _) =>
-          ProtosRegistry.getCompanion(event) match {
-            case Some(comp) =>
-              eventProcessor
-                .process(comp, event, eventTag, resultingState, meta)
-
-            case None =>
-              DBIOAction.failed(new GlobalException(s"companion not found for ${event.typeUrl}"))
-          }
+        case EventWrapper(Some(event), Some(resultingState), Some(meta), _) =>
+          eventProcessor.process(event, eventTag, resultingState, meta)
 
         case _ =>
           DBIO.failed(new GlobalException(s"[Lagompb] unknown event received ${envelope.event.getClass.getName}"))

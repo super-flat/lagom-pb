@@ -12,7 +12,7 @@ import akka.projection.eventsourced.scaladsl.EventSourcedProvider
 import akka.projection.scaladsl.{ExactlyOnceProjection, SourceProvider}
 import akka.projection.slick.SlickProjection
 import com.github.ghik.silencer.silent
-import com.google.protobuf.any
+import com.google.protobuf.any.Any
 import io.superflat.lagompb.{ConfigReader, ProtosRegistry}
 import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.protobuf.v1.core.{EventWrapper, MetaData}
@@ -40,7 +40,7 @@ import scala.util.{Failure, Success, Try}
  * @param ec          the execution context
  * @tparam S the aggregate state type
  */
-@silent abstract class ReadSideProcessor[S <: scalapb.GeneratedMessage](encryptionAdapter: EncryptionAdapter)(implicit
+@silent abstract class ReadSideProcessor(encryptionAdapter: EncryptionAdapter)(implicit
   ec: ExecutionContext,
   actorSystem: ActorSystem[_]
 ) extends EventProcessor {
@@ -54,26 +54,24 @@ import scala.util.{Failure, Success, Try}
   protected val baseTag: String = ConfigReader.eventsConfig.tagName
 
   final override def process(
-    comp: GeneratedMessageCompanion[_ <: GeneratedMessage],
-    event: any.Any,
+    event: Any,
     eventTag: String,
-    resultingState: any.Any,
+    resultingState: Any,
     meta: MetaData
   ): DBIO[Done] =
     Try {
       handle(
-        ReadSideEvent[S](
-          event.unpack(comp),
+        ReadSideEvent(
+          event,
           eventTag,
-          resultingState
-            .unpack[S](aggregateStateCompanion),
+          resultingState,
           meta
         )
       )
     } match {
       case Failure(exception) =>
         DBIOAction.failed(exception)
-      case Success(result: Any) =>
+      case Success(result) =>
         result
     }
 
@@ -126,16 +124,9 @@ import scala.util.{Failure, Success, Try}
   def projectionName: String
 
   /**
-   * aggregate state. it is a generated scalapb message extending the LagompbState trait
-   *
-   * @return aggregate state
-   */
-  def aggregateStateCompanion: scalapb.GeneratedMessageCompanion[S]
-
-  /**
    * Handles aggregate event persisted and made available for read model
    *
    * @param event the aggregate event
    */
-  def handle(event: ReadSideEvent[S]): DBIO[Done]
+  def handle(event: ReadSideEvent): DBIO[Done]
 }
