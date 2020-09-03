@@ -3,8 +3,8 @@ package io.superflat.lagompb
 import java.nio.charset.StandardCharsets
 
 import akka.actor.ExtendedActorSystem
-import akka.actor.typed.{ActorRef, ActorRefResolver}
 import akka.actor.typed.scaladsl.adapter._
+import akka.actor.typed.{ActorRef, ActorRefResolver}
 import akka.serialization.SerializerWithStringManifest
 import io.superflat.lagompb.protobuf.v1.core.{CommandReply, CommandWrapper}
 import org.slf4j.{Logger, LoggerFactory}

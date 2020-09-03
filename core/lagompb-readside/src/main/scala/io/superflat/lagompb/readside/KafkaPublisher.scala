@@ -3,27 +3,18 @@ package io.superflat.lagompb.readside
 import akka.Done
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.adapter._
-import akka.cluster.sharding.typed.ShardedDaemonProcessSettings
-import akka.cluster.sharding.typed.scaladsl.ShardedDaemonProcess
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.SendProducer
-import akka.persistence.jdbc.query.scaladsl.JdbcReadJournal
-import akka.projection.{ProjectionBehavior, ProjectionId}
-import akka.projection.eventsourced.scaladsl.EventSourcedProvider
-import akka.projection.slick.SlickProjection
 import com.google.protobuf.any.Any
-import io.superflat.lagompb.{ConfigReader, GlobalException, ProtosRegistry}
 import io.superflat.lagompb.encryption.EncryptionAdapter
-import io.superflat.lagompb.protobuf.v1.core.{EventWrapper, KafkaEvent, MetaData, StateWrapper}
+import io.superflat.lagompb.protobuf.v1.core.{KafkaEvent, MetaData, StateWrapper}
 import io.superflat.lagompb.protobuf.v1.extensions.ExtensionsProto
+import io.superflat.lagompb.{ConfigReader, GlobalException, ProtosRegistry}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
-import org.slf4j.{Logger, LoggerFactory}
-import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
+import scalapb.GeneratedMessage
 import scalapb.descriptors.FieldDescriptor
-import slick.basic.DatabaseConfig
 import slick.dbio.{DBIO, DBIOAction}
-import slick.jdbc.PostgresProfile
 
 import scala.concurrent.ExecutionContext
 
@@ -32,8 +23,7 @@ import scala.concurrent.ExecutionContext
  *
  * @param encryptionAdapter EncryptionAdapter instance to use
  * @param actorSystem the actor system
- * @param ec the execution context
- * @tparam S the aggregate state type
+ * @param ec the execution context the aggregate state type
  */
 
 abstract class KafkaPublisher(encryptionAdapter: EncryptionAdapter)(implicit

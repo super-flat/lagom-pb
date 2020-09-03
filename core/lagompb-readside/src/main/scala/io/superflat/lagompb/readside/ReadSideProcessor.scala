@@ -6,18 +6,17 @@ import akka.cluster.sharding.typed.ShardedDaemonProcessSettings
 import akka.cluster.sharding.typed.scaladsl.ShardedDaemonProcess
 import akka.persistence.jdbc.query.scaladsl.JdbcReadJournal
 import akka.persistence.query.Offset
-import akka.projection.{ProjectionBehavior, ProjectionId}
 import akka.projection.eventsourced.EventEnvelope
 import akka.projection.eventsourced.scaladsl.EventSourcedProvider
 import akka.projection.scaladsl.{ExactlyOnceProjection, SourceProvider}
 import akka.projection.slick.SlickProjection
+import akka.projection.{ProjectionBehavior, ProjectionId}
 import com.github.ghik.silencer.silent
 import com.google.protobuf.any.Any
-import io.superflat.lagompb.{ConfigReader, ProtosRegistry}
+import io.superflat.lagompb.ConfigReader
 import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.protobuf.v1.core.{EventWrapper, MetaData}
 import org.slf4j.{Logger, LoggerFactory}
-import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.basic.DatabaseConfig
 import slick.dbio.{DBIO, DBIOAction}
 import slick.jdbc.PostgresProfile
@@ -38,7 +37,6 @@ import scala.util.{Failure, Success, Try}
  * @param encryptionAdapter EncryptionAdapter instance to use
  * @param actorSystem the actor system
  * @param ec          the execution context
- * @tparam S the aggregate state type
  */
 @silent abstract class ReadSideProcessor(encryptionAdapter: EncryptionAdapter)(implicit
   ec: ExecutionContext,
