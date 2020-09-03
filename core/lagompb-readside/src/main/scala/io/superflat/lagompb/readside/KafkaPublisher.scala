@@ -11,7 +11,7 @@ import akka.persistence.jdbc.query.scaladsl.JdbcReadJournal
 import akka.projection.{ProjectionBehavior, ProjectionId}
 import akka.projection.eventsourced.scaladsl.EventSourcedProvider
 import akka.projection.slick.SlickProjection
-import com.google.protobuf.any
+import com.google.protobuf.any.Any
 import io.superflat.lagompb.{ConfigReader, GlobalException, ProtosRegistry}
 import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.protobuf.v1.core.{EventWrapper, KafkaEvent, MetaData, StateWrapper}
@@ -28,8 +28,7 @@ import slick.jdbc.PostgresProfile
 import scala.concurrent.ExecutionContext
 
 /**
- * Helps handle readSide processor by pushing persisted events to kafka and storing the offsets
- * in postgres.
+ * ReadSideProcessor that publishes to kafka
  *
  * @param encryptionAdapter EncryptionAdapter instance to use
  * @param actorSystem the actor system
@@ -37,36 +36,32 @@ import scala.concurrent.ExecutionContext
  * @tparam S the aggregate state type
  */
 
-abstract class KafkaPublisher[S <: scalapb.GeneratedMessage](encryptionAdapter: EncryptionAdapter)(implicit
+abstract class KafkaPublisher(encryptionAdapter: EncryptionAdapter)(implicit
   ec: ExecutionContext,
   actorSystem: ActorSystem[_]
-) extends EventProcessor {
-
-  final val log: Logger = LoggerFactory.getLogger(getClass)
+) extends TypedReadSideProcessor(encryptionAdapter) {
 
   // The implementation class needs to set the akka.kafka.producer settings in the config file as well
   // as the lagompb.kafka-projections
   val producerConfig: KafkaConfig = KafkaConfig(actorSystem.settings.config.getConfig("lagompb.projection.kafka"))
-
-  // The implementation class needs to set the akka.projection.slick config for the offset database
-  protected val offsetStoreDatabaseConfig: DatabaseConfig[PostgresProfile] =
-    DatabaseConfig.forConfig("akka.projection.slick", actorSystem.settings.config)
-
-  protected val baseTag: String = ConfigReader.eventsConfig.tagName
 
   private[this] val sendProducer: SendProducer[String, String] = SendProducer(
     ProducerSettings(actorSystem, new StringSerializer, new StringSerializer)
       .withBootstrapServers(producerConfig.bootstrapServers)
   )(actorSystem.toClassic)
 
-  final override def process(
-    comp: GeneratedMessageCompanion[_ <: GeneratedMessage],
-    event: any.Any,
+  def handleTyped(
+    event: GeneratedMessage,
     eventTag: String,
-    resultingState: any.Any,
+    resultingState: GeneratedMessage,
     meta: MetaData
-  ): DBIO[Done] =
-    comp.scalaDescriptor.fields.find(field =>
+  ): DBIO[Done] = {
+    val anyEvent: Any = Any.pack(event)
+    val anyState: Any = Any.pack(resultingState)
+
+    event.companion.scalaDescriptor.fields.find(field =>
+      // this should just be a function on the constructor
+      // and it should be derived from State...
       field.getOptions.extension(ExtensionsProto.kafka).exists(_.partitionKey)
     ) match {
       case Some(fd: FieldDescriptor) =>
@@ -76,12 +71,12 @@ abstract class KafkaPublisher[S <: scalapb.GeneratedMessage](encryptionAdapter: 
             .send(
               new ProducerRecord(
                 producerConfig.topic,
-                comp.parseFrom(event.value.toByteArray).getField(fd).as[String],
+                event.getField(fd).as[String],
                 ProtosRegistry.printer.print(
                   KafkaEvent.defaultInstance
-                    .withEvent(event)
-                    .withState(StateWrapper().withMeta(meta).withState(resultingState))
-                    .withPartitionKey(comp.parseFrom(event.value.toByteArray).getField(fd).as[String])
+                    .withEvent(anyEvent)
+                    .withState(StateWrapper().withMeta(meta).withState(anyState))
+                    .withPartitionKey(event.getField(fd).as[String])
                     .withServiceName(ConfigReader.serviceName)
                 )
               )
@@ -89,8 +84,8 @@ abstract class KafkaPublisher[S <: scalapb.GeneratedMessage](encryptionAdapter: 
             .map { recordMetadata =>
               log.info(
                 "Published event [{}] and state [{}] to topic/partition {}/{}",
-                event.typeUrl,
-                resultingState.typeUrl,
+                anyEvent.typeUrl,
+                anyState.typeUrl,
                 producerConfig.topic,
                 recordMetadata.partition
               )
@@ -99,48 +94,7 @@ abstract class KafkaPublisher[S <: scalapb.GeneratedMessage](encryptionAdapter: 
         )
 
       case None =>
-        DBIOAction.failed(new GlobalException(s"No partition key field is defined for event ${event.typeUrl}"))
+        DBIOAction.failed(new GlobalException(s"No partition key field is defined for event ${anyEvent.typeUrl}"))
     }
-
-  /**
-   * Initialize the projection to start fetching the events that are emitted
-   */
-  def init(): Unit = {
-    // Let us attempt to create the projection store
-    if (ConfigReader.createOffsetStore) SlickProjection.createOffsetTableIfNotExists(offsetStoreDatabaseConfig)
-
-    ShardedDaemonProcess(actorSystem).init[ProjectionBehavior.Command](
-      name = projectionName,
-      numberOfInstances = ConfigReader.allEventTags.size,
-      behaviorFactory = (n: Int) => {
-        val tagName: String = s"$baseTag$n"
-        ProjectionBehavior(
-          SlickProjection
-            .exactlyOnce(
-              projectionId = ProjectionId(projectionName, tagName),
-              EventSourcedProvider
-                .eventsByTag[EventWrapper](actorSystem, readJournalPluginId = JdbcReadJournal.Identifier, tagName),
-              offsetStoreDatabaseConfig,
-              handler = () => new EventsReader(tagName, this, encryptionAdapter)
-            )
-        )
-      },
-      settings = ShardedDaemonProcessSettings(actorSystem),
-      stopMessage = Some(ProjectionBehavior.Stop)
-    )
   }
-
-  /**
-   * The projection Name must be unique
-   *
-   * @return
-   */
-  def projectionName: String
-
-  /**
-   * aggregate state. it is a generated scalapb message extending the LagompbState trait
-   *
-   * @return aggregate state
-   */
-  def aggregateStateCompanion: scalapb.GeneratedMessageCompanion[S]
 }

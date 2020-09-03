@@ -1,20 +1,18 @@
 package io.superflat.lagompb.readside
 
 import akka.Done
-import com.google.protobuf.any
+import com.google.protobuf.any.Any
 import io.superflat.lagompb.protobuf.v1.core.MetaData
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 import slick.dbio.DBIO
+import io.superflat.lagompb.ProtosRegistry
+import scala.util.{Failure, Success}
 
-/**
- * Helps process the events read from the journal
- */
 trait EventProcessor {
 
   /**
    * Processes events read from the Journal
    *
-   * @param comp the scalapb companion object used to unmarshall the aggregate state
    * @param event the actual event
    * @param eventTag the event tag
    * @param resultingState the resulting state of the applied event
@@ -22,10 +20,9 @@ trait EventProcessor {
    * @return
    */
   def process(
-    comp: GeneratedMessageCompanion[_ <: GeneratedMessage],
-    event: any.Any,
+    event: Any,
     eventTag: String,
-    resultingState: any.Any,
+    resultingState: Any,
     meta: MetaData
   ): DBIO[Done]
 }

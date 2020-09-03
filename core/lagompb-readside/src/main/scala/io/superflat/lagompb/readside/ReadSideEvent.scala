@@ -1,6 +1,7 @@
 package io.superflat.lagompb.readside
 
 import io.superflat.lagompb.protobuf.v1.core.MetaData
+import com.google.protobuf.any.Any
 
 /**
  * Wraps events read from the journal and make it available to any consumer
@@ -9,11 +10,10 @@ import io.superflat.lagompb.protobuf.v1.core.MetaData
  * @param eventTag the event tag
  * @param state the resulting state of the event
  * @param metaData the additional metadata
- * @tparam S the resulting state scala type
  */
-case class ReadSideEvent[S <: scalapb.GeneratedMessage](
-  event: scalapb.GeneratedMessage,
+case class ReadSideEvent(
+  event: Any,
   eventTag: String,
-  state: S,
+  state: Any,
   metaData: MetaData
 )
