@@ -35,7 +35,7 @@ abstract class TypedReadSideProcessor(encryptionAdapter: EncryptionAdapter)(impl
   def handle(event: ReadSideEvent): DBIO[Done] = {
     ProtosRegistry.unpackAnys(event.event, event.state) match {
       case Failure(e) =>
-        throw e
+        DBIOAction.failed(e)
       case Success(messages) =>
         handleTyped(
           messages(0),
