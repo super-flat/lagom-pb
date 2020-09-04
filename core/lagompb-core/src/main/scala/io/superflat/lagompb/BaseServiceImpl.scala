@@ -94,7 +94,10 @@ sealed trait SharedBaseServiceImpl {
           throw new GlobalException(exception.getMessage)
         case Success(value) => value
       }
-    else throw new GlobalException("wrong state definition")
+    else {
+
+      throw new GlobalException(s"wrong state definition, $typeUrl")
+    }
   }
 
   // $COVERAGE-ON$
