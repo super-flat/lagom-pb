@@ -44,13 +44,12 @@ sealed trait SharedBaseServiceImpl {
    * @param cmd        the command to send to the aggregate. It is a scalapb generated case class from the command
    *                   protocol buffer message definition
    * @param data       additional data that need to be set in the state meta
-   * @tparam C the Type of the command to send.
    * @return Future of state
    */
-  def sendCommand[C <: scalapb.GeneratedMessage, S <: scalapb.GeneratedMessage](
+  def sendCommand(
     clusterSharding: ClusterSharding,
     entityId: String,
-    cmd: C,
+    cmd: scalapb.GeneratedMessage,
     data: Map[String, String]
   )(implicit ec: ExecutionContext): Future[StateWrapper] = {
     clusterSharding
@@ -109,13 +108,13 @@ abstract class BaseServiceImpl(
    * @tparam S   the actual state scala type
    * @return the [[io.superflat.lagompb.StateAndMeta]] containing the actual state and the event meta
    */
-  final def sendCommand[C <: GeneratedMessage, S <: scalapb.GeneratedMessage](
+  final def sendCommand(
     entityId: String,
-    cmd: C,
+    cmd: GeneratedMessage,
     data: Map[String, String]
   ): Future[StateWrapper] = {
     super
-      .sendCommand[C, S](clusterSharding, entityId, cmd, data)
+      .sendCommand(clusterSharding, entityId, cmd, data)
       .transform {
         case Failure(exception) =>
           log.error("", exception)
@@ -151,14 +150,14 @@ trait BaseGrpcServiceImpl extends SharedBaseServiceImpl {
    * @tparam S   the actual state scala type
    * @return the [[io.superflat.lagompb.StateAndMeta]] containing the actual state and the state meta
    */
-  final override def sendCommand[C <: GeneratedMessage, S <: scalapb.GeneratedMessage](
+  final override def sendCommand(
     clusterSharding: ClusterSharding,
     entityId: String,
-    cmd: C,
+    cmd: GeneratedMessage,
     data: Map[String, String]
   )(implicit ec: ExecutionContext): Future[StateWrapper] =
     super
-      .sendCommand[C, S](clusterSharding, entityId, cmd, data)
+      .sendCommand(clusterSharding, entityId, cmd, data)
       .transform {
         case Failure(exception) =>
           exception match {
