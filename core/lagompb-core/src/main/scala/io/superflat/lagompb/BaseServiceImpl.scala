@@ -96,7 +96,7 @@ sealed trait SharedBaseServiceImpl {
       }
     else {
 
-      throw new GlobalException(s"wrong state definition, $typeUrl")
+      throw new GlobalException(s"wrong state definition, expecting ${aggregateStateCompanion.scalaDescriptor.fullName}, received $typeUrl")
     }
   }
 
