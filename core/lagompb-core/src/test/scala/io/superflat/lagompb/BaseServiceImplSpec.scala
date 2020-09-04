@@ -32,32 +32,6 @@ class BaseServiceImplSpec extends BaseSpec {
     embeddedPostgres.start()
 
   "Service implementation" should {
-    "parse proto Any and return a State" in {
-      val commandHandler = new TestCommandHandler(null)
-      val eventHandler = new TestEventHandler(null)
-      val aggregate =
-        new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
-      val testImpl = new TestServiceImpl(null, null, null, aggregate)
-      testImpl.parseAny[TestState](any) shouldBe
-        TestState()
-          .withCompanyUuid(companyId)
-          .withName("test")
-    }
-
-    "fail to handle wrong proto Any" in {
-      val commandHandler = new TestCommandHandler(null)
-      val eventHandler = new TestEventHandler(null)
-      val aggregate =
-        new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
-      val testImpl = new TestServiceImpl(null, null, null, aggregate)
-      an[RuntimeException] shouldBe thrownBy(
-        testImpl.parseAny[TestState](
-          Any()
-            .withTypeUrl("type.googleapis.com/lagompb.test")
-            .withValue(com.google.protobuf.ByteString.copyFrom("test".getBytes))
-        )
-      )
-    }
 
     "handle SuccessfulReply" in {
       val commandHandler = new TestCommandHandler(null)
@@ -76,13 +50,13 @@ class BaseServiceImplSpec extends BaseSpec {
             )
         )
 
-      val result: StateAndMeta[TestState] =
-        testImpl.handleLagompbCommandReply[TestState](cmdReply).success.value
+      val result: StateWrapper = testImpl.handleLagompbCommandReply(cmdReply).success.value
 
-      result.state shouldBe
-        TestState()
-          .withCompanyUuid(companyId)
-          .withName("test")
+      val expectedState = TestState()
+        .withCompanyUuid(companyId)
+        .withName("test")
+
+      result.state shouldBe Some(Any.pack(expectedState))
     }
 
     "handle FailedReply" in {
@@ -97,7 +71,7 @@ class BaseServiceImplSpec extends BaseSpec {
             FailedReply()
               .withReason("failed")
           )
-      testImpl.handleLagompbCommandReply[TestState](rejected).failure.exception shouldBe an[RuntimeException]
+      testImpl.handleLagompbCommandReply(rejected).failure.exception shouldBe an[RuntimeException]
     }
 
     "failed to handle CommandReply" in {
@@ -106,49 +80,11 @@ class BaseServiceImplSpec extends BaseSpec {
       val aggregate =
         new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
-      case class WrongReply()
+
       testImpl
-        .handleLagompbCommandReply[TestState](CommandReply().withReply(Reply.Empty))
+        .handleLagompbCommandReply(CommandReply().withReply(Reply.Empty))
         .failure
         .exception shouldBe an[RuntimeException]
-    }
-
-    "parse State" in {
-      val commandHandler = new TestCommandHandler(null)
-      val eventHandler = new TestEventHandler(null)
-      val aggregate =
-        new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
-      val testImpl = new TestServiceImpl(null, null, null, aggregate)
-
-      testImpl
-        .parseState[TestState](
-          StateWrapper()
-            .withState(any)
-            .withMeta(MetaData().withRevisionNumber(1))
-        )
-        .state shouldBe
-        TestState()
-          .withCompanyUuid(companyId)
-          .withName("test")
-    }
-
-    "fail to parse state[No State provided]" in {
-      val commandHandler = new TestCommandHandler(null)
-      val eventHandler = new TestEventHandler(null)
-      val aggregate =
-        new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
-      val testImpl = new TestServiceImpl(null, null, null, aggregate)
-      an[RuntimeException] shouldBe thrownBy(
-        testImpl.parseState[TestState](
-          StateWrapper()
-            .withState(
-              Any()
-                .withTypeUrl("type.googleapis.com/com.contonso.test")
-                .withValue(com.google.protobuf.ByteString.copyFrom("test".getBytes))
-            )
-            .withMeta(MetaData().withRevisionNumber(1))
-        )
-      )
     }
 
     "process request as expected" in ServiceTest.withServer(ServiceTest.defaultSetup.withCluster()) { context =>
