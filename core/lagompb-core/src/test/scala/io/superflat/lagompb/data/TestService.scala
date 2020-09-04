@@ -13,6 +13,7 @@ import io.superflat.lagompb.protobuf.v1.tests.{TestCmd, TestState}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 import scala.concurrent.ExecutionContext
+import io.superflat.lagompb.protobuf.v1.core.StateWrapper
 
 trait TestService extends BaseService {
 
@@ -44,7 +45,7 @@ class TestServiceImpl(
   override def testHello: ServiceCall[TestCmd, TestState] = { req =>
     val companyId: String = UUID.randomUUID().toString
     val cmd = req.update(_.companyUuid := companyId)
-    sendCommand[TestCmd, TestState](companyId, cmd, Map.empty[String, String])
-      .map((rst: StateAndMeta[TestState]) => rst.state)
+    sendCommand(companyId, cmd, Map.empty[String, String])
+      .map((rst: StateWrapper) => rst.state.get.unpack(TestState))
   }
 }
