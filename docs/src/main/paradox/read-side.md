@@ -7,15 +7,19 @@ To be able to implement the readSide the following dependency is required:
 @@dependency[sbt,Maven] {
   group="io.superflat"
   artifact="lagompb-readside_2.13"
-  version="0.4.0"
+  version="0.8.1"
 }
 
 ## Implementation
 
 The following classes can be extended to implement a read side processor.
 
-* `io.superflat.lagompb.readside.ReadSideProcessor` The **_event_** and the **_resulting state_** is made available for processing. The read offsets are stored in postgres database.
-* `io.superflat.lagompb.readside.KafkaProjection` This is used to send the **_event_**, and the **_resulting state_** into kafka as serialized protocol buffer message.
+- `io.superflat.lagompb.readside.ReadSideProcessor`
+- `io.superflat.lagompb.readside.TypedReadSideProcessor` 
+
+The **_event_** and the **_resulting state_** is made available for processing. The read offsets are stored in postgres database.
+
+- `io.superflat.lagompb.readside.KafkaPublisher` This is used to send the **_event_**, and the **_resulting state_** into kafka as serialized protocol buffer message.
 The following protocol buffer messages are used to persist the messages to kafka:
 
 ```proto

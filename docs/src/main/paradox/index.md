@@ -8,7 +8,7 @@ Lagom-pb = @link:[lagom](https://www.lagomframework.com/documentation/1.6.x/scal
 
 Scala shared code for @link:[lagom](https://www.lagomframework.com/documentation/1.6.x/scala/Home.html) { open=new } development using protocol buffer. 
 
-This library helps write lagom microservices easily by making use of protocol buffer messages to define the es/cqrs core
+This library helps write lagom based microservices easily by making use of protocol buffer messages to define the es/cqrs core
 components like _**api requests/responses**_, _**grpc services**_, _**events**_, _**commands**_ and _**state**_. 
 
 ## Get Started
@@ -16,18 +16,17 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 1. Add to your `plugins.sbt`:
 
 ```scala
-ThisBuild / resolvers ++= Seq(Resolver.jcenterRepo, Resolver.sonatypeRepo("public"), Resolver.sonatypeRepo("snapshots"))
-
-addSbtPlugin("io.superflat" % "lagompb-plugin" % "0.5.0")
+val LagompbVersion = "0.8.1"
+addSbtPlugin("io.superflat" % "lagompb-plugin" % LagompbVersion)
 ```
 
 2. Add to your `build.sbt`:
 
 ```scala
-ThisBuild / resolvers ++= Seq(Resolver.jcenterRepo, Resolver.sonatypeRepo("public"), Resolver.sonatypeRepo("snapshots"))
+val LagompbVersion = "0.8.1"
 libraryDependencies ++= Seq(
-  "io.superflat" %% "lagompb-core" % "0.5.0",
-  "io.superflat" %% "lagompb-core" % "0.5.0 % "protobuf"
+  "io.superflat" %% "lagompb-core" % LagompbVersion,
+  "io.superflat" %% "lagompb-core" % LagompbVersion % "protobuf"
 )
 ```
 

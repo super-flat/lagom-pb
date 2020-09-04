@@ -11,12 +11,12 @@ Write Side helps define the persistence entity/aggregate and how data come to th
 
 Let us now dive into the details of these components.
 
-To be able to implement the write side the following dependency is required:
+To be able to implement the write model the following dependency is required:
 
 @@dependency[sbt,Maven] {
   group="io.superflat"
   artifact="lagompb-core_2.13"
-  version="0.4.0"
+  version="0.8.1"
 }
 
 ## Commands
@@ -75,21 +75,56 @@ message BankAccount {
 ## Commands handler
 Commands handler is the meat of the aggregate. They encode the business rules of your entity/aggregate and act as a guardian of the aggregate/entity consistency. 
 Commands handler must first validate that the incoming command can be applied to the current model state. 
-The implementation of a command handler must extend the `io.superflat.lagompb.CommandHandler[TState]` where `TState` is the generated scala case class from the state proto definition. See [state section](#state)
+Lagom-pb makes at the developer disposal two abstract classes that can help implement a command handler:
 
-The only function to override is `handle(command: LagompbCommand, state: TState, stateMeta: StateMeta): Try[CommandHandlerResponse]`.
+- `io.superflat.lagompb.CommandHandler`
+- `io.superflat.lagompb.TypedCommandHandler[S]` where `S` is the generated scala case class from the state proto definition.  See [state section](#state)
+
+We strongly recommend the usage of the second abstract class.
+
+Example: 
+
+```scala
+class AccountCommandHandler(actorSystem: ActorSystem) extends TypedCommandHandler[BankAccount](actorSystem) {
+
+  override def handleTyped(command: GeneratedMessage, currentState: BankAccount, currentMetaData: MetaData): Try[CommandHandlerResponse] = {
+    command match {
+      case o: OpenBankAccount => ???
+      case r: ReceiveMoney => ???
+      case t: TransferMoney => ???
+      case g: GetAccount => ???
+    }
+  }
+}
+```
 
 ## Events handler
 Event handlers **_mutate the state_** of the Aggregate by applying the events to it. 
 Event handlers must be pure functions. This allows them to be tested without the need of the whole akka system.
-Events handler must extend the `io.superflat.lagompb.EventHandler[TState]` must be extended where `TState` is the generated scala case class from the state proto definition. 
+One can implement an events handler in lagom-pb by extending one of the following abstract classes:
 
-The only function to override is `handle(event: scalapb.GeneratedMessage, state: TState): TState`. 
-As one can see the event handler makes available the current state of the aggregate/entity.
+- `io.superflat.lagompb.EventHandler`
+- `io.superflat.lagompb.TypedEventHandler[S]` must be extended where `S` is the generated scala case class from the state proto definition. 
+
+Example:
+
+```scala
+class AccountEventHandler(actorSystem: ActorSystem) extends TypedEventHandler[BankAccount](actorSystem) {
+
+  override def handleTyped(event: scalapb.GeneratedMessage, state: BankAccount, eventMeta: MetaData): BankAccount = {
+    event match {
+      case a: AccountOpened => ???
+      case m: MoneyReceived => ???
+      case t: MoneyTransferred => ???
+      case _ => ???
+    }
+  }
+}
+```
 
 ## Aggregate Root
 The aggregate root or model is defined in terms of **_Commands_**, **_Events_**, and **_State_** in the world of ES/CQRS and that has been the approach taken into lagom-pb. 
-The aggregate root must extend the `io.superflat.lagompb.AggregateRoot[TState]` where `TState` is the generated scala case class from the state proto definition. See [state section](#state).
+The aggregate root must extend the `io.superflat.lagompb.AggregateRoot[S]` where `S` is the generated scala case class from the state proto definition. See [state section](#state).
 
 There are only four attributes to override:
 
@@ -101,18 +136,12 @@ There are only four attributes to override:
 Example:
 
 ```scala
-package io.superflat.lagompb.samples.account
-
-import akka.actor.ActorSystem
-import io.superflat.lagompb.{AggregateRoot, CommandHandler, EventHandler}
-import io.superflat.lagompb.samples.protobuf.account.state.BankAccount
-import scalapb.GeneratedMessageCompanion
-
 final class AccountAggregate(
-    actorSystem: ActorSystem,
-    commandHandler: CommandHandler[BankAccount],
-    eventHandler: EventHandler[BankAccount]
-) extends AggregateRoot[BankAccount](actorSystem, commandHandler, eventHandler) {
+                              actorSystem: ActorSystem,
+                              commandHandler: TypedCommandHandler[BankAccount],
+                              eventHandler: TypedEventHandler[BankAccount],
+                              encryptionAdapter: EncryptionAdapter
+) extends AggregateRoot[BankAccount](actorSystem, commandHandler, eventHandler, encryptionAdapter) {
 
   override def aggregateName: String = "Account"
 
