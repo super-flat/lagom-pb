@@ -40,10 +40,11 @@ sealed trait SharedBaseServiceImpl {
    * sends commands to the aggregate root and return a future of the aggregate state given a entity Id
    * the given entity Id is obtained the cluster shard.
    *
-   * @param entityId the entity Id added or retrieved from the shard
-   * @param cmd        the command to send to the aggregate. It is a scalapb generated case class from the command
-   *                   protocol buffer message definition
-   * @param data       additional data that need to be set in the state meta
+   * @param clusterSharding  an instance of ClusterSharding
+   * @param entityId         the entity Id added or retrieved from the shard
+   * @param cmd              the command to send to the aggregate. It is a scalapb generated case class from the command
+   *                         protocol buffer message definition
+   * @param data             additional data that need to be set in the state meta
    * @return Future of state
    */
   def sendCommand(
@@ -104,8 +105,6 @@ abstract class BaseServiceImpl(
    * @param entityId the entity ID
    * @param cmd      the command to send
    * @param data     the additional data to send
-   * @tparam C the command scala type
-   * @tparam S   the actual state scala type
    * @return the [[io.superflat.lagompb.StateAndMeta]] containing the actual state and the event meta
    */
   final def sendCommand(
@@ -146,8 +145,6 @@ trait BaseGrpcServiceImpl extends SharedBaseServiceImpl {
    * @param entityId        the entity ID
    * @param cmd             the command to send
    * @param data            the additional data to send
-   * @tparam C the command scala type
-   * @tparam S   the actual state scala type
    * @return the [[io.superflat.lagompb.StateAndMeta]] containing the actual state and the state meta
    */
   final override def sendCommand(
