@@ -8,7 +8,7 @@ import com.lightbend.lagom.scaladsl.api.{Descriptor, ServiceCall}
 import com.lightbend.lagom.scaladsl.api.Service.restCall
 import com.lightbend.lagom.scaladsl.api.transport.Method
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
-import io.superflat.lagompb.{AggregateRoot, BaseService, BaseServiceImpl, ProtosRegistry, StateAndMeta}
+import io.superflat.lagompb.{AggregateRoot, BaseService, BaseServiceImpl, ProtosRegistry}
 import io.superflat.lagompb.protobuf.v1.tests.{TestCmd, TestState}
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
@@ -34,13 +34,6 @@ class TestServiceImpl(
 )(implicit ec: ExecutionContext)
     extends BaseServiceImpl(clusterSharding, persistentEntityRegistry, aggregate)
     with TestService {
-
-  /**
-   * aggregate state. it is a generated scalapb message extending the LagompbState trait
-   *
-   * @return aggregate state
-   */
-  override def aggregateStateCompanion: GeneratedMessageCompanion[_ <: GeneratedMessage] = TestState
 
   override def testHello: ServiceCall[TestCmd, TestState] = { req =>
     val companyId: String = UUID.randomUUID().toString
