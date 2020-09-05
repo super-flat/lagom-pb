@@ -28,7 +28,10 @@ import scala.util.{Failure, Success, Try}
  * @param actorSystem     the underlying actor system
  * @param commandHandler  the commands handler
  * @param eventHandler    the events handler
- * @param initialState    the aggregate initial state
+ * @param initialState    the aggregate initial state.
+ *                        Note: The type of the state must be the same as define as type parameter
+ *                        in both commands and events handler when using the [[io.superflat.lagompb.TypedCommandHandler]] and
+ *                        [[io.superflat.lagompb.TypedEventHandler]]
  * @param encryptionAdapter optional ProtoEncryption implementatione scala type of the aggregate state
  */
 abstract class AggregateRoot(
