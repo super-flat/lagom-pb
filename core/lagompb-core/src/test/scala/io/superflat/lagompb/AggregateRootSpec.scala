@@ -3,18 +3,18 @@ package io.superflat.lagompb
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
+import akka.actor.ActorSystem
 import akka.actor.testkit.typed.scaladsl.TestProbe
 import akka.actor.typed.ActorRef
 import akka.actor.typed.scaladsl.adapter._
-import akka.actor.ActorSystem
 import akka.persistence.typed.PersistenceId
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.data.{TestAggregateRoot, TestCommandHandler, TestEventHandler}
 import io.superflat.lagompb.encryption.EncryptionAdapter
-import io.superflat.lagompb.testkit.BaseActorTestKit
-import io.superflat.lagompb.protobuf.v1.core._
 import io.superflat.lagompb.protobuf.v1.core.CommandReply.Reply
+import io.superflat.lagompb.protobuf.v1.core._
 import io.superflat.lagompb.protobuf.v1.tests._
+import io.superflat.lagompb.testkit.BaseActorTestKit
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -53,6 +53,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           actorSystem,
           new TestCommandHandler(actorSystem),
           new TestEventHandler(actorSystem),
+          TestState(),
           new EncryptionAdapter(encryptor = None)
         )
 
@@ -90,6 +91,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
         new TestAggregateRoot(actorSystem,
                               new TestCommandHandler(actorSystem),
                               new TestEventHandler(actorSystem),
+                              TestState(),
                               new EncryptionAdapter(None)
         )
 
@@ -123,6 +125,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           actorSystem,
           new TestCommandHandler(actorSystem),
           new TestEventHandler(actorSystem),
+          TestState(),
           new EncryptionAdapter(None)
         )
 
@@ -160,6 +163,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
         new TestAggregateRoot(actorSystem,
                               new TestCommandHandler(actorSystem),
                               new TestEventHandler(actorSystem),
+                              TestState(),
                               new EncryptionAdapter(None)
         )
 
@@ -192,6 +196,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           actorSystem,
           new TestCommandHandler(actorSystem),
           new TestEventHandler(actorSystem),
+          TestState(),
           new EncryptionAdapter(None)
         )
 
@@ -224,6 +229,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           actorSystem,
           new TestCommandHandler(actorSystem),
           new TestEventHandler(actorSystem),
+          TestState(),
           new EncryptionAdapter(None)
         )
 
@@ -256,6 +262,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
         new TestAggregateRoot(actorSystem,
                               new TestCommandHandler(actorSystem),
                               new TestEventHandler(actorSystem),
+                              TestState(),
                               new EncryptionAdapter(None)
         )
 
@@ -275,6 +282,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
         new TestAggregateRoot(actorSystem,
                               new TestCommandHandler(actorSystem),
                               new TestEventHandler(actorSystem),
+                              TestState(),
                               new EncryptionAdapter(None)
         )
 
@@ -300,6 +308,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
         new TestAggregateRoot(actorSystem,
                               new TestCommandHandler(actorSystem),
                               new TestEventHandler(actorSystem),
+                              TestState(),
                               new EncryptionAdapter(None)
         )
 
@@ -352,6 +361,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           actorSystem,
           new TestCommandHandler(actorSystem),
           new TestEventHandler(actorSystem),
+          TestState(),
           new EncryptionAdapter(encryptor = None)
         )
 

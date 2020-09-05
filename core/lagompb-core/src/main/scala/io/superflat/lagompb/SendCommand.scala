@@ -27,7 +27,7 @@ trait SendCommand {
    */
   def sendCommand(
     clusterSharding: ClusterSharding,
-    aggregateRoot: AggregateRoot[_],
+    aggregateRoot: AggregateRoot,
     entityId: String,
     cmd: scalapb.GeneratedMessage,
     data: Map[String, String]
@@ -52,7 +52,7 @@ trait SendCommand {
    */
   def sendCommandTyped(
     clusterSharding: ClusterSharding,
-    aggregateRoot: AggregateRoot[_],
+    aggregateRoot: AggregateRoot,
     entityId: String,
     cmd: scalapb.GeneratedMessage,
     data: Map[String, String]

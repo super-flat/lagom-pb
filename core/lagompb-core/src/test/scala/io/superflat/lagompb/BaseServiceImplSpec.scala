@@ -37,7 +37,7 @@ class BaseServiceImplSpec extends BaseSpec {
       val commandHandler = new TestCommandHandler(null)
       val eventHandler = new TestEventHandler(null)
       val aggregate =
-        new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
+        new TestAggregateRoot(null, commandHandler, eventHandler, TestState(), defaultEncryptionAdapter)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
 
       val cmdReply = CommandReply()
@@ -63,7 +63,7 @@ class BaseServiceImplSpec extends BaseSpec {
       val commandHandler = new TestCommandHandler(null)
       val eventHandler = new TestEventHandler(null)
       val aggregate =
-        new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
+        new TestAggregateRoot(null, commandHandler, eventHandler, TestState(), defaultEncryptionAdapter)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
       val rejected =
         CommandReply()
@@ -78,7 +78,7 @@ class BaseServiceImplSpec extends BaseSpec {
       val commandHandler = new TestCommandHandler(null)
       val eventHandler = new TestEventHandler(null)
       val aggregate =
-        new TestAggregateRoot(null, commandHandler, eventHandler, defaultEncryptionAdapter)
+        new TestAggregateRoot(null, commandHandler, eventHandler, TestState(), defaultEncryptionAdapter)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
 
       testImpl
