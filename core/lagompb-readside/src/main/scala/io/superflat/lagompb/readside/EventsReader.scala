@@ -30,7 +30,7 @@ final class EventsReader(eventTag: String, eventProcessor: EventProcessor, encry
    * @param envelope the event envelope
    * @return
    */
-  override def process(envelope: EventEnvelope[EventWrapper]): DBIO[Done] = {
+  override def process(envelope: EventEnvelope[EventWrapper]): DBIO[Done] =
     // decrypt the event/state as needed
     encryptionAdapter
       .decryptEventWrapper(envelope.event)
@@ -53,5 +53,4 @@ final class EventsReader(eventTag: String, eventProcessor: EventProcessor, encry
       case Success(value)     => value
       case Failure(exception) => throw exception
     }
-  }
 }

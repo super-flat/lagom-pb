@@ -67,12 +67,11 @@ object ProtosRegistry {
    * @param any scalapb google Any protobuf
    * @return Successful unpacked message or a Failure
    */
-  def unpackAny(any: Any): Try[GeneratedMessage] = {
+  def unpackAny(any: Any): Try[GeneratedMessage] =
     getCompanion(any) match {
       case None       => Failure(new Exception(s"could not unpack unrecognized proto ${any.typeUrl}"))
       case Some(comp) => Try(any.unpack(comp))
     }
-  }
 
   /**
    * unpack many Any messages or exit on first failure

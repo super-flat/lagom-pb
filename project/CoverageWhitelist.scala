@@ -9,6 +9,8 @@ object CoverageWhitelist {
     "io.superflat.lagompb.BaseServiceImpl",
     "io.superflat.lagompb.BaseGrpcServiceImpl",
     "io.superflat.lagompb.BaseServiceImpl",
-    "io.superflat.lagompb.InternalServerError"
+    "io.superflat.lagompb.InternalServerError",
+    "io.superflat.lagompb.LagompbPlugin",
+    "io.superflat.lagompb.SharedBaseServiceImpl"
   )
 }

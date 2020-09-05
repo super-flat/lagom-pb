@@ -125,7 +125,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
                                     state: Any,
                                     metaData: MetaData,
                                     replyTo: ActorRef[CommandReply]
-  ): ReplyEffect[EventWrapper, StateWrapper] = {
+  ): ReplyEffect[EventWrapper, StateWrapper] =
     Try {
       eventHandler.handle(event, state, metaData)
     } match {
@@ -167,7 +167,6 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
               )
           }
     }
-  }
 
   /**
    * unpacks the nested state in the event, throws away prior state
@@ -187,16 +186,16 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
    * @param cmd          the command to process
    */
   final def genericCommandHandler(stateWrapper: StateWrapper, cmd: Command): ReplyEffect[EventWrapper, StateWrapper] = {
-    {
+
+    val maybeState: Try[Any] =
       // if no prior revisions, use default instance state
-      if (stateWrapper.getMeta.revisionNumber == 0L) {
+      if (stateWrapper.getMeta.revisionNumber == 0L)
         Try(stateWrapper.getState)
-      }
-      // otherwise attempt to decrypt prior state
-      else {
+      else
+        // otherwise attempt to decrypt prior state
         encryptionAdapter.decrypt(stateWrapper.getState)
-      }
-    } match {
+
+    maybeState match {
 
       case Failure(exception) =>
         val errMsg: String = s"state parser failure, ${exception.getMessage}"

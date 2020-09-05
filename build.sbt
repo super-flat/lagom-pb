@@ -55,6 +55,7 @@ lazy val `lagompb-plugin` = project
   .enablePlugins(Publish)
   .settings(
     name := "lagompb-plugin",
+    coverageExcludedPackages := CoverageWhitelist.whitelist.mkString(";"),
     crossScalaVersions := Dependencies.Versions.CrossScalaForPlugin,
     scalaVersion := Dependencies.Versions.Scala212,
     resolvers += Resolver.bintrayRepo("playframework", "maven"),

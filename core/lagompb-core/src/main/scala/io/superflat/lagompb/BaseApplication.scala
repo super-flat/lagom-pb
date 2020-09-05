@@ -43,9 +43,8 @@ abstract class BaseApplication(context: LagomApplicationContext)
 
   // $COVERAGE-OFF$
   // initialize instrumentation and tracing if it is enabled
-  if (ConfigReader.isInstrumentationEnabled) {
+  if (ConfigReader.isInstrumentationEnabled)
     Kamon.init()
-  }
 
   ProtosRegistry.load()
 
