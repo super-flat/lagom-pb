@@ -1,23 +1,13 @@
 package io.superflat.lagompb
 
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
-import akka.grpc.GrpcServiceException
 import akka.util.Timeout
-import cats.implicits._
 import com.google.protobuf.any.Any
-import com.lightbend.lagom.scaladsl.api.transport.BadRequest
-import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
-import io.grpc.Status
 import io.superflat.lagompb.protobuf.v1.core.CommandReply.Reply
-import io.superflat.lagompb.protobuf.v1.core.{CommandReply, FailureCause, StateWrapper}
-import io.superflat.lagompb.protobuf.v1.extensions.ExtensionsProto
-import org.slf4j.{Logger, LoggerFactory}
-import scalapb.GeneratedMessage
+import io.superflat.lagompb.protobuf.v1.core._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
-import io.superflat.lagompb.protobuf.v1.core.MetaData
-import io.superflat.lagompb.protobuf.v1.core.FailedReply
 
 trait SendCommand {
   // $COVERAGE-OFF$
@@ -41,12 +31,11 @@ trait SendCommand {
     entityId: String,
     cmd: scalapb.GeneratedMessage,
     data: Map[String, String]
-  )(implicit ec: ExecutionContext): Future[StateWrapper] = {
+  )(implicit ec: ExecutionContext): Future[StateWrapper] =
     clusterSharding
       .entityRefFor(aggregateRoot.typeKey, entityId)
       .ask[CommandReply](replyTo => Command(Any.pack(cmd), replyTo, data))
       .flatMap((value: CommandReply) => Future.fromTry(handleLagompbCommandReply(value)))
-  }
 
   /**
    * a "typed" version of send command that attempts to unpack the Any State
@@ -67,10 +56,9 @@ trait SendCommand {
     entityId: String,
     cmd: scalapb.GeneratedMessage,
     data: Map[String, String]
-  )(implicit ec: ExecutionContext): Future[(scalapb.GeneratedMessage, MetaData)] = {
+  )(implicit ec: ExecutionContext): Future[(scalapb.GeneratedMessage, MetaData)] =
     sendCommand(clusterSharding, aggregateRoot, entityId, cmd, data)
       .flatMap(stateWrapper => Future.fromTry(unpackStateWrapper(stateWrapper)))
-  }
 
   // $COVERAGE-ON$
 
@@ -82,7 +70,7 @@ trait SendCommand {
    */
   private[lagompb] def handleLagompbCommandReply(
     commandReply: CommandReply
-  ): Try[StateWrapper] = {
+  ): Try[StateWrapper] =
     commandReply.reply match {
       case Reply.SuccessfulReply(successReply) =>
         Success(successReply.getStateWrapper)
@@ -90,7 +78,6 @@ trait SendCommand {
         transformFailedReply(failureReply).asInstanceOf[Try[StateWrapper]]
       case _ => Failure(new GlobalException(s"unknown CommandReply ${commandReply.reply.getClass.getName}"))
     }
-  }
 
   /**
    * generic conversion for failed replys into a scala Failure
@@ -98,13 +85,12 @@ trait SendCommand {
    * @param failedReply some command handler failed reply
    * @return a Failure of type Try[]
    */
-  def transformFailedReply(failedReply: FailedReply): Failure[Throwable] = {
+  def transformFailedReply(failedReply: FailedReply): Failure[Throwable] =
     failedReply.cause match {
       case FailureCause.VALIDATION_ERROR => Failure(new InvalidCommandException(failedReply.reason))
       case FailureCause.INTERNAL_ERROR   => Failure(new GlobalException(failedReply.reason))
       case _                             => Failure(new GlobalException("reason unknown"))
     }
-  }
 
   /**
    * unpack state wrapper, for use in sendCommandTyped
@@ -112,10 +98,13 @@ trait SendCommand {
    * @param stateWrapper a state wrapper instance
    * @return a Try with the unpacked state as a generated message
    */
-  def unpackStateWrapper(stateWrapper: StateWrapper): Try[(scalapb.GeneratedMessage, MetaData)] = {
+  def unpackStateWrapper(stateWrapper: StateWrapper): Try[(scalapb.GeneratedMessage, MetaData)] =
     stateWrapper.state match {
-      case Some(state) => ProtosRegistry.unpackAny(state).map(newState => (newState, stateWrapper.getMeta))
-      case None        => Failure(new GlobalException("state not found"))
+      case Some(state) =>
+        ProtosRegistry.unpackAny(state) match {
+          case Failure(exception) => Failure(exception)
+          case Success(newState)  => Success((newState, stateWrapper.getMeta))
+        }
+      case None => Failure(new GlobalException("state not found"))
     }
-  }
 }

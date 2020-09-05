@@ -28,9 +28,8 @@ sealed trait GenericSerializers[T <: GeneratedMessage] {
 
   def deserializer(implicit T: GeneratedMessageCompanion[T]): NegotiatedDeserializer[T, ByteString] = {
     (wire: ByteString) =>
-      {
-        ProtosRegistry.parser.fromJsonString(wire.utf8String)
-      }
+
+      ProtosRegistry.parser.fromJsonString(wire.utf8String)
   }
 
   def negotiateResponse(acceptedMessageProtocols: Seq[MessageProtocol]): NegotiatedSerializer[T, ByteString] =

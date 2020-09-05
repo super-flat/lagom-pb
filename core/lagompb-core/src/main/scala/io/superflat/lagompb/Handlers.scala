@@ -57,7 +57,7 @@ abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](actorSystem: A
    * @param currentMetaData lagomPb MetaData
    * @return a command handler response or Failure
    */
-  final def handle(command: Any, currentState: Any, currentMetaData: MetaData): Try[CommandHandlerResponse] = {
+  final def handle(command: Any, currentState: Any, currentMetaData: MetaData): Try[CommandHandlerResponse] =
     ProtosRegistry.unpackAnys(currentState, command) match {
       case Failure(exception) =>
         Failure(exception)
@@ -69,7 +69,6 @@ abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](actorSystem: A
           currentMetaData = currentMetaData
         )
     }
-  }
 
   /**
    * Handles a given command send to the entity
@@ -103,7 +102,7 @@ abstract class TypedEventHandler[S <: scalapb.GeneratedMessage](actorSystem: Act
    * @param metaData lagomPb MetaData
    * @return an Any message with a resulting state
    */
-  final def handle(event: Any, currentState: Any, metaData: MetaData): Any = {
+  final def handle(event: Any, currentState: Any, metaData: MetaData): Any =
     ProtosRegistry.unpackAnys(currentState, event) match {
       case Failure(exception) =>
         throw exception
@@ -117,7 +116,6 @@ abstract class TypedEventHandler[S <: scalapb.GeneratedMessage](actorSystem: Act
           )
         )
     }
-  }
 
   /**
    * Handles a given event ad return the resulting state

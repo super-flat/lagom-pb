@@ -185,13 +185,12 @@ class EncryptionAdapterSpec extends BaseSpec {
       (encryptor
         .decrypt(_: EncryptedProto))
         .expects(*)
-        .onCall((encryptedProto: EncryptedProto) => {
-          if (encryptedProto.encryptionMeta.contains("fail")) {
+        .onCall { (encryptedProto: EncryptedProto) =>
+          if (encryptedProto.encryptionMeta.contains("fail"))
             decryptFailure
-          } else {
+          else
             NoEncryption.decrypt(encryptedProto)
-          }
-        })
+        }
 
       // encrypt values with NoEncryption and pack into wrapper
       val encryptedEvent: EncryptedProto = NoEncryption
@@ -221,13 +220,12 @@ class EncryptionAdapterSpec extends BaseSpec {
       (encryptor
         .decrypt(_: EncryptedProto))
         .expects(*)
-        .onCall((encryptedProto: EncryptedProto) => {
-          if (encryptedProto.encryptionMeta.contains("fail")) {
+        .onCall { (encryptedProto: EncryptedProto) =>
+          if (encryptedProto.encryptionMeta.contains("fail"))
             decryptFailure
-          } else {
+          else
             NoEncryption.decrypt(encryptedProto)
-          }
-        })
+        }
         .twice()
 
       // encrypt values with NoEncryption and pack into wrapper

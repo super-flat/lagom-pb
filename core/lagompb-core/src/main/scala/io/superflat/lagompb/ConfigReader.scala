@@ -36,11 +36,9 @@ object ConfigReader {
       numShards = config.getInt("akka.cluster.sharding.number-of-shards")
     )
 
-  def createOffsetStore: Boolean = {
+  def createOffsetStore: Boolean =
     config.getBoolean("lagompb.projection.create-tables.auto")
-  }
 
-  def isInstrumentationEnabled: Boolean = {
+  def isInstrumentationEnabled: Boolean =
     config.getBoolean(s"$LP.instrumentation.enabled")
-  }
 }

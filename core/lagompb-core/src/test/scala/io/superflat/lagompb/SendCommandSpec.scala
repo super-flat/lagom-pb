@@ -1,21 +1,18 @@
 package io.superflat.lagompb
 
-import io.superflat.lagompb.testkit.BaseSpec
-import java.util.UUID
-import scala.concurrent.ExecutionContext.Implicits.global
-import io.superflat.lagompb.protobuf.v1.core.CommandReply
-import io.superflat.lagompb.protobuf.v1.core.SuccessfulReply
-import io.superflat.lagompb.protobuf.v1.core.StateWrapper
 import com.google.protobuf.any.Any
 import com.google.protobuf.wrappers.StringValue
 import io.superflat.lagompb.data.TestCommandSender
+import io.superflat.lagompb.protobuf.v1.core.FailureCause.Unrecognized
+import io.superflat.lagompb.protobuf.v1.core._
+import io.superflat.lagompb.protobuf.v1.tests.TestState
+import io.superflat.lagompb.testkit.BaseSpec
+
 import scala.util.Success
-import io.superflat.lagompb.protobuf.v1.core.FailedReply
-import io.superflat.lagompb.protobuf.v1.core.FailureCause
-import io.superflat.lagompb.protobuf.v1.core.MetaData
 
 class SendCommandSpec extends BaseSpec {
   "handleLagompbCommandReply" should {
+
     "return a statewrapper on success" in {
       val someStateWrapper = StateWrapper()
         .withState(Any.pack(StringValue("good")))
@@ -28,9 +25,9 @@ class SendCommandSpec extends BaseSpec {
 
       val actual = TestCommandSender.handleLagompbCommandReply(cmd)
 
-      actual shouldBe (Success(someStateWrapper))
-
+      actual shouldBe Success(someStateWrapper)
     }
+
     "run the provided transformFailedReply on failure" in {
       val failCause = "just coz"
 
@@ -43,17 +40,18 @@ class SendCommandSpec extends BaseSpec {
 
       val actual = TestCommandSender.handleLagompbCommandReply(cmd)
 
-      actual.isFailure shouldBe (true)
-      actual.failed.get.getMessage() shouldBe (failCause)
+      actual.isFailure shouldBe true
+      actual.failed.get.getMessage shouldBe failCause
     }
+
     "fails when unknown reply found" in {
       val cmd = CommandReply()
 
       val actual = TestCommandSender.handleLagompbCommandReply(cmd)
 
-      actual.isFailure shouldBe (true)
-      actual.failed.get.isInstanceOf[GlobalException] shouldBe(true)
-      actual.failed.get.getMessage().contains("unknown CommandReply") shouldBe (true)
+      actual.isFailure shouldBe true
+      actual.failed.get.isInstanceOf[GlobalException] shouldBe true
+      actual.failed.get.getMessage.contains("unknown CommandReply") shouldBe true
     }
   }
 
@@ -66,10 +64,11 @@ class SendCommandSpec extends BaseSpec {
           .withReason(errMsg)
       )
 
-      actual.isFailure shouldBe (true)
-      actual.failed.get.isInstanceOf[InvalidCommandException] shouldBe(true)
-      actual.failed.get.getMessage shouldBe (errMsg)
+      actual.isFailure shouldBe true
+      actual.failed.get.isInstanceOf[InvalidCommandException] shouldBe true
+      actual.failed.get.getMessage shouldBe errMsg
     }
+
     "handle internal errors" in {
       val errMsg: String = "internal error"
       val actual = TestCommandSender.transformFailedReply(
@@ -78,35 +77,36 @@ class SendCommandSpec extends BaseSpec {
           .withReason(errMsg)
       )
 
-      actual.isFailure shouldBe (true)
-      actual.failed.get.isInstanceOf[GlobalException] shouldBe(true)
-      actual.failed.get.getMessage shouldBe (errMsg)
+      actual.isFailure shouldBe true
+      actual.failed.get.isInstanceOf[GlobalException] shouldBe true
+      actual.failed.get.getMessage shouldBe errMsg
     }
+
     "handle unknown errors" in {
       val actual = TestCommandSender.transformFailedReply(
-        FailedReply()
+        FailedReply().withCause(Unrecognized(0))
       )
 
-      actual.isFailure shouldBe (true)
-      actual.failed.get.isInstanceOf[GlobalException] shouldBe(true)
-      actual.failed.get.getMessage shouldBe ("reason unknown")
+      actual.isFailure shouldBe true
+      actual.failure.exception should have message "reason unknown"
     }
   }
 
   "unpackStateWrapper" should {
     "unpack a known proto" in {
-      val msg = StringValue("oh yeah")
+      val msg = TestState.defaultInstance
       val meta = MetaData().withRevisionNumber(1L)
       val stateWrapper = StateWrapper().withState(Any.pack(msg)).withMeta(meta)
       val actual = TestCommandSender.unpackStateWrapper(stateWrapper)
-      actual shouldBe(Success((msg, meta)))
+      actual shouldBe Success((msg, meta))
     }
+
     "fail on unknown proto" in {
       val badAny = Any().withTypeUrl("whoopsidaisies")
       val stateWrapper = StateWrapper().withState(badAny)
       val actual = TestCommandSender.unpackStateWrapper(stateWrapper)
-      actual.isFailure shouldBe(true)
-      actual.failed.get.getMessage() shouldBe("state not found")
+      actual.isFailure shouldBe true
+      actual.failure.exception should have message "could not unpack unrecognized proto whoopsidaisies"
     }
   }
 }

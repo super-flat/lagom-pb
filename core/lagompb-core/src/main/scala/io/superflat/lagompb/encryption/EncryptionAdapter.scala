@@ -30,7 +30,7 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
    * @param any a scalapb Any message to encrypt
    * @return Any message optionally encrypted with provided ProtoEncryption
    */
-  def encrypt(any: Any): Try[Any] = {
+  def encrypt(any: Any): Try[Any] =
     encryptor match {
       // if encryptor provided, attempt the encrypt
       case Some(enc) =>
@@ -39,7 +39,6 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
       // if no encryptor provided, pass through
       case None => Success(any)
     }
-  }
 
   /**
    * decrypt adapter that only applies decryption if ProtoEncryption is provided
@@ -47,7 +46,7 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
    * @param any the data to decrypt
    * @return
    */
-  def decrypt(any: Any): Try[Any] = {
+  def decrypt(any: Any): Try[Any] =
     encryptor match {
       // if an encryptor provided and it's an encrypted proto, attempt decrypt
       case Some(enc) if EncryptionAdapter.isEncryptedProto(any) =>
@@ -64,7 +63,6 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
       // if no encryptor provided, just pass through
       case None => Success(any)
     }
-  }
 
   /**
    * calls encrypt or throws error
@@ -72,12 +70,11 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
    * @param any a message to encrypt
    * @return the encrypted Any message
    */
-  def encryptOrThrow(any: Any): Any = {
+  def encryptOrThrow(any: Any): Any =
     encrypt(any) match {
       case Success(result)    => result
       case Failure(exception) => throw exception
     }
-  }
 
   /**
    * calls decrypt or throws error
@@ -85,12 +82,11 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
    * @param any a message to decrypt
    * @return the decrypted Any message
    */
-  def decryptOrThrow(any: Any): Any = {
+  def decryptOrThrow(any: Any): Any =
     decrypt(any) match {
       case Success(value)     => value
       case Failure(exception) => throw exception
     }
-  }
 
   /**
    * helper that decrypts the nested event and state messages
@@ -99,22 +95,21 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
    * @param eventWrapper an eventwrapper with (potentially) encrypted messages
    * @return Eventwrapper with decrypted event/state or failure
    */
-  def decryptEventWrapper(eventWrapper: EventWrapper): Try[EventWrapper] = {
+  def decryptEventWrapper(eventWrapper: EventWrapper): Try[EventWrapper] =
     // TODO: think about parallelizing the decrypt calls here (futures, etc)
     Try(eventWrapper)
       // decrypt the event
-      .flatMap(eventWrapper => {
+      .flatMap { eventWrapper =>
         this
           .decrypt(eventWrapper.getEvent)
           .map(decryptedEvent => eventWrapper.withEvent(decryptedEvent))
-      })
+      }
       // decrypt the state
-      .flatMap(eventWrapper => {
+      .flatMap { eventWrapper =>
         this
           .decrypt(eventWrapper.getResultingState)
           .map(decryptedState => eventWrapper.withResultingState(decryptedState))
-      })
-  }
+      }
 }
 
 object EncryptionAdapter {
@@ -126,8 +121,7 @@ object EncryptionAdapter {
    * @param any protobuf Any message (scalapb)
    * @return True if the any typeURL is that of an encryptedProto
    */
-  def isEncryptedProto(any: Any): Boolean = {
+  def isEncryptedProto(any: Any): Boolean =
     any.typeUrl.contains(EncryptedProto.scalaDescriptor.fullName) ||
-    EncryptedProto.scalaDescriptor.fullName.contains(any.typeUrl)
-  }
+      EncryptedProto.scalaDescriptor.fullName.contains(any.typeUrl)
 }

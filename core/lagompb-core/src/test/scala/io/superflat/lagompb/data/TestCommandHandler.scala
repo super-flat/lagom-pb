@@ -46,7 +46,7 @@ class TestCommandHandler(actorSystem: ActorSystem) extends TypedCommandHandler[T
       case _              => handleInvalidCommand()
     }
 
-  def handleTestEventHandlerFailure(cmd: TestEventFailureCmd, currentState: TestState): Try[CommandHandlerResponse] = {
+  def handleTestEventHandlerFailure(cmd: TestEventFailureCmd, currentState: TestState): Try[CommandHandlerResponse] =
     Try(
       CommandHandlerResponse()
         .withSuccessResponse(
@@ -54,7 +54,6 @@ class TestCommandHandler(actorSystem: ActorSystem) extends TypedCommandHandler[T
             .withEvent(Any.pack(TestEventFailure.defaultInstance))
         )
     )
-  }
 
   def handleTestGetCmd(cmd: TestGetCmd, currentState: TestState): Try[CommandHandlerResponse] =
     Try(

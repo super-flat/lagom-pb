@@ -2,22 +2,15 @@ package io.superflat.lagompb
 
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
 import akka.grpc.GrpcServiceException
-import akka.util.Timeout
-import cats.implicits._
-import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.api.transport.BadRequest
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import io.grpc.Status
-import io.superflat.lagompb.protobuf.v1.core.CommandReply.Reply
-import io.superflat.lagompb.protobuf.v1.core.{CommandReply, FailureCause, StateWrapper}
-import io.superflat.lagompb.protobuf.v1.extensions.ExtensionsProto
+import io.superflat.lagompb.protobuf.v1.core.{FailedReply, FailureCause, StateWrapper}
 import org.slf4j.{Logger, LoggerFactory}
 import scalapb.GeneratedMessage
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
-import io.superflat.lagompb.protobuf.v1.core.MetaData
-import io.superflat.lagompb.protobuf.v1.core.FailedReply
+import scala.util.Failure
 
 trait SharedBaseServiceImpl extends SendCommand {
   // some cluster sharding instance
@@ -37,9 +30,7 @@ trait SharedBaseServiceImpl extends SendCommand {
    */
   def sendCommand(entityId: String, cmd: GeneratedMessage, data: Map[String, String])(implicit
     ec: ExecutionContext
-  ): Future[StateWrapper] = {
-    sendCommand(clusterSharding, aggregateRoot, entityId, cmd, data)(ec)
-  }
+  ): Future[StateWrapper] = sendCommand(clusterSharding, aggregateRoot, entityId, cmd, data)(ec)
 
 }
 
@@ -49,8 +40,7 @@ trait SharedBaseServiceImpl extends SendCommand {
  * It must be implemented by any lagom REST based service
  *
  * @param clusterSharding          the cluster sharding
- * @param persistentEntityRegistry the persistence entity registry
- * @param ec                       the execution context
+ * @param persistentEntityRegistry the persistence entity registrythe execution context
  */
 abstract class BaseServiceImpl(
   val clusterSharding: ClusterSharding,
@@ -70,7 +60,7 @@ abstract class BaseServiceImpl(
    * @param failedReply some command handler failed reply
    * @return a Failure of type Try[StateWrapper]
    */
-  override def transformFailedReply(failedReply: FailedReply): Failure[Throwable] = {
+  override def transformFailedReply(failedReply: FailedReply): Failure[Throwable] =
     failedReply.cause match {
 
       case FailureCause.VALIDATION_ERROR =>
@@ -82,7 +72,6 @@ abstract class BaseServiceImpl(
       case _ =>
         Failure(InternalServerError("critical failure"))
     }
-  }
 }
 
 /**
