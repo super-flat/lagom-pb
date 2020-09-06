@@ -95,7 +95,7 @@ import scala.util.{Failure, Success, Try}
    * @param tagName the event tag
    * @return the projection instance
    */
-  protected def exactlyOnceProjection(tagName: String): ExactlyOnceProjection[Offset, EventEnvelope[EventWrapper]] =
+  protected def exactlyOnceProjection(tagName: String): ExactlyOnceProjection[Offset, EventEnvelope[EventWrapper]] = {
     SlickProjection
       .exactlyOnce(
         projectionId = ProjectionId(projectionName, tagName),
@@ -103,6 +103,7 @@ import scala.util.{Failure, Success, Try}
         offsetStoreDatabaseConfig,
         handler = () => new EventsReader(tagName, this, encryptionAdapter)
       )
+  }
 
   /**
    * Set the Event Sourced Provider per tag
@@ -110,9 +111,10 @@ import scala.util.{Failure, Success, Try}
    * @param tag the event tag
    * @return the event sourced provider
    */
-  protected def sourceProvider(tag: String): SourceProvider[Offset, EventEnvelope[EventWrapper]] =
+  protected def sourceProvider(tag: String): SourceProvider[Offset, EventEnvelope[EventWrapper]] = {
     EventSourcedProvider
       .eventsByTag[EventWrapper](actorSystem, readJournalPluginId = JdbcReadJournal.Identifier, tag)
+  }
 
   /**
    * The projection Name must be unique
