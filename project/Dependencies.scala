@@ -123,8 +123,9 @@ object Dependencies {
     val AkkaTestkit: ModuleID = "com.typesafe.akka" %% "akka-testkit" % LagomVersion.akka
     val AkkaStreamTestkit: ModuleID = "com.typesafe.akka" %% "akka-stream-testkit" % LagomVersion.akka
     val AkkaActorTestkitTyped: ModuleID = "com.typesafe.akka" %% "akka-actor-testkit-typed" % LagomVersion.akka
-    val EmbeddedPostgres: ModuleID = "com.opentable.components" % "otj-pg-embedded" % Versions.EmbeddedPostgresVersion
-    val EmbeddedKafka: ModuleID = "io.github.embeddedkafka" %% "embedded-kafka" % Versions.EmbeddedKafkaVersion
+    val EmbeddedPostgres: ModuleID =
+      "com.opentable.components" % "otj-pg-embedded" % Versions.EmbeddedPostgresVersion % "test"
+    val EmbeddedKafka: ModuleID = "io.github.embeddedkafka" %% "embedded-kafka" % Versions.EmbeddedKafkaVersion % "test"
   }
 
   val SbtPlugin = Seq(
@@ -170,8 +171,6 @@ object Dependencies {
     Dependencies.Test.AkkaMultiNodeTestkit,
     Dependencies.Test.AkkaTestkit,
     Dependencies.Test.AkkaStreamTestkit,
-    Dependencies.Test.AkkaActorTestkitTyped,
-    Dependencies.Test.EmbeddedPostgres,
-    Dependencies.Test.EmbeddedKafka
+    Dependencies.Test.AkkaActorTestkitTyped
   )
 }

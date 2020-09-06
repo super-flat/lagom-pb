@@ -67,18 +67,21 @@ abstract class BaseApplication(context: LagomApplicationContext)
 
   /**
    * Defines the persistent entity that will be used to handle commands
+   * It is recommended to override it lazily
    *
    * @see [[io.superflat.lagompb.AggregateRoot]].
    *      Also for more info refer to the lagom doc [[https://www.lagomframework.com/documentation/1.6.x/scala/UsingAkkaPersistenceTyped.html]]
    */
-  def aggregateRoot: AggregateRoot[_]
+  val aggregateRoot: AggregateRoot
 
   /**
    * server helps define the lagom server. Please refer to the lagom doc
+   * It is recommended to override it lazily
+   *
    * @example
-   *          override val server: LagomServer = serverFor[TestService](wire[TestServiceImpl])
+   *          override lazy val server: LagomServer = serverFor[TestService](wire[TestServiceImpl])
    */
-  def server: LagomServer
+  val server: LagomServer
 
   /**
    * serviceLocator is used to enable service discovery and api gateway
@@ -120,7 +123,7 @@ abstract class BaseStatelessApplication(context: LagomApplicationContext)
    * @example
    *          override val server: LagomServer = serverFor[TestService](wire[TestServiceImpl])
    */
-  def server: LagomServer
+  val server: LagomServer
 
   /**
    * serviceLocator is used to enable service discovery and api gateway

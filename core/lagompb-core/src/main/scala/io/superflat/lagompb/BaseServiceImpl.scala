@@ -17,7 +17,7 @@ trait SharedBaseServiceImpl extends SendCommand {
   def clusterSharding: ClusterSharding
 
   // aggregateRoot defines the persistent entity that will be used to handle commands
-  def aggregateRoot: AggregateRoot[_]
+  def aggregateRoot: AggregateRoot
 
   /**
    * wrapper method to invoke sendCommand and pass in cluster sharding
@@ -45,13 +45,11 @@ trait SharedBaseServiceImpl extends SendCommand {
 abstract class BaseServiceImpl(
   val clusterSharding: ClusterSharding,
   val persistentEntityRegistry: PersistentEntityRegistry,
-  val aggregate: AggregateRoot[_]
+  val aggregateRoot: AggregateRoot
 ) extends BaseService
     with SharedBaseServiceImpl {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
-
-  def aggregateRoot: AggregateRoot[_] = aggregate
 
   /**
    * generic conversion for failed replys into a scala Failure

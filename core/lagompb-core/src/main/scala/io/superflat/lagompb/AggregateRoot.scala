@@ -28,13 +28,17 @@ import scala.util.{Failure, Success, Try}
  * @param actorSystem     the underlying actor system
  * @param commandHandler  the commands handler
  * @param eventHandler    the events handler
- * @param encryptionAdapter optional ProtoEncryption implementation
- * @tparam S the scala type of the aggregate state
+ * @param initialState    the aggregate initial state.
+ *                        Note: The type of the state must be the same as define as type parameter
+ *                        in both commands and events handler when using the [[io.superflat.lagompb.TypedCommandHandler]] and
+ *                        [[io.superflat.lagompb.TypedEventHandler]]
+ * @param encryptionAdapter optional ProtoEncryption implementatione scala type of the aggregate state
  */
-abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
+abstract class AggregateRoot(
   actorSystem: ActorSystem,
   commandHandler: CommandHandler,
   eventHandler: EventHandler,
+  initialState: scalapb.GeneratedMessage,
   encryptionAdapter: EncryptionAdapter
 ) {
 
@@ -46,11 +50,6 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
    * Defines the aggregate name. The `aggregateName` must be unique
    */
   def aggregateName: String
-
-  /**
-   * Defines the aggregate state.
-   */
-  def stateCompanion: scalapb.GeneratedMessageCompanion[S]
 
   final def create(entityContext: EntityContext[Command], shardIndex: Int): Behavior[Command] = {
     val persistenceId: PersistenceId =
@@ -87,10 +86,11 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
       )
   }
 
-  private[lagompb] def initialState(entityId: String): StateWrapper =
+  private[lagompb] def initialState(entityId: String): StateWrapper = {
     StateWrapper()
-      .withState(Any.pack(stateCompanion.defaultInstance))
+      .withState(Any.pack(initialState))
       .withMeta(MetaData.defaultInstance.withEntityId(entityId))
+  }
 
   /**
    * Encrypt the event to persist whenever an encryption is set.
@@ -125,7 +125,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
                                     state: Any,
                                     metaData: MetaData,
                                     replyTo: ActorRef[CommandReply]
-  ): ReplyEffect[EventWrapper, StateWrapper] =
+  ): ReplyEffect[EventWrapper, StateWrapper] = {
     Try {
       eventHandler.handle(event, state, metaData)
     } match {
@@ -167,6 +167,7 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
               )
           }
     }
+  }
 
   /**
    * unpacks the nested state in the event, throws away prior state
@@ -174,8 +175,9 @@ abstract class AggregateRoot[S <: scalapb.GeneratedMessage](
    * @param priorState the current state
    * @param event      the event wrapper
    */
-  private[lagompb] def genericEventHandler(priorState: StateWrapper, event: EventWrapper): StateWrapper =
+  private[lagompb] def genericEventHandler(priorState: StateWrapper, event: EventWrapper): StateWrapper = {
     priorState.update(_.meta := event.getMeta, _.state := event.getResultingState)
+  }
 
   /**
    * Given a LagompbState implementation and a LagompbCommand, run the

@@ -1,3 +1,5 @@
+parallelExecution in test := true
+
 lazy val root = project
   .in(file("."))
   .aggregate(`lagompb-core`, `lagompb-readside`, `lagompb-plugin`, docs)
