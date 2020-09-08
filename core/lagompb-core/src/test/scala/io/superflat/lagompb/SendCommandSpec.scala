@@ -95,7 +95,7 @@ class SendCommandSpec extends BaseSpec {
   "unpackStateWrapper" should {
     "unpack a known proto" in {
       val msg = TestState.defaultInstance
-      val meta = MetaData().withRevisionNumber(1L)
+      val meta = MetaData().withRevisionNumber(1)
       val stateWrapper = StateWrapper().withState(Any.pack(msg)).withMeta(meta)
       val actual = TestCommandSender.unpackStateWrapper(stateWrapper)
       actual shouldBe Success((msg, meta))
