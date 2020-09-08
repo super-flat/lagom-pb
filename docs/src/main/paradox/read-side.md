@@ -7,8 +7,10 @@ To be able to implement the readSide the following dependency is required:
 @@dependency[sbt,Maven] {
   group="io.superflat"
   artifact="lagompb-readside_2.13"
-  version="0.8.1"
+  version="0.8.2"
 }
+
+Kindly check the latest version from @link:[Versions](https://github.com/super-flat/lagom-pb/releases) { open=new }
 
 ## Implementation
 
