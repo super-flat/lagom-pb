@@ -2,29 +2,10 @@ parallelExecution in test := true
 
 lazy val root = project
   .in(file("."))
-  .aggregate(`lagompb-core`, `lagompb-readside`, `lagompb-plugin`, docs)
+  .aggregate(`lagompb-core`, `lagompb-readside`, `lagompb-plugin`)
   .enablePlugins(CommonSettings)
   .enablePlugins(NoPublish)
   .settings(name := "lagompb")
-
-lazy val docs = project
-  .in(file("docs"))
-  .enablePlugins(ParadoxPlugin)
-  .enablePlugins(ParadoxMaterialThemePlugin)
-  .enablePlugins(ParadoxSitePlugin)
-  .enablePlugins(GhpagesPlugin)
-  .enablePlugins(NoPublish)
-  .settings(
-    // Make sure code generation is run before paradox:
-    (Compile / paradox) := (Compile / paradox).dependsOn(Compile / compile).value,
-    Compile / paradoxMaterialTheme ~= {
-      _.withCopyright("Copyright © SuperFlat.io")
-        .withColor("light-blue", "blue")
-        .withFavicon("")
-    },
-    paradoxProperties in Compile ++= Map("snip.github_link" -> "false", "version" -> version.value),
-    git.remoteRepo := "git@github.com:super-flat/lagom-pb.git"
-  )
 
 lazy val `lagompb-core` = project
   .in(file("core/lagompb-core"))
