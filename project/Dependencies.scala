@@ -42,7 +42,6 @@ object Dependencies {
     val AkkaProjectionVersion = "1.0.0-RC3"
     val CatsVersion = "2.2.0"
 
-    val LagomVersion = "1.6.4"
     val SbtProtocVersion = "0.99.34"
     val ScalapbCompilerVersion = "0.10.8"
     val ScalapbValidationVersion = "0.1.2"

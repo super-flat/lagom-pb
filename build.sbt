@@ -1,3 +1,5 @@
+import com.lightbend.lagom.core.LagomVersion
+
 parallelExecution in test := true
 
 lazy val root = project
@@ -43,7 +45,7 @@ lazy val `lagompb-plugin` = project
     scalaVersion := Dependencies.Versions.Scala212,
     resolvers += Resolver.bintrayRepo("playframework", "maven"),
     resolvers ++= Seq(Resolver.jcenterRepo, Resolver.sonatypeRepo("public"), Resolver.sonatypeRepo("snapshots")),
-    addSbtPlugin("com.lightbend.lagom" % "lagom-sbt-plugin" % Dependencies.Versions.LagomVersion),
+    addSbtPlugin("com.lightbend.lagom" % "lagom-sbt-plugin" % LagomVersion.current),
     addSbtPlugin("com.lightbend.akka.grpc" %% "sbt-akka-grpc" % Dependencies.Versions.AkkaGrpcVersion),
     addSbtPlugin("com.thesamet" % "sbt-protoc" % Dependencies.Versions.SbtProtocVersion),
     addSbtPlugin("com.lightbend.sbt" % "sbt-javaagent" % Dependencies.Versions.JavaAgentVersion),
