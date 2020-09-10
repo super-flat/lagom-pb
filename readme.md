@@ -35,29 +35,9 @@ components like _**api requests/responses**_, _**grpc services**_, _**events**_,
 
 - Encryption trait to enable events and snapshots encryption.
 
-## Get Started
-
-1. Add to your `plugins.sbt`:
-
-```scala
-val LagompbVersion = "x.x.x"
-addSbtPlugin("io.superflat" % "lagompb-plugin" % LagompbVersion)
-```
-
-2. Add to your `build.sbt`:
-
-```scala
-val LagompbVersion = "x.x.x"
-libraryDependencies ++= Seq(
-  "io.superflat" %% "lagompb-core" % LagompbVersion,
-  "io.superflat" %% "lagompb-core" % LagompbVersion % "protobuf"
-)
-```
-
-## Using lagom-pb
+## Documentation
 
 Documentation is available at [lagom-pb wiki](https://github.com/super-flat/lagom-pb/wiki) at the moment.
-
 
 ## Sample Project
 
