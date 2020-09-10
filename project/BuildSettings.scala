@@ -1,7 +1,7 @@
 import Dependencies.{Compile, Runtime}
 import com.lightbend.lagom.sbt.LagomImport._
 import play.sbt.PlayImport.filters
-import sbt.Keys.libraryDependencies
+import sbt.Keys.{dependencyOverrides, libraryDependencies}
 import sbt.{plugins, AutoPlugin, Plugins}
 
 /**
@@ -9,6 +9,8 @@ import sbt.{plugins, AutoPlugin, Plugins}
  */
 object BuildSettings extends AutoPlugin {
   override def requires: Plugins = plugins.JvmPlugin
+
+  val akkaVersion: String = Dependencies.Versions.AkkaVersion
 
   override def projectSettings =
     Seq(
@@ -61,6 +63,7 @@ object BuildSettings extends AutoPlugin {
         Dependencies.Test.AkkaActorTestkitTyped,
         Dependencies.Test.EmbeddedPostgres,
         Dependencies.Test.EmbeddedKafka
-      )
+      ),
+      dependencyOverrides ++= Dependencies.AkkaOverrideDeps
     )
 }
