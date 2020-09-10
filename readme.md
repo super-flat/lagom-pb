@@ -56,7 +56,7 @@ libraryDependencies ++= Seq(
 
 ## Using lagom-pb
 
-Documentation is available at [lagom-pb wiki](https://github.com/super-flat/lagom-pb/wiki) at the moment.
+Documentation is available at [lagom-pb wiki](https://github.com/super-flat/lagom-pb/wiki){target="_blank"} at the moment.
 
 
 ## Sample Project
