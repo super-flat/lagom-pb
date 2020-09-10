@@ -34,7 +34,7 @@ create table if not exists "AKKA_PROJECTION_OFFSET_STORE"
 (
     "PROJECTION_NAME" VARCHAR(255)                NOT NULL,
     "PROJECTION_KEY"  VARCHAR(255)                NOT NULL,
-    "OFFSET"          VARCHAR(255)                NOT NULL,
+    "CURRENT_OFFSET"          VARCHAR(255)                NOT NULL,
     "MANIFEST"        VARCHAR(4)                  NOT NULL,
     "MERGEABLE"       BOOLEAN                     NOT NULL,
     "LAST_UPDATED"    TIMESTAMP(9) WITH TIME ZONE NOT NULL
