@@ -6,7 +6,7 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.superflat/lagompb-core_2.13/badge.svg)]((https://maven-badges.herokuapp.com/maven-central/io.superflat/lagompb-core_2.13))
 [![Snapshot Artifacts][Badge-SonatypeSnapshots]][Link-SonatypeSnapshots]
 
-Scala shared code for [lagom](https://www.lagomframework.com/documentation/1.6.x/scala/Home.html) development using protocol buffer.
+Scala Developer velocity in [lagom](https://www.lagomframework.com/documentation/1.6.x/scala/Home.html) development using protocol buffer.
 
 This library helps write lagom microservices easily by making use of protocol buffer messages to define the es/cqrs core
 components like _**api requests/responses**_, _**grpc services**_, _**events**_, _**commands**_ and _**state**_.
