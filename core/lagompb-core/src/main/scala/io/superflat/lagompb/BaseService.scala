@@ -8,8 +8,7 @@ import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
  */
 trait BaseService extends Service {
 
-  protected val serviceName: String =
-    ConfigReader.serviceName
+  protected val serviceName: String = ConfigReader.serviceName
 
   implicit def messageSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]: ApiSerializer[A] = ApiSerializer[A]
 
