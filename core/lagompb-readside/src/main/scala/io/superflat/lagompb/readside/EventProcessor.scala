@@ -17,9 +17,9 @@ trait EventProcessor {
    * @return
    */
   def process(
-    event: Any,
-    eventTag: String,
-    resultingState: Any,
-    meta: MetaData
+      event: Any,
+      eventTag: String,
+      resultingState: Any,
+      meta: MetaData
   ): DBIO[Done]
 }

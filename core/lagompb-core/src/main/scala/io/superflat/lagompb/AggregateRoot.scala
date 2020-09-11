@@ -9,12 +9,7 @@ import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.{Effect, EventSourcedBehavior, ReplyEffect, RetentionCriteria}
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.encryption.EncryptionAdapter
-import io.superflat.lagompb.protobuf.v1.core.CommandHandlerResponse.HandlerResponse.{
-  Empty,
-  FailedResponse,
-  SuccessResponse
-}
-import io.superflat.lagompb.protobuf.v1.core.SuccessCommandHandlerResponse.Response.{Event, NoEvent}
+import io.superflat.lagompb.protobuf.v1.core.CommandHandlerResponse.Response
 import io.superflat.lagompb.protobuf.v1.core._
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -35,23 +30,27 @@ import scala.util.{Failure, Success, Try}
  * @param encryptionAdapter optional ProtoEncryption implementatione scala type of the aggregate state
  */
 abstract class AggregateRoot(
-  actorSystem: ActorSystem,
-  commandHandler: CommandHandler,
-  eventHandler: EventHandler,
-  initialState: scalapb.GeneratedMessage,
-  encryptionAdapter: EncryptionAdapter
+    actorSystem: ActorSystem,
+    commandHandler: CommandHandler,
+    eventHandler: EventHandler,
+    initialState: scalapb.GeneratedMessage,
+    encryptionAdapter: EncryptionAdapter
 ) {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
 
-  final val typeKey: EntityTypeKey[Command] = EntityTypeKey[Command](aggregateName)
+  final val typeKey: EntityTypeKey[Command] =
+    EntityTypeKey[Command](aggregateName)
 
   /**
    * Defines the aggregate name. The `aggregateName` must be unique
    */
   def aggregateName: String
 
-  final def create(entityContext: EntityContext[Command], shardIndex: Int): Behavior[Command] = {
+  final def create(
+      entityContext: EntityContext[Command],
+      shardIndex: Int
+  ): Behavior[Command] = {
     val persistenceId: PersistenceId =
       PersistenceId(entityContext.entityTypeKey.name, entityContext.entityId)
     val selectedTag: String = ConfigReader.allEventTags(shardIndex)
@@ -73,10 +72,11 @@ abstract class AggregateRoot(
    * @param persistenceId the aggregate persistence Id
    */
   private[lagompb] def create(
-    persistenceId: PersistenceId
+      persistenceId: PersistenceId
   ): EventSourcedBehavior[Command, EventWrapper, StateWrapper] = {
     val splitter: Char = PersistenceId.DefaultSeparator(0)
-    val entityId: String = persistenceId.id.split(splitter).lastOption.getOrElse("")
+    val entityId: String =
+      persistenceId.id.split(splitter).lastOption.getOrElse("")
     EventSourcedBehavior
       .withEnforcedReplies[Command, EventWrapper, StateWrapper](
         persistenceId = persistenceId,
@@ -99,17 +99,16 @@ abstract class AggregateRoot(
    * @param state the resulting state
    * @param metaData the additional meta
    */
-  private[lagompb] def encryptEvent(event: Any, state: Any, metaData: MetaData): (Any, Any, StateWrapper) = {
-    val encryptedEvent: Any = encryptionAdapter.encryptOrThrow(event)
-
-    // compute the resulting state once and reuse it
-    val encryptedResultingState: Any = encryptionAdapter.encryptOrThrow(state)
-
-    (encryptedEvent,
-     encryptedResultingState,
-     StateWrapper()
-       .withState(state)
-       .withMeta(metaData)
+  private[lagompb] def encryptEvent(
+      event: Any,
+      state: Any,
+      metaData: MetaData
+  ): (Any, Any, StateWrapper) = {
+    (
+      encryptionAdapter.encryptOrThrow(event),
+      // compute the resulting state once and reuse it
+      encryptionAdapter.encryptOrThrow(state),
+      StateWrapper().withState(state).withMeta(metaData)
     )
   }
 
@@ -121,52 +120,53 @@ abstract class AggregateRoot(
    * @param metaData the additional meta
    * @param replyTo the actor ref to reply to
    */
-  private[lagompb] def persistEvent(event: Any,
-                                    state: Any,
-                                    metaData: MetaData,
-                                    replyTo: ActorRef[CommandReply]
+  private[lagompb] def persistEventAndReply(
+      event: Any,
+      state: Any,
+      metaData: MetaData,
+      replyTo: ActorRef[CommandReply]
   ): ReplyEffect[EventWrapper, StateWrapper] = {
     Try {
       eventHandler.handle(event, state, metaData)
     } match {
-      case Failure(exception) =>
-        log.error(s"event handler breakdown, ${exception.getMessage}", exception)
-
+      case Failure(exception: Throwable) =>
         Effect.reply(replyTo)(
-          CommandReply()
-            .withFailedReply(
-              FailedReply()
-                .withReason(
-                  s"[Lagompb] EventHandler failure: ${exception.getMessage}"
-                )
-                .withCause(FailureCause.INTERNAL_ERROR)
-            )
+          CommandReply().withFailure(
+            FailureResponse().withCritical(s"[Lagompb] EventHandler failure:, ${exception.getMessage}")
+          )
         )
 
       case Success(resultingState) =>
-        log.debug(
-          s"[Lagompb] user event handler returned ${resultingState.typeUrl}"
-        )
+        log.debug(s"[Lagompb] Event handler returned ${resultingState.typeUrl}")
 
         val (encryptedEvent, encryptedResultingState, decryptedStateWrapper) =
           encryptEvent(event, resultingState, metaData)
 
         Effect
           .persist(
-            EventWrapper()
-              .withEvent(encryptedEvent)
-              .withResultingState(encryptedResultingState)
-              .withMeta(metaData)
+            EventWrapper().withEvent(encryptedEvent).withResultingState(encryptedResultingState).withMeta(metaData)
           )
-          .thenReply(replyTo) { (_: StateWrapper) =>
-            CommandReply()
-              .withSuccessfulReply(
-                SuccessfulReply()
-                  // return decrypted state, not persisted (encrypted) state
-                  .withStateWrapper(decryptedStateWrapper)
-              )
-          }
+          .thenReply(replyTo)((_: StateWrapper) => CommandReply().withStateWrapper(decryptedStateWrapper))
     }
+  }
+
+  /**
+   * Set event/state metadata given the current StateWrapper and the additonal meta data
+   * and return the new metadata
+   *
+   * @param stateWrapper the current StateWrapper
+   * @param data the addional data
+   * @return newly created MetaData
+   */
+  private[lagompb] def nextMeta(
+      stateWrapper: StateWrapper,
+      data: Map[String, String]
+  ): MetaData = {
+    MetaData()
+      .withRevisionNumber(stateWrapper.getMeta.revisionNumber + 1)
+      .withRevisionDate(Instant.now().toTimestamp)
+      .withData(data)
+      .withEntityId(stateWrapper.getMeta.entityId)
   }
 
   /**
@@ -175,7 +175,10 @@ abstract class AggregateRoot(
    * @param priorState the current state
    * @param event      the event wrapper
    */
-  private[lagompb] def genericEventHandler(priorState: StateWrapper, event: EventWrapper): StateWrapper = {
+  private[lagompb] def genericEventHandler(
+      priorState: StateWrapper,
+      event: EventWrapper
+  ): StateWrapper = {
     priorState.update(_.meta := event.getMeta, _.state := event.getResultingState)
   }
 
@@ -187,7 +190,10 @@ abstract class AggregateRoot(
    * @param stateWrapper state wrapper
    * @param cmd          the command to process
    */
-  final def genericCommandHandler(stateWrapper: StateWrapper, cmd: Command): ReplyEffect[EventWrapper, StateWrapper] = {
+  final def genericCommandHandler(
+      stateWrapper: StateWrapper,
+      cmd: Command
+  ): ReplyEffect[EventWrapper, StateWrapper] = {
 
     val maybeState: Try[Any] =
       // if no prior revisions, use default instance state
@@ -198,97 +204,36 @@ abstract class AggregateRoot(
         encryptionAdapter.decrypt(stateWrapper.getState)
 
     maybeState match {
+      case Failure(exception: Throwable) =>
+        Effect.reply(cmd.replyTo)(
+          CommandReply().withFailure(
+            FailureResponse().withCritical(s"[Lagompb] state parser failure, ${exception.getMessage}")
+          )
+        )
 
-      case Failure(exception) =>
-        val errMsg: String = s"state parser failure, ${exception.getMessage}"
-        log.error(errMsg, exception)
-
-        throw new GlobalException(errMsg)
-
-      case Success(decryptedState) =>
+      case Success(decryptedState: Any) =>
         log.debug(s"[Lagompb] plugin data ${cmd.data} is valid...")
 
         commandHandler.handle(cmd.command, decryptedState, stateWrapper.getMeta) match {
 
           case Success(commandHandlerResponse: CommandHandlerResponse) =>
-            commandHandlerResponse.handlerResponse match {
+            commandHandlerResponse.response match {
+              case Response.Event(event: Any) =>
+                persistEventAndReply(event, decryptedState, nextMeta(stateWrapper, cmd.data), cmd.replyTo)
 
-              // A successful response is returned by
-              // the command handler
-              case SuccessResponse(successResponse) =>
-                successResponse.response match {
+              case Response.Failure(failure: FailureResponse) =>
+                Effect.reply(cmd.replyTo)(CommandReply().withFailure(failure))
 
-                  // No event to persist
-                  case NoEvent(_) =>
-                    // create a state wrapper with the decrypted event
-                    val decryptedStateWrapper: StateWrapper = stateWrapper
-                      .withState(decryptedState)
-
-                    Effect.reply(cmd.replyTo)(
-                      CommandReply()
-                        .withSuccessfulReply(
-                          SuccessfulReply()
-                            .withStateWrapper(decryptedStateWrapper)
-                        )
-                    )
-
-                  // Some event to persist
-                  case Event(event: Any) =>
-                    // let us construct the event meta prior to call the user agent
-                    val eventMeta: MetaData = MetaData()
-                      .withRevisionNumber(stateWrapper.getMeta.revisionNumber + 1)
-                      .withRevisionDate(Instant.now().toTimestamp)
-                      .withData(cmd.data)
-                      // the priorState will always have the entityId set in its meta even for the initial state
-                      .withEntityId(stateWrapper.getMeta.entityId)
-
-                    persistEvent(event, decryptedState, eventMeta, cmd.replyTo)
-
-                  // the command handler return some unhandled successful response
-                  // this case may never happen but it is safe to always check it
-                  case _ =>
-                    Effect.reply(cmd.replyTo)(
-                      CommandReply()
-                        .withFailedReply(
-                          FailedReply()
-                            .withReason(
-                              s"unknown command handler success response ${successResponse.response.getClass.getName}"
-                            )
-                            .withCause(FailureCause.VALIDATION_ERROR)
-                        )
-                    )
-                }
-
-              // A failed response is returned by the
-              // command handler
-              case FailedResponse(failedResponse) =>
-                Effect.reply(cmd.replyTo)(
-                  CommandReply()
-                    .withFailedReply(
-                      FailedReply()
-                        .withReason(failedResponse.reason)
-                        .withCause(failedResponse.cause)
-                    )
-                )
-
-              // An unhandled response is returned by the command handler
-              case Empty =>
-                Effect.reply(cmd.replyTo)(
-                  CommandReply()
-                    .withFailedReply(
-                      FailedReply()
-                        .withReason(
-                          s"unknown command handler response ${commandHandlerResponse.handlerResponse.getClass.getName}"
-                        )
-                        .withCause(FailureCause.VALIDATION_ERROR)
-                    )
-                )
+              case Response.Empty =>
+                Effect.reply(cmd.replyTo)(CommandReply().withStateWrapper(stateWrapper.withState(decryptedState)))
             }
-          case Failure(exception) =>
-            val errMsg: String =
-              s"command handler breakdown, ${exception.getMessage}"
-            log.error(errMsg, exception)
-            throw exception
+
+          case Failure(exception: Throwable) =>
+            Effect.reply(cmd.replyTo)(
+              CommandReply().withFailure(
+                FailureResponse().withCritical(s"[Lagompb] command handler failure: ${exception.getMessage}")
+              )
+            )
         }
     }
   }

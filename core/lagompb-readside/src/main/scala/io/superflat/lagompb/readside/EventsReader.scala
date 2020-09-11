@@ -3,7 +3,6 @@ package io.superflat.lagompb.readside
 import akka.Done
 import akka.projection.eventsourced.EventEnvelope
 import akka.projection.slick.SlickHandler
-import io.superflat.lagompb.GlobalException
 import io.superflat.lagompb.encryption.{DecryptPermanentFailure, EncryptionAdapter}
 import io.superflat.lagompb.protobuf.v1.core.EventWrapper
 import org.slf4j.{Logger, LoggerFactory}
@@ -19,8 +18,11 @@ import scala.util.{Failure, Success, Try}
  * @param eventProcessor the actual event processor
  * @param encryptionAdapter handles encrypt/decrypt transformations
  */
-final class EventsReader(eventTag: String, eventProcessor: EventProcessor, encryptionAdapter: EncryptionAdapter)
-    extends SlickHandler[EventEnvelope[EventWrapper]] {
+final class EventsReader(
+    eventTag: String,
+    eventProcessor: EventProcessor,
+    encryptionAdapter: EncryptionAdapter
+) extends SlickHandler[EventEnvelope[EventWrapper]] {
 
   val log: Logger = LoggerFactory.getLogger(getClass)
 
@@ -39,7 +41,11 @@ final class EventsReader(eventTag: String, eventProcessor: EventProcessor, encry
           eventProcessor.process(event, eventTag, resultingState, meta)
 
         case _ =>
-          DBIO.failed(new GlobalException(s"[Lagompb] unknown event received ${envelope.event.getClass.getName}"))
+          DBIO.failed(
+            new RuntimeException(
+              s"[Lagompb] unknown event received ${envelope.event.getClass.getName}"
+            )
+          )
       })
       .recoverWith({
         case DecryptPermanentFailure(reason) =>

@@ -15,24 +15,29 @@ case class ApiSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]()
 
   override def serializerForRequest: MessageSerializer.NegotiatedSerializer[A, ByteString] = serializerJson
 
-  override def deserializer(protocol: MessageProtocol): MessageSerializer.NegotiatedDeserializer[A, ByteString] =
+  override def deserializer(
+      protocol: MessageProtocol
+  ): MessageSerializer.NegotiatedDeserializer[A, ByteString] =
     deserializer
 
   override def serializerForResponse(
-    acceptedMessageProtocols: Seq[MessageProtocol]
+      acceptedMessageProtocols: Seq[MessageProtocol]
   ): MessageSerializer.NegotiatedSerializer[A, ByteString] =
     negotiateResponse(acceptedMessageProtocols)
 }
 
-sealed trait GenericSerializers[T <: GeneratedMessage] {
+sealed trait GenericSerializers[A <: GeneratedMessage] {
 
-  def deserializer(implicit T: GeneratedMessageCompanion[T]): NegotiatedDeserializer[T, ByteString] = {
-    (wire: ByteString) =>
+  def deserializer(implicit
+      A: GeneratedMessageCompanion[A]
+  ): NegotiatedDeserializer[A, ByteString] = { (wire: ByteString) =>
 
-      ProtosRegistry.parser.fromJsonString(wire.utf8String)
+    ProtosRegistry.parser.fromJsonString(wire.utf8String)
   }
 
-  def negotiateResponse(acceptedMessageProtocols: Seq[MessageProtocol]): NegotiatedSerializer[T, ByteString] =
+  def negotiateResponse(
+      acceptedMessageProtocols: Seq[MessageProtocol]
+  ): NegotiatedSerializer[A, ByteString] =
     acceptedMessageProtocols match {
       case Nil => serializerJson
       case protocols =>
@@ -45,23 +50,23 @@ sealed trait GenericSerializers[T <: GeneratedMessage] {
           .getOrElse(serializerJson)
     }
 
-  def serializerJson: NegotiatedSerializer[T, ByteString] =
-    new NegotiatedSerializer[T, ByteString] {
+  def serializerJson: NegotiatedSerializer[A, ByteString] =
+    new NegotiatedSerializer[A, ByteString] {
 
       override def protocol: MessageProtocol =
         MessageProtocol(Some("application/json"))
 
-      override def serialize(message: T): ByteString =
+      override def serialize(message: A): ByteString =
         ByteString(ProtosRegistry.printer.print(message))
     }
 
-  def serializerProtobuf: NegotiatedSerializer[T, ByteString] =
-    new NegotiatedSerializer[T, ByteString] {
+  def serializerProtobuf: NegotiatedSerializer[A, ByteString] =
+    new NegotiatedSerializer[A, ByteString] {
 
       override def protocol: MessageProtocol =
         MessageProtocol(Some("application/x-protobuf"))
 
-      override def serialize(message: T): ByteString =
+      override def serialize(message: A): ByteString =
         ByteString(message.toByteArray)
     }
 }

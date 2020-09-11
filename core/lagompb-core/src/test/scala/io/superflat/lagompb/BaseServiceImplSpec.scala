@@ -9,7 +9,7 @@ import io.superflat.lagompb.data._
 import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.protobuf.v1.core.CommandReply.Reply
 import io.superflat.lagompb.protobuf.v1.core._
-import io.superflat.lagompb.protobuf.v1.tests.{TestCmd, TestState}
+import io.superflat.lagompb.protobuf.v1.tests.{TestCommand, TestState}
 import io.superflat.lagompb.testkit.BaseSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -40,15 +40,11 @@ class BaseServiceImplSpec extends BaseSpec {
         new TestAggregateRoot(null, commandHandler, eventHandler, TestState(), defaultEncryptionAdapter)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
 
-      val cmdReply = CommandReply()
-        .withSuccessfulReply(
-          SuccessfulReply()
-            .withStateWrapper(
-              StateWrapper()
-                .withState(any)
-                .withMeta(MetaData().withRevisionNumber(1))
-            )
-        )
+      val cmdReply = CommandReply().withStateWrapper(
+        StateWrapper()
+          .withState(any)
+          .withMeta(MetaData().withRevisionNumber(1))
+      )
 
       val result: StateWrapper = testImpl.handleLagompbCommandReply(cmdReply).success.value
 
@@ -66,11 +62,8 @@ class BaseServiceImplSpec extends BaseSpec {
         new TestAggregateRoot(null, commandHandler, eventHandler, TestState(), defaultEncryptionAdapter)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
       val rejected =
-        CommandReply()
-          .withFailedReply(
-            FailedReply()
-              .withReason("failed")
-          )
+        CommandReply().withFailure(FailureResponse().withCritical("failed"))
+
       testImpl.handleLagompbCommandReply(rejected).failure.exception shouldBe an[RuntimeException]
     }
 
@@ -90,7 +83,7 @@ class BaseServiceImplSpec extends BaseSpec {
     "process request as expected" in ServiceTest.withServer(ServiceTest.defaultSetup.withCluster()) { context =>
       new TestApplication(context)
     } { server =>
-      val testCmd: TestCmd = TestCmd().withCompanyUuid(companyId).withName("John")
+      val testCmd: TestCommand = TestCommand().withCompanyUuid(companyId).withName("John")
       val client: TestService = server.serviceClient.implement[TestService]
       client.testHello.invoke(testCmd).map { response: TestState =>
         response should ===(

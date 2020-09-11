@@ -39,8 +39,8 @@ import scala.util.{Failure, Success, Try}
  * @param ec          the execution context
  */
 @silent abstract class ReadSideProcessor(encryptionAdapter: EncryptionAdapter)(implicit
-  ec: ExecutionContext,
-  actorSystem: ActorSystem[_]
+    ec: ExecutionContext,
+    actorSystem: ActorSystem[_]
 ) extends EventProcessor {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
@@ -52,10 +52,10 @@ import scala.util.{Failure, Success, Try}
   protected val baseTag: String = ConfigReader.eventsConfig.tagName
 
   final override def process(
-    event: Any,
-    eventTag: String,
-    resultingState: Any,
-    meta: MetaData
+      event: Any,
+      eventTag: String,
+      resultingState: Any,
+      meta: MetaData
   ): DBIO[Done] =
     Try {
       handle(

@@ -19,23 +19,27 @@ object ProtosRegistry {
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  private[lagompb] lazy val registry: Seq[GeneratedFileObject] = reflectFileObjects()
+  private[lagompb] lazy val registry: Seq[GeneratedFileObject] =
+    reflectFileObjects()
 
   /**
    * scalapb generated message companions list
    */
   private[lagompb] lazy val companions: Vector[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
     registry
-      .foldLeft[Vector[scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]]](Vector.empty) {
-        (s, fileObject) =>
-          s ++ fileObject.messagesCompanions
+      .foldLeft[Vector[
+        scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]
+      ]](Vector.empty) { (s, fileObject) =>
+        s ++ fileObject.messagesCompanions
       }
 
   /**
    * Creates a map between the generated message typeUrl and the appropriate message companion
    */
-  private[lagompb] lazy val companionsMap
-    : Map[String, scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]] =
+  private[lagompb] lazy val companionsMap: Map[
+    String,
+    scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]
+  ] =
     companions
       .map(companion => (companion.scalaDescriptor.fullName, companion))
       .toMap
@@ -58,7 +62,9 @@ object ProtosRegistry {
    * @param any the protobuf message
    * @return the maybe scalapb GeneratedMessageCompanion object
    */
-  def getCompanion(any: Any): Option[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
+  def getCompanion(
+      any: Any
+  ): Option[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
     any.typeUrl.split('/').lastOption.flatMap(companionsMap.get)
 
   /**
@@ -69,7 +75,10 @@ object ProtosRegistry {
    */
   def unpackAny(any: Any): Try[GeneratedMessage] =
     getCompanion(any) match {
-      case None       => Failure(new Exception(s"could not unpack unrecognized proto ${any.typeUrl}"))
+      case None =>
+        Failure(
+          new Exception(s"could not unpack unrecognized proto ${any.typeUrl}")
+        )
       case Some(comp) => Try(any.unpack(comp))
     }
 
@@ -81,11 +90,13 @@ object ProtosRegistry {
    */
   def unpackAnys(anys: Any*): Try[Seq[GeneratedMessage]] = {
 
-    val folder = (tryBuffer: Try[mutable.ListBuffer[GeneratedMessage]], any: Any) => {
-      tryBuffer.flatMap(buffer => unpackAny(any).map(msg => buffer.append(msg)))
-    }
+    val folder =
+      (tryBuffer: Try[mutable.ListBuffer[GeneratedMessage]], any: Any) => {
+        tryBuffer.flatMap(buffer => unpackAny(any).map(msg => buffer.append(msg)))
+      }
 
-    val buffer: mutable.ListBuffer[GeneratedMessage] = mutable.ListBuffer[GeneratedMessage]()
+    val buffer: mutable.ListBuffer[GeneratedMessage] =
+      mutable.ListBuffer[GeneratedMessage]()
 
     anys.foldLeft(Try(buffer))(folder).map(_.toSeq)
   }

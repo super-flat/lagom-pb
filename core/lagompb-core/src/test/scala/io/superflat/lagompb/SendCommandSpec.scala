@@ -3,7 +3,6 @@ package io.superflat.lagompb
 import com.google.protobuf.any.Any
 import com.google.protobuf.wrappers.StringValue
 import io.superflat.lagompb.data.TestCommandSender
-import io.superflat.lagompb.protobuf.v1.core.FailureCause.Unrecognized
 import io.superflat.lagompb.protobuf.v1.core._
 import io.superflat.lagompb.protobuf.v1.tests.TestState
 import io.superflat.lagompb.testkit.BaseSpec
@@ -17,11 +16,7 @@ class SendCommandSpec extends BaseSpec {
       val someStateWrapper = StateWrapper()
         .withState(Any.pack(StringValue("good")))
 
-      val cmd = CommandReply()
-        .withSuccessfulReply(
-          SuccessfulReply()
-            .withStateWrapper(someStateWrapper)
-        )
+      val cmd = CommandReply().withStateWrapper(someStateWrapper)
 
       val actual = TestCommandSender.handleLagompbCommandReply(cmd)
 
@@ -31,12 +26,7 @@ class SendCommandSpec extends BaseSpec {
     "run the provided transformFailedReply on failure" in {
       val failCause = "just coz"
 
-      val cmd = CommandReply()
-        .withFailedReply(
-          FailedReply()
-            .withCause(FailureCause.INTERNAL_ERROR)
-            .withReason(failCause)
-        )
+      val cmd = CommandReply().withFailure(FailureResponse().withCritical(failCause))
 
       val actual = TestCommandSender.handleLagompbCommandReply(cmd)
 
@@ -50,7 +40,7 @@ class SendCommandSpec extends BaseSpec {
       val actual = TestCommandSender.handleLagompbCommandReply(cmd)
 
       actual.isFailure shouldBe true
-      actual.failed.get.isInstanceOf[GlobalException] shouldBe true
+      actual.failed.get.isInstanceOf[RuntimeException] shouldBe true
       actual.failed.get.getMessage.contains("unknown CommandReply") shouldBe true
     }
   }
@@ -58,37 +48,20 @@ class SendCommandSpec extends BaseSpec {
   "transformFailedReply" should {
     "handle validation errors" in {
       val errMsg: String = "validation error"
-      val actual = TestCommandSender.transformFailedReply(
-        FailedReply()
-          .withCause(FailureCause.VALIDATION_ERROR)
-          .withReason(errMsg)
-      )
+      val actual = TestCommandSender.transformFailedReply(FailureResponse().withValidation(errMsg))
 
       actual.isFailure shouldBe true
-      actual.failed.get.isInstanceOf[InvalidCommandException] shouldBe true
+      actual.failed.get.isInstanceOf[IllegalArgumentException] shouldBe true
       actual.failed.get.getMessage shouldBe errMsg
     }
 
     "handle internal errors" in {
       val errMsg: String = "internal error"
-      val actual = TestCommandSender.transformFailedReply(
-        FailedReply()
-          .withCause(FailureCause.INTERNAL_ERROR)
-          .withReason(errMsg)
-      )
+      val actual = TestCommandSender.transformFailedReply(FailureResponse().withCritical(errMsg))
 
       actual.isFailure shouldBe true
-      actual.failed.get.isInstanceOf[GlobalException] shouldBe true
+      actual.failed.get.isInstanceOf[RuntimeException] shouldBe true
       actual.failed.get.getMessage shouldBe errMsg
-    }
-
-    "handle unknown errors" in {
-      val actual = TestCommandSender.transformFailedReply(
-        FailedReply().withCause(Unrecognized(0))
-      )
-
-      actual.isFailure shouldBe true
-      actual.failure.exception should have message "reason unknown"
     }
   }
 

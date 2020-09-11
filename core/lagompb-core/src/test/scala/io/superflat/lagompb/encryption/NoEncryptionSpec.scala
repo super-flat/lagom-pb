@@ -1,10 +1,10 @@
 package io.superflat.lagompb.encryption
 
+import com.google.protobuf.ByteString
 import com.google.protobuf.any.Any
 import com.google.protobuf.wrappers.StringValue
-import com.google.protobuf.ByteString
-import io.superflat.lagompb.testkit.BaseSpec
 import io.superflat.lagompb.protobuf.v1.encryption.EncryptedProto
+import io.superflat.lagompb.testkit.BaseSpec
 
 import scala.util.Success
 

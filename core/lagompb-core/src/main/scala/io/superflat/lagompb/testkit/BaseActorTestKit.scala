@@ -33,7 +33,12 @@ abstract class BaseActorTestKit(testKit: ActorTestKit)
    * Use a custom config for the actor system.
    */
   def this(config: String) =
-    this(ActorTestKit(ActorTestKitBase.testNameFromCallStack(), ConfigFactory.parseString(config)))
+    this(
+      ActorTestKit(
+        ActorTestKitBase.testNameFromCallStack(),
+        ConfigFactory.parseString(config)
+      )
+    )
 
   /**
    * Use a custom config for the actor system.
@@ -45,13 +50,18 @@ abstract class BaseActorTestKit(testKit: ActorTestKit)
    * Use a custom config for the actor system, and a custom akka TestKitSettings.
    */
   def this(config: Config, settings: TestKitSettings) =
-    this(ActorTestKit(ActorTestKitBase.testNameFromCallStack(), config, settings))
+    this(
+      ActorTestKit(ActorTestKitBase.testNameFromCallStack(), config, settings)
+    )
 
   /**
    * `PatienceConfig` from akka test kit default timeout
    */
   implicit val patience: PatienceConfig =
-    PatienceConfig(testKit.testKitSettings.DefaultTimeout.duration, Span(100, org.scalatest.time.Millis))
+    PatienceConfig(
+      testKit.testKitSettings.DefaultTimeout.duration,
+      Span(100, org.scalatest.time.Millis)
+    )
 
   /**
    * Shuts down the ActorTestKit. If override be sure to call super.afterAll

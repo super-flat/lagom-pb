@@ -7,9 +7,10 @@ import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.SendProducer
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.encryption.EncryptionAdapter
-import io.superflat.lagompb.protobuf.v1.core.{KafkaEvent, MetaData, StateWrapper}
+import io.superflat.lagompb.protobuf.v1.core.{MetaData, StateWrapper}
 import io.superflat.lagompb.protobuf.v1.extensions.ExtensionsProto
-import io.superflat.lagompb.{ConfigReader, GlobalException, ProtosRegistry}
+import io.superflat.lagompb.protobuf.v1.readside.KafkaEvent
+import io.superflat.lagompb.{ConfigReader, ProtosRegistry}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 import scalapb.GeneratedMessage
@@ -27,50 +28,57 @@ import scala.concurrent.ExecutionContext
  */
 
 abstract class KafkaPublisher(encryptionAdapter: EncryptionAdapter)(implicit
-  ec: ExecutionContext,
-  actorSystem: ActorSystem[_]
+    ec: ExecutionContext,
+    actorSystem: ActorSystem[_]
 ) extends TypedReadSideProcessor(encryptionAdapter) {
 
   // The implementation class needs to set the akka.kafka.producer settings in the config file as well
   // as the lagompb.kafka-projections
-  val producerConfig: KafkaConfig = KafkaConfig(actorSystem.settings.config.getConfig("lagompb.projection.kafka"))
+  val producerConfig: KafkaConfig = KafkaConfig(
+    actorSystem.settings.config.getConfig("lagompb.projection.kafka")
+  )
 
   private[this] val sendProducer: SendProducer[String, String] = SendProducer(
     ProducerSettings(actorSystem, new StringSerializer, new StringSerializer)
       .withBootstrapServers(producerConfig.bootstrapServers)
   )(actorSystem.toClassic)
 
+  private def producerRecord(
+      event: Any,
+      state: Any,
+      meta: MetaData,
+      partitionKey: String
+  ): ProducerRecord[String, String] = {
+    new ProducerRecord(
+      producerConfig.topic,
+      partitionKey,
+      ProtosRegistry.printer.print(
+        KafkaEvent.defaultInstance
+          .withEvent(event)
+          .withState(StateWrapper().withMeta(meta).withState(state))
+          .withPartitionKey(partitionKey)
+          .withServiceName(ConfigReader.serviceName)
+      )
+    )
+  }
+
   def handleTyped(
-    event: GeneratedMessage,
-    eventTag: String,
-    resultingState: GeneratedMessage,
-    meta: MetaData
+      event: GeneratedMessage,
+      eventTag: String,
+      resultingState: GeneratedMessage,
+      meta: MetaData
   ): DBIO[Done] = {
     val anyEvent: Any = Any.pack(event)
     val anyState: Any = Any.pack(resultingState)
 
     event.companion.scalaDescriptor.fields.find(field =>
-      // this should just be a function on the constructor
-      // and it should be derived from State...
       field.getOptions.extension(ExtensionsProto.kafka).exists(_.partitionKey)
     ) match {
       case Some(fd: FieldDescriptor) =>
         // let us wrap the state and the meta data and persist to kafka
         DBIO.from(
           sendProducer
-            .send(
-              new ProducerRecord(
-                producerConfig.topic,
-                event.getField(fd).as[String],
-                ProtosRegistry.printer.print(
-                  KafkaEvent.defaultInstance
-                    .withEvent(anyEvent)
-                    .withState(StateWrapper().withMeta(meta).withState(anyState))
-                    .withPartitionKey(event.getField(fd).as[String])
-                    .withServiceName(ConfigReader.serviceName)
-                )
-              )
-            )
+            .send(producerRecord(anyEvent, anyState, meta, event.getField(fd).as[String]))
             .map { recordMetadata =>
               log.info(
                 "Published event [{}] and state [{}] to topic/partition {}/{}",
@@ -84,7 +92,7 @@ abstract class KafkaPublisher(encryptionAdapter: EncryptionAdapter)(implicit
         )
 
       case None =>
-        DBIOAction.failed(new GlobalException(s"No partition key field is defined for event ${anyEvent.typeUrl}"))
+        DBIOAction.failed(new RuntimeException(s"No partition key field is defined for event ${anyEvent.typeUrl}"))
     }
   }
 }
