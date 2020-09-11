@@ -43,6 +43,25 @@ abstract class KafkaPublisher(encryptionAdapter: EncryptionAdapter)(implicit
       .withBootstrapServers(producerConfig.bootstrapServers)
   )(actorSystem.toClassic)
 
+  private def producerRecord(
+      event: Any,
+      state: Any,
+      meta: MetaData,
+      partitionKey: String
+  ): ProducerRecord[String, String] = {
+    new ProducerRecord(
+      producerConfig.topic,
+      partitionKey,
+      ProtosRegistry.printer.print(
+        KafkaEvent.defaultInstance
+          .withEvent(event)
+          .withState(StateWrapper().withMeta(meta).withState(state))
+          .withPartitionKey(partitionKey)
+          .withServiceName(ConfigReader.serviceName)
+      )
+    )
+  }
+
   def handleTyped(
       event: GeneratedMessage,
       eventTag: String,
@@ -59,19 +78,7 @@ abstract class KafkaPublisher(encryptionAdapter: EncryptionAdapter)(implicit
         // let us wrap the state and the meta data and persist to kafka
         DBIO.from(
           sendProducer
-            .send(
-              new ProducerRecord(
-                producerConfig.topic,
-                event.getField(fd).as[String],
-                ProtosRegistry.printer.print(
-                  KafkaEvent.defaultInstance
-                    .withEvent(anyEvent)
-                    .withState(StateWrapper().withMeta(meta).withState(anyState))
-                    .withPartitionKey(event.getField(fd).as[String])
-                    .withServiceName(ConfigReader.serviceName)
-                )
-              )
-            )
+            .send(producerRecord(anyEvent, anyState, meta, event.getField(fd).as[String]))
             .map { recordMetadata =>
               log.info(
                 "Published event [{}] and state [{}] to topic/partition {}/{}",

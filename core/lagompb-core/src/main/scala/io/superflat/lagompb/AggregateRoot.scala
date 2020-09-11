@@ -8,7 +8,6 @@ import akka.cluster.sharding.typed.scaladsl.{EntityContext, EntityTypeKey}
 import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.{Effect, EventSourcedBehavior, ReplyEffect, RetentionCriteria}
 import com.google.protobuf.any.Any
-import com.google.protobuf.empty.Empty
 import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.protobuf.v1.core.CommandHandlerResponse.Response
 import io.superflat.lagompb.protobuf.v1.core.FailureResponse.FailureType
@@ -310,16 +309,13 @@ abstract class AggregateRoot(
 
           case Success(commandHandlerResponse: CommandHandlerResponse) =>
             commandHandlerResponse.response match {
-              case Response.NoEvent(_: Empty) =>
-                replyWithCurrentState(stateWrapper.withState(decryptedState), cmd.replyTo)
-
               case Response.Event(event: Any) =>
                 persistEventAndReply(event, decryptedState, setStateMeta(stateWrapper, cmd.data), cmd.replyTo)
 
               case Response.Failure(failure: FailureResponse) => handleFailureResponse(failure, cmd.replyTo)
 
               case Response.Empty =>
-                replyWithCriticalFailure("empty command handler response", cmd.replyTo)
+                replyWithCurrentState(stateWrapper.withState(decryptedState), cmd.replyTo)
             }
 
           case Failure(exception: Throwable) =>

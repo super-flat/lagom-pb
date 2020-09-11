@@ -231,7 +231,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       }
     }
 
-    "received command and return empty response" in {
+    "received command and return current state" in {
       // Let us create the sender of commands
       val commandSender: TestProbe[CommandReply] =
         createTestProbe[CommandReply]()
@@ -258,9 +258,13 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       commandSender.receiveMessage(replyTimeout) match {
         case CommandReply(reply, _) =>
           reply match {
-            case Reply.Failure(value: FailureResponse) =>
-              value shouldBe FailureResponse().withCritical("empty command handler response")
-            case _ => fail("unexpected message type")
+            case Reply.StateWrapper(value) =>
+              val state = parseState(value.getState)
+              state shouldBe TestState.defaultInstance
+              value.getMeta.data shouldBe empty
+
+            case Reply.Failure(value) => fail("unexpected message state")
+            case Reply.Empty          => fail("unexpected message state")
           }
         case _ => fail("unexpected message type")
       }

@@ -57,7 +57,7 @@ class TestCommandHandler(actorSystem: ActorSystem) extends TypedCommandHandler[T
     Try(CommandHandlerResponse().withFailure(FailureResponse().withCritical("Oops!!!")))
 
   def handleNoEventTestCommand(cmd: NoEventTestCommand, currentState: TestState): Try[CommandHandlerResponse] =
-    Try(CommandHandlerResponse().withNoEvent(com.google.protobuf.empty.Empty()))
+    Try(CommandHandlerResponse())
 
   def handleTestCommand(cmd: TestCommand, state: TestState): Try[CommandHandlerResponse] =
     if (cmd.companyUuid.isEmpty)
