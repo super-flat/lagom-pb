@@ -10,7 +10,6 @@ import akka.persistence.typed.scaladsl.{Effect, EventSourcedBehavior, ReplyEffec
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.protobuf.v1.core.CommandHandlerResponse.Response
-import io.superflat.lagompb.protobuf.v1.core.FailureResponse.FailureType
 import io.superflat.lagompb.protobuf.v1.core._
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -131,100 +130,24 @@ abstract class AggregateRoot(
       eventHandler.handle(event, state, metaData)
     } match {
       case Failure(exception: Throwable) =>
-        replyWithCriticalFailure(s"[Lagompb] EventHandler failure: ${exception.getMessage}", replyTo)
+        Effect.reply(replyTo)(
+          CommandReply().withFailure(
+            FailureResponse().withCritical(s"[Lagompb] EventHandler failure:, ${exception.getMessage}")
+          )
+        )
 
       case Success(resultingState) =>
-        log.debug(s"[Lagompb] user event handler returned ${resultingState.typeUrl}")
+        log.debug(s"[Lagompb] Event handler returned ${resultingState.typeUrl}")
 
         val (encryptedEvent, encryptedResultingState, decryptedStateWrapper) =
           encryptEvent(event, resultingState, metaData)
 
         Effect
           .persist(
-            EventWrapper()
-              .withEvent(encryptedEvent)
-              .withResultingState(encryptedResultingState)
-              .withMeta(metaData)
+            EventWrapper().withEvent(encryptedEvent).withResultingState(encryptedResultingState).withMeta(metaData)
           )
           .thenReply(replyTo)((_: StateWrapper) => CommandReply().withStateWrapper(decryptedStateWrapper))
     }
-  }
-
-  /**
-   * Send a CommandReply with Critical failure response type
-   *
-   * @param message the Critical failure message
-   * @param replyTo the receiver of the message
-   */
-  private[lagompb] def replyWithCriticalFailure(
-      message: String,
-      replyTo: ActorRef[CommandReply]
-  ): ReplyEffect[EventWrapper, StateWrapper] = {
-
-    log.debug(s"[Lagompb] Critical Error: $message")
-
-    Effect.reply(replyTo)(CommandReply().withFailure(FailureResponse().withCritical(message)))
-  }
-
-  /**
-   * Send a CommandReply with Validation failure response type
-   *
-   * @param message the Validation failure message
-   * @param replyTo the receiver of the message
-   */
-  private[lagompb] def replyWithValidationFailure(
-      message: String,
-      replyTo: ActorRef[CommandReply]
-  ): ReplyEffect[EventWrapper, StateWrapper] = {
-
-    log.debug(s"[Lagompb] Validation Error: $message")
-
-    Effect.reply(replyTo)(CommandReply().withFailure(FailureResponse().withValidation(message)))
-  }
-
-  /**
-   * Send a CommandReply with NotFound failure response type
-   *
-   * @param message the NotFound failure message
-   * @param replyTo the receiver of the message
-   */
-  private[lagompb] def replyWithNotFoundFailure(
-      message: String,
-      replyTo: ActorRef[CommandReply]
-  ): ReplyEffect[EventWrapper, StateWrapper] = {
-
-    log.debug(s"[Lagompb] NotFound Error: $message")
-
-    Effect.reply(replyTo)(CommandReply().withFailure(FailureResponse().withNotFound(message)))
-  }
-
-  /**
-   * Send a CommandReply with Custom failure response type
-   *
-   * @param message the Custom failure details
-   * @param replyTo the receiver of the message
-   */
-  private[lagompb] def replyWithCustomFailure(
-      message: Any,
-      replyTo: ActorRef[CommandReply]
-  ): ReplyEffect[EventWrapper, StateWrapper] = {
-
-    log.debug(s"[Lagompb] Custom Error: ${message.typeUrl}")
-
-    Effect.reply(replyTo)(CommandReply().withFailure(FailureResponse().withCustom(message)))
-  }
-
-  /**
-   * Send a CommandReply with the StateWrapper
-   *
-   * @param stateWrapper the StateWrapper object
-   * @param replyTo the receiver of the message
-   */
-  private[lagompb] def replyWithCurrentState(
-      stateWrapper: StateWrapper,
-      replyTo: ActorRef[CommandReply]
-  ): ReplyEffect[EventWrapper, StateWrapper] = {
-    Effect.reply(replyTo)(CommandReply().withStateWrapper(stateWrapper))
   }
 
   /**
@@ -259,24 +182,6 @@ abstract class AggregateRoot(
     priorState.update(_.meta := event.getMeta, _.state := event.getResultingState)
   }
 
-  private[lagompb] def handleFailureResponse(
-      failureResponse: FailureResponse,
-      replyTo: ActorRef[CommandReply]
-  ): ReplyEffect[EventWrapper, StateWrapper] = {
-    failureResponse.failureType match {
-      case FailureType.Critical(value: String) =>
-        replyWithCriticalFailure(value, replyTo)
-      case FailureType.Custom(value: Any) =>
-        replyWithCustomFailure(value, replyTo)
-      case FailureType.Validation(value: String) =>
-        replyWithValidationFailure(value, replyTo)
-      case FailureType.NotFound(value: String) =>
-        replyWithNotFoundFailure(value, replyTo)
-      case _ =>
-        replyWithCriticalFailure("unknown failure type", replyTo)
-    }
-  }
-
   /**
    * Given a LagompbState implementation and a LagompbCommand, run the
    * implemented commandHandler.handle and persist/reply any event/state
@@ -300,7 +205,11 @@ abstract class AggregateRoot(
 
     maybeState match {
       case Failure(exception: Throwable) =>
-        replyWithCriticalFailure(s"[Lagompb] state parser failure, ${exception.getMessage}", cmd.replyTo)
+        Effect.reply(cmd.replyTo)(
+          CommandReply().withFailure(
+            FailureResponse().withCritical(s"[Lagompb] state parser failure, ${exception.getMessage}")
+          )
+        )
 
       case Success(decryptedState: Any) =>
         log.debug(s"[Lagompb] plugin data ${cmd.data} is valid...")
@@ -312,14 +221,19 @@ abstract class AggregateRoot(
               case Response.Event(event: Any) =>
                 persistEventAndReply(event, decryptedState, setStateMeta(stateWrapper, cmd.data), cmd.replyTo)
 
-              case Response.Failure(failure: FailureResponse) => handleFailureResponse(failure, cmd.replyTo)
+              case Response.Failure(failure: FailureResponse) =>
+                Effect.reply(cmd.replyTo)(CommandReply().withFailure(failure))
 
               case Response.Empty =>
-                replyWithCurrentState(stateWrapper.withState(decryptedState), cmd.replyTo)
+                Effect.reply(cmd.replyTo)(CommandReply().withStateWrapper(stateWrapper.withState(decryptedState)))
             }
 
           case Failure(exception: Throwable) =>
-            replyWithCriticalFailure(s" , ${exception.getMessage}", cmd.replyTo)
+            Effect.reply(cmd.replyTo)(
+              CommandReply().withFailure(
+                FailureResponse().withCritical(s"[Lagompb] command handler failure: ${exception.getMessage}")
+              )
+            )
         }
     }
   }

@@ -20,6 +20,8 @@ trait SharedBaseServiceImpl extends SendCommand {
   // aggregateRoot defines the persistent entity that will be used to handle commands
   def aggregateRoot: AggregateRoot
 
+  def commandFailureHandler: Option[CommandFailureHandler]
+
   /**
    * wrapper method to invoke sendCommand and pass in cluster sharding
    *
@@ -35,9 +37,9 @@ trait SharedBaseServiceImpl extends SendCommand {
       data: Map[String, String]
   )(implicit
       ec: ExecutionContext
-  ): Future[StateWrapper] =
+  ): Future[StateWrapper] = {
     sendCommand(clusterSharding, aggregateRoot, entityId, cmd, data)(ec)
-
+  }
 }
 
 /**

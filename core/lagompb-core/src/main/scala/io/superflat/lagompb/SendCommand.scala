@@ -4,7 +4,6 @@ import akka.cluster.sharding.typed.scaladsl.ClusterSharding
 import akka.util.Timeout
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.protobuf.v1.core.CommandReply.Reply
-import io.superflat.lagompb.protobuf.v1.core.FailureResponse.FailureType
 import io.superflat.lagompb.protobuf.v1.core._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -17,7 +16,6 @@ trait SendCommand {
   /**
    * Custom Command Error handler that needs to be implemented.
    */
-  def commandFailureHandler: Option[CommandFailureHandler]
 
   /**
    * sends commands to the aggregate root and return a future of the aggregate state given a entity Id
@@ -100,19 +98,7 @@ trait SendCommand {
    */
   def transformFailedReply(
       failureResponse: FailureResponse
-  ): Failure[Throwable] = {
-    failureResponse.failureType match {
-      case FailureType.Empty           => Failure(new LagompbException("reason unknown"))
-      case FailureType.Critical(value) => Failure(new LagompbException(value))
-      case FailureType.Custom(value) =>
-        commandFailureHandler match {
-          case Some(handler) => handler.tryHandleError(value)
-          case None          => Failure(new LagompbException("Error handler not set."))
-        }
-      case FailureType.Validation(value) => Failure(new InvalidCommandException(value))
-      case FailureType.NotFound(value)   => Failure(new NotFoundException(value))
-    }
-  }
+  ): Failure[Throwable]
 
   /**
    * unpack state wrapper, for use in sendCommandTyped
