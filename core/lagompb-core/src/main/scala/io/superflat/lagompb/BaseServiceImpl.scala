@@ -2,6 +2,7 @@ package io.superflat.lagompb
 
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
 import akka.grpc.GrpcServiceException
+import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.api.transport.{BadRequest, NotFound}
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import io.grpc.Status
@@ -19,8 +20,6 @@ trait SharedBaseServiceImpl extends SendCommand {
 
   // aggregateRoot defines the persistent entity that will be used to handle commands
   def aggregateRoot: AggregateRoot
-
-  def commandFailureHandler: Option[CommandFailureHandler]
 
   /**
    * wrapper method to invoke sendCommand and pass in cluster sharding
@@ -40,6 +39,16 @@ trait SharedBaseServiceImpl extends SendCommand {
   ): Future[StateWrapper] = {
     sendCommand(clusterSharding, aggregateRoot, entityId, cmd, data)(ec)
   }
+
+  /**
+   * handleCustomErrors handle custom defined proto message errors
+   *
+   * @param errorDetails the proto message error
+   * @return a Failure of type Try[Throwable]
+   */
+  def handleCustomErrors(errorDetails: Any): Failure[Throwable] = {
+    Failure(Http500(ProtosRegistry.printer.print(errorDetails)))
+  }
 }
 
 /**
@@ -53,8 +62,7 @@ trait SharedBaseServiceImpl extends SendCommand {
 abstract class BaseServiceImpl(
     val clusterSharding: ClusterSharding,
     val persistentEntityRegistry: PersistentEntityRegistry,
-    val aggregateRoot: AggregateRoot,
-    val commandFailureHandler: Option[CommandFailureHandler] = None
+    val aggregateRoot: AggregateRoot
 ) extends BaseService
     with SharedBaseServiceImpl {
 
@@ -73,15 +81,11 @@ abstract class BaseServiceImpl(
 
     failureResponse.failureType match {
       case FailureType.Empty =>
-        Failure(InternalServerError("unknown failure type"))
+        Failure(Http500("unknown failure type"))
 
-      case FailureType.Critical(value) => Failure(InternalServerError(value))
+      case FailureType.Critical(value) => Failure(Http500(value))
 
-      case FailureType.Custom(value) =>
-        commandFailureHandler match {
-          case Some(handler) => handler.tryHandleError(value)
-          case None          => Failure(InternalServerError("Error handler not set."))
-        }
+      case FailureType.Custom(value) => handleCustomErrors(value)
 
       case FailureType.Validation(value) =>
         Failure(BadRequest(value))
@@ -122,16 +126,7 @@ trait BaseGrpcServiceImpl extends SharedBaseServiceImpl {
           )
         )
 
-      case FailureType.Custom(value) =>
-        commandFailureHandler match {
-          case Some(handler) => handler.tryHandleError(value)
-          case None =>
-            Failure(
-              new GrpcServiceException(
-                status = Status.INTERNAL.withDescription("Error handler not set.")
-              )
-            )
-        }
+      case FailureType.Custom(value) => handleCustomErrors(value)
 
       case FailureType.Validation(value) =>
         Failure(

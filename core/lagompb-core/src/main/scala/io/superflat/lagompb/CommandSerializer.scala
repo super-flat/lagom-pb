@@ -39,7 +39,7 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
           .withData(pluginData)
           .toByteArray
 
-      case _ => throw new LagompbException("No Command Provided...")
+      case _ => throw new RuntimeException("No Command Provided...")
     }
 
   override def identifier: Int = 5555
@@ -57,6 +57,6 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
 
         Command(wrapper.getCommand, ref, wrapper.data)
 
-      case _ => throw new LagompbException("Wrong Command manifest....")
+      case _ => throw new RuntimeException("Wrong Command manifest....")
     }
 }

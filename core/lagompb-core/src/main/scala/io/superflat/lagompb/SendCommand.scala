@@ -80,7 +80,7 @@ trait SendCommand {
     commandReply.reply match {
       case Reply.Empty =>
         Failure(
-          new LagompbException(
+          new RuntimeException(
             s"unknown CommandReply ${commandReply.reply.getClass.getName}"
           )
         )
@@ -115,6 +115,6 @@ trait SendCommand {
           case Failure(exception) => Failure(exception)
           case Success(newState)  => Success((newState, stateWrapper.getMeta))
         }
-      case None => Failure(new LagompbException("state not found"))
+      case None => Failure(new RuntimeException("state not found"))
     }
 }

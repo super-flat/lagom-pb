@@ -40,7 +40,7 @@ class SendCommandSpec extends BaseSpec {
       val actual = TestCommandSender.handleLagompbCommandReply(cmd)
 
       actual.isFailure shouldBe true
-      actual.failed.get.isInstanceOf[LagompbException] shouldBe true
+      actual.failed.get.isInstanceOf[RuntimeException] shouldBe true
       actual.failed.get.getMessage.contains("unknown CommandReply") shouldBe true
     }
   }
@@ -51,7 +51,7 @@ class SendCommandSpec extends BaseSpec {
       val actual = TestCommandSender.transformFailedReply(FailureResponse().withValidation(errMsg))
 
       actual.isFailure shouldBe true
-      actual.failed.get.isInstanceOf[InvalidCommandException] shouldBe true
+      actual.failed.get.isInstanceOf[IllegalArgumentException] shouldBe true
       actual.failed.get.getMessage shouldBe errMsg
     }
 
@@ -60,7 +60,7 @@ class SendCommandSpec extends BaseSpec {
       val actual = TestCommandSender.transformFailedReply(FailureResponse().withCritical(errMsg))
 
       actual.isFailure shouldBe true
-      actual.failed.get.isInstanceOf[LagompbException] shouldBe true
+      actual.failed.get.isInstanceOf[RuntimeException] shouldBe true
       actual.failed.get.getMessage shouldBe errMsg
     }
   }

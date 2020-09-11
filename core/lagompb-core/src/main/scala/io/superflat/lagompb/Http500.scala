@@ -9,7 +9,7 @@ import com.lightbend.lagom.scaladsl.api.transport.{ExceptionMessage, TransportEr
  * @param exceptionMessage the error message
  * @param cause the http exception
  */
-final class InternalServerError(
+final class Http500(
     errorCode: TransportErrorCode,
     exceptionMessage: ExceptionMessage,
     cause: Throwable
@@ -20,46 +20,25 @@ final class InternalServerError(
   // $COVERAGE-ON$
 }
 
-object InternalServerError {
+object Http500 {
   // $COVERAGE-OFF$
   val ErrorCode: TransportErrorCode = TransportErrorCode.InternalServerError
 
   def apply(message: String) =
-    new InternalServerError(
+    new Http500(
       ErrorCode,
-      new ExceptionMessage(classOf[InternalServerError].getSimpleName, message),
+      new ExceptionMessage(classOf[Http500].getSimpleName, message),
       new Throwable
     )
 
   def apply(cause: Throwable) =
-    new InternalServerError(
+    new Http500(
       ErrorCode,
       new ExceptionMessage(
-        classOf[InternalServerError].getSimpleName,
+        classOf[Http500].getSimpleName,
         cause.getMessage
       ),
       cause
     )
   // $COVERAGE-ON$
 }
-
-/**
- *  GlobalException custom RuntimeException.
- *  This is used for general exception
- *
- * @param message the exception message
- */
-final class LagompbException(message: String) extends RuntimeException(message)
-
-/**
- * InvalidCommandException.
- * This will be used to handle invalid command exception.
- * @param message the exception message
- */
-final class InvalidCommandException(message: String) extends RuntimeException(message)
-
-/**
- * NotFoundException. This will be used to handle not found command failure response
- * @param message the exception message
- */
-final class NotFoundException(message: String) extends RuntimeException(message)

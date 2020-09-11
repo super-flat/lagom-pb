@@ -10,7 +10,7 @@ import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.protobuf.v1.core.{MetaData, StateWrapper}
 import io.superflat.lagompb.protobuf.v1.extensions.ExtensionsProto
 import io.superflat.lagompb.protobuf.v1.readside.KafkaEvent
-import io.superflat.lagompb.{ConfigReader, LagompbException, ProtosRegistry}
+import io.superflat.lagompb.{ConfigReader, ProtosRegistry}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 import scalapb.GeneratedMessage
@@ -92,7 +92,7 @@ abstract class KafkaPublisher(encryptionAdapter: EncryptionAdapter)(implicit
         )
 
       case None =>
-        DBIOAction.failed(new LagompbException(s"No partition key field is defined for event ${anyEvent.typeUrl}"))
+        DBIOAction.failed(new RuntimeException(s"No partition key field is defined for event ${anyEvent.typeUrl}"))
     }
   }
 }

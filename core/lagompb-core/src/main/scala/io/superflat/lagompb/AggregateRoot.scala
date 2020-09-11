@@ -158,7 +158,7 @@ abstract class AggregateRoot(
    * @param data the addional data
    * @return newly created MetaData
    */
-  private[lagompb] def setStateMeta(
+  private[lagompb] def nextMeta(
       stateWrapper: StateWrapper,
       data: Map[String, String]
   ): MetaData = {
@@ -219,7 +219,7 @@ abstract class AggregateRoot(
           case Success(commandHandlerResponse: CommandHandlerResponse) =>
             commandHandlerResponse.response match {
               case Response.Event(event: Any) =>
-                persistEventAndReply(event, decryptedState, setStateMeta(stateWrapper, cmd.data), cmd.replyTo)
+                persistEventAndReply(event, decryptedState, nextMeta(stateWrapper, cmd.data), cmd.replyTo)
 
               case Response.Failure(failure: FailureResponse) =>
                 Effect.reply(cmd.replyTo)(CommandReply().withFailure(failure))
