@@ -29,7 +29,7 @@ case class ApiSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]()
 sealed trait GenericSerializers[A <: GeneratedMessage] {
 
   def deserializer(implicit
-      T: GeneratedMessageCompanion[A]
+      A: GeneratedMessageCompanion[A]
   ): NegotiatedDeserializer[A, ByteString] = { (wire: ByteString) =>
 
     ProtosRegistry.parser.fromJsonString(wire.utf8String)
