@@ -26,18 +26,18 @@ case class ApiSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]()
     negotiateResponse(acceptedMessageProtocols)
 }
 
-sealed trait GenericSerializers[T <: GeneratedMessage] {
+sealed trait GenericSerializers[A <: GeneratedMessage] {
 
   def deserializer(implicit
-      T: GeneratedMessageCompanion[T]
-  ): NegotiatedDeserializer[T, ByteString] = { (wire: ByteString) =>
+      T: GeneratedMessageCompanion[A]
+  ): NegotiatedDeserializer[A, ByteString] = { (wire: ByteString) =>
 
     ProtosRegistry.parser.fromJsonString(wire.utf8String)
   }
 
   def negotiateResponse(
       acceptedMessageProtocols: Seq[MessageProtocol]
-  ): NegotiatedSerializer[T, ByteString] =
+  ): NegotiatedSerializer[A, ByteString] =
     acceptedMessageProtocols match {
       case Nil => serializerJson
       case protocols =>
@@ -50,23 +50,23 @@ sealed trait GenericSerializers[T <: GeneratedMessage] {
           .getOrElse(serializerJson)
     }
 
-  def serializerJson: NegotiatedSerializer[T, ByteString] =
-    new NegotiatedSerializer[T, ByteString] {
+  def serializerJson: NegotiatedSerializer[A, ByteString] =
+    new NegotiatedSerializer[A, ByteString] {
 
       override def protocol: MessageProtocol =
         MessageProtocol(Some("application/json"))
 
-      override def serialize(message: T): ByteString =
+      override def serialize(message: A): ByteString =
         ByteString(ProtosRegistry.printer.print(message))
     }
 
-  def serializerProtobuf: NegotiatedSerializer[T, ByteString] =
-    new NegotiatedSerializer[T, ByteString] {
+  def serializerProtobuf: NegotiatedSerializer[A, ByteString] =
+    new NegotiatedSerializer[A, ByteString] {
 
       override def protocol: MessageProtocol =
         MessageProtocol(Some("application/x-protobuf"))
 
-      override def serialize(message: T): ByteString =
+      override def serialize(message: A): ByteString =
         ByteString(message.toByteArray)
     }
 }
