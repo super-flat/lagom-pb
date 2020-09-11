@@ -53,8 +53,6 @@ abstract class KafkaPublisher(encryptionAdapter: EncryptionAdapter)(implicit
     val anyState: Any = Any.pack(resultingState)
 
     event.companion.scalaDescriptor.fields.find(field =>
-      // this should just be a function on the constructor
-      // and it should be derived from State...
       field.getOptions.extension(ExtensionsProto.kafka).exists(_.partitionKey)
     ) match {
       case Some(fd: FieldDescriptor) =>
@@ -68,9 +66,7 @@ abstract class KafkaPublisher(encryptionAdapter: EncryptionAdapter)(implicit
                 ProtosRegistry.printer.print(
                   KafkaEvent.defaultInstance
                     .withEvent(anyEvent)
-                    .withState(
-                      StateWrapper().withMeta(meta).withState(anyState)
-                    )
+                    .withState(StateWrapper().withMeta(meta).withState(anyState))
                     .withPartitionKey(event.getField(fd).as[String])
                     .withServiceName(ConfigReader.serviceName)
                 )
@@ -89,11 +85,7 @@ abstract class KafkaPublisher(encryptionAdapter: EncryptionAdapter)(implicit
         )
 
       case None =>
-        DBIOAction.failed(
-          new LagompbException(
-            s"No partition key field is defined for event ${anyEvent.typeUrl}"
-          )
-        )
+        DBIOAction.failed(new LagompbException(s"No partition key field is defined for event ${anyEvent.typeUrl}"))
     }
   }
 }
