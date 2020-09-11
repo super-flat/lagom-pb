@@ -260,6 +260,24 @@ abstract class AggregateRoot(
     priorState.update(_.meta := event.getMeta, _.state := event.getResultingState)
   }
 
+  private[lagompb] def handleFailureResponse(
+      failureResponse: FailureResponse,
+      replyTo: ActorRef[CommandReply]
+  ): ReplyEffect[EventWrapper, StateWrapper] = {
+    failureResponse.failureType match {
+      case FailureType.Critical(value: String) =>
+        replyWithCriticalFailure(value, replyTo)
+      case FailureType.Custom(value: Any) =>
+        replyWithCustomFailure(value, replyTo)
+      case FailureType.Validation(value: String) =>
+        replyWithValidationFailure(value, replyTo)
+      case FailureType.NotFound(value: String) =>
+        replyWithNotFoundFailure(value, replyTo)
+      case _ =>
+        replyWithCriticalFailure("unknown failure type", replyTo)
+    }
+  }
+
   /**
    * Given a LagompbState implementation and a LagompbCommand, run the
    * implemented commandHandler.handle and persist/reply any event/state
@@ -282,7 +300,6 @@ abstract class AggregateRoot(
         encryptionAdapter.decrypt(stateWrapper.getState)
 
     maybeState match {
-
       case Failure(exception: Throwable) =>
         replyWithCriticalFailure(s"[Lagompb] state parser failure, ${exception.getMessage}", cmd.replyTo)
 
@@ -293,28 +310,16 @@ abstract class AggregateRoot(
 
           case Success(commandHandlerResponse: CommandHandlerResponse) =>
             commandHandlerResponse.response match {
-              case Response.Empty =>
-                replyWithCriticalFailure("empty command handler response", cmd.replyTo)
-
               case Response.NoEvent(_: Empty) =>
                 replyWithCurrentState(stateWrapper.withState(decryptedState), cmd.replyTo)
 
               case Response.Event(event: Any) =>
                 persistEventAndReply(event, decryptedState, setStateMeta(stateWrapper, cmd.data), cmd.replyTo)
 
-              case Response.Failure(failure: FailureResponse) =>
-                failure.failureType match {
-                  case FailureType.Empty =>
-                    replyWithCriticalFailure("unknown failure type", cmd.replyTo)
-                  case FailureType.Critical(value: String) =>
-                    replyWithCriticalFailure(value, cmd.replyTo)
-                  case FailureType.Custom(value: Any) =>
-                    replyWithCustomFailure(value, cmd.replyTo)
-                  case FailureType.Validation(value: String) =>
-                    replyWithValidationFailure(value, cmd.replyTo)
-                  case FailureType.NotFound(value: String) =>
-                    replyWithNotFoundFailure(value, cmd.replyTo)
-                }
+              case Response.Failure(failure: FailureResponse) => handleFailureResponse(failure, cmd.replyTo)
+
+              case Response.Empty =>
+                replyWithCriticalFailure("empty command handler response", cmd.replyTo)
             }
 
           case Failure(exception: Throwable) =>
