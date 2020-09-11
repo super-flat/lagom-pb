@@ -45,7 +45,7 @@ trait JdbcRepository[M] {
    * @return the updated record or None if it was not found
    */
   def update(entityId: String, model: M)(implicit
-    connection: Connection
+      connection: Connection
   ): Future[Int]
 
   /**
@@ -56,7 +56,7 @@ trait JdbcRepository[M] {
    * @return the deleted record or None if it was not found
    */
   def delete(entityId: String)(implicit
-    connection: Connection
+      connection: Connection
   ): Future[Option[M]]
 
 }

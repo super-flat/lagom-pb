@@ -19,12 +19,12 @@ class EventHandlerSpec extends BaseActorTestKit(s"""
   val actorSystem: ActorSystem = testKit.system.toClassic
 
   "EventHandler implementation" must {
-    val companyId: String = UUID.randomUUID().toString
+    val companyId: String              = UUID.randomUUID().toString
     val eventHandler: TestEventHandler = new TestEventHandler(actorSystem)
 
     "handle event and return the new state" in {
       val prevState: TestState = TestState(companyId, "state")
-      val event: TestEvent = TestEvent(companyId, "new state")
+      val event: TestEvent     = TestEvent(companyId, "new state")
 
       val result: Any =
         eventHandler.handle(Any.pack(event), Any.pack(prevState), MetaData.defaultInstance)

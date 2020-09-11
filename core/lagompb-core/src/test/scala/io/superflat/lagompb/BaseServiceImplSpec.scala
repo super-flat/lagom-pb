@@ -35,7 +35,7 @@ class BaseServiceImplSpec extends BaseSpec {
 
     "handle SuccessfulReply" in {
       val commandHandler = new TestCommandHandler(null)
-      val eventHandler = new TestEventHandler(null)
+      val eventHandler   = new TestEventHandler(null)
       val aggregate =
         new TestAggregateRoot(null, commandHandler, eventHandler, TestState(), defaultEncryptionAdapter)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
@@ -57,7 +57,7 @@ class BaseServiceImplSpec extends BaseSpec {
 
     "handle FailedReply" in {
       val commandHandler = new TestCommandHandler(null)
-      val eventHandler = new TestEventHandler(null)
+      val eventHandler   = new TestEventHandler(null)
       val aggregate =
         new TestAggregateRoot(null, commandHandler, eventHandler, TestState(), defaultEncryptionAdapter)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
@@ -69,7 +69,7 @@ class BaseServiceImplSpec extends BaseSpec {
 
     "failed to handle CommandReply" in {
       val commandHandler = new TestCommandHandler(null)
-      val eventHandler = new TestEventHandler(null)
+      val eventHandler   = new TestEventHandler(null)
       val aggregate =
         new TestAggregateRoot(null, commandHandler, eventHandler, TestState(), defaultEncryptionAdapter)
       val testImpl = new TestServiceImpl(null, null, null, aggregate)
@@ -84,7 +84,7 @@ class BaseServiceImplSpec extends BaseSpec {
       new TestApplication(context)
     } { server =>
       val testCmd: TestCommand = TestCommand().withCompanyUuid(companyId).withName("John")
-      val client: TestService = server.serviceClient.implement[TestService]
+      val client: TestService  = server.serviceClient.implement[TestService]
       client.testHello.invoke(testCmd).map { response: TestState =>
         response should ===(
           TestState()

@@ -20,8 +20,8 @@ import scala.util.{Failure, Success}
  */
 
 abstract class TypedReadSideProcessor(encryptionAdapter: EncryptionAdapter)(implicit
-  ec: ExecutionContext,
-  actorSystem: ActorSystem[_]
+    ec: ExecutionContext,
+    actorSystem: ActorSystem[_]
 ) extends ReadSideProcessor(encryptionAdapter) {
 
   /**
@@ -43,9 +43,9 @@ abstract class TypedReadSideProcessor(encryptionAdapter: EncryptionAdapter)(impl
     }
 
   def handleTyped(
-    event: GeneratedMessage,
-    eventTag: String,
-    state: GeneratedMessage,
-    metaData: MetaData
+      event: GeneratedMessage,
+      eventTag: String,
+      state: GeneratedMessage,
+      metaData: MetaData
   ): DBIO[Done]
 }

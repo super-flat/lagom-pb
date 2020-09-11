@@ -20,9 +20,9 @@ import scala.util.{Failure, Success, Try}
  * @param encryptionAdapter handles encrypt/decrypt transformations
  */
 final class EventsReader(
-  eventTag: String,
-  eventProcessor: EventProcessor,
-  encryptionAdapter: EncryptionAdapter
+    eventTag: String,
+    eventProcessor: EventProcessor,
+    encryptionAdapter: EncryptionAdapter
 ) extends SlickHandler[EventEnvelope[EventWrapper]] {
 
   val log: Logger = LoggerFactory.getLogger(getClass)

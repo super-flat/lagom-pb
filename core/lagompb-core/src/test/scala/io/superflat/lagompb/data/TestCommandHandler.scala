@@ -11,9 +11,9 @@ import scala.util.{Failure, Try}
 class TestCommandHandler(actorSystem: ActorSystem) extends TypedCommandHandler[TestState](actorSystem) {
 
   override def handleTyped(
-    command: scalapb.GeneratedMessage,
-    currentState: TestState,
-    currentEventMeta: MetaData
+      command: scalapb.GeneratedMessage,
+      currentState: TestState,
+      currentEventMeta: MetaData
   ): Try[CommandHandlerResponse] =
     command match {
       case cmd: TestCommand                          => handleTestCommand(cmd, currentState)
@@ -27,15 +27,15 @@ class TestCommandHandler(actorSystem: ActorSystem) extends TypedCommandHandler[T
     }
 
   def handleNotFoundFailureTestCommand(
-    cmd: NotFoundFailureTestCommand,
-    currentState: TestState
+      cmd: NotFoundFailureTestCommand,
+      currentState: TestState
   ): Try[CommandHandlerResponse] = {
     Try(CommandHandlerResponse().withFailure(FailureResponse().withNotFound("Oops!!!")))
   }
 
   def handleCustomFailureTestCommand(
-    cmd: CustomFailureTestCommand,
-    currentState: TestState
+      cmd: CustomFailureTestCommand,
+      currentState: TestState
   ): Try[CommandHandlerResponse] = {
     Try(CommandHandlerResponse().withFailure(FailureResponse().withCustom(Any.pack(com.google.protobuf.empty.Empty()))))
   }
@@ -51,8 +51,8 @@ class TestCommandHandler(actorSystem: ActorSystem) extends TypedCommandHandler[T
   }
 
   def handleCriticalFailureTestCommand(
-    cmd: CriticalFailureTestCommand,
-    currentState: TestState
+      cmd: CriticalFailureTestCommand,
+      currentState: TestState
   ): Try[CommandHandlerResponse] =
     Try(CommandHandlerResponse().withFailure(FailureResponse().withCritical("Oops!!!")))
 

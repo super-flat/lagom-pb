@@ -13,7 +13,7 @@ import scala.reflect.ClassTag
  * @tparam E the entity case class
  */
 abstract class SlickBasedTable[E: ClassTag](
-  tag: Tag,
-  schemaName: Option[String],
-  tableName: String
+    tag: Tag,
+    schemaName: Option[String],
+    tableName: String
 ) extends Table[E](tag, schemaName, tableName)

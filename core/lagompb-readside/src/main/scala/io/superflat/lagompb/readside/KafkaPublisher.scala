@@ -28,8 +28,8 @@ import scala.concurrent.ExecutionContext
  */
 
 abstract class KafkaPublisher(encryptionAdapter: EncryptionAdapter)(implicit
-  ec: ExecutionContext,
-  actorSystem: ActorSystem[_]
+    ec: ExecutionContext,
+    actorSystem: ActorSystem[_]
 ) extends TypedReadSideProcessor(encryptionAdapter) {
 
   // The implementation class needs to set the akka.kafka.producer settings in the config file as well
@@ -44,10 +44,10 @@ abstract class KafkaPublisher(encryptionAdapter: EncryptionAdapter)(implicit
   )(actorSystem.toClassic)
 
   def handleTyped(
-    event: GeneratedMessage,
-    eventTag: String,
-    resultingState: GeneratedMessage,
-    meta: MetaData
+      event: GeneratedMessage,
+      eventTag: String,
+      resultingState: GeneratedMessage,
+      meta: MetaData
   ): DBIO[Done] = {
     val anyEvent: Any = Any.pack(event)
     val anyState: Any = Any.pack(resultingState)

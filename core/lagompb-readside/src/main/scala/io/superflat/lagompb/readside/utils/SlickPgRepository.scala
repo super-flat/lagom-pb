@@ -11,8 +11,8 @@ import scala.concurrent.Future
  * Repository interface that will be implemented by any slick postgres readSide
  */
 abstract class SlickPgRepository[T <: SlickBasedTable[E], E](
-  tableQuery: TableQuery[T],
-  database: Database
+    tableQuery: TableQuery[T],
+    database: Database
 ) {
 
   // It will be used to interact with the database

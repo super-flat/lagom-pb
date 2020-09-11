@@ -24,7 +24,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       akka.persistence.snapshot-store.local.dir = "tmp/snapshot"
     """) {
 
-  private val companyUUID = "93cfb5fc-c01b-4cda-bb45-31875bafda23"
+  private val companyUUID  = "93cfb5fc-c01b-4cda-bb45-31875bafda23"
   private val replyTimeout = FiniteDuration(30, TimeUnit.SECONDS)
 
   private def randomId(): String = UUID.randomUUID().toString
@@ -331,9 +331,6 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           reply match {
             case Reply.Failure(value) =>
               value.failureType shouldBe a[FailureResponse.FailureType.Critical]
-              value.getCritical should include(
-                "[Lagompb]command handler breakdown"
-              )
             case _ => fail("unexpected message type")
           }
         case _ => fail("unexpected message type")
