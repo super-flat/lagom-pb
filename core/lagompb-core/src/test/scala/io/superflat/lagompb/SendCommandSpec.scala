@@ -48,7 +48,7 @@ class SendCommandSpec extends BaseSpec {
   "transformFailedReply" should {
     "handle validation errors" in {
       val errMsg: String = "validation error"
-      val actual         = TestCommandSender.transformFailedReply(FailureResponse().withValidation(errMsg))
+      val actual = TestCommandSender.transformFailedReply(FailureResponse().withValidation(errMsg))
 
       actual.isFailure shouldBe true
       actual.failed.get.isInstanceOf[InvalidCommandException] shouldBe true
@@ -57,7 +57,7 @@ class SendCommandSpec extends BaseSpec {
 
     "handle internal errors" in {
       val errMsg: String = "internal error"
-      val actual         = TestCommandSender.transformFailedReply(FailureResponse().withCritical(errMsg))
+      val actual = TestCommandSender.transformFailedReply(FailureResponse().withCritical(errMsg))
 
       actual.isFailure shouldBe true
       actual.failed.get.isInstanceOf[LagompbException] shouldBe true
@@ -67,17 +67,17 @@ class SendCommandSpec extends BaseSpec {
 
   "unpackStateWrapper" should {
     "unpack a known proto" in {
-      val msg          = TestState.defaultInstance
-      val meta         = MetaData().withRevisionNumber(1)
+      val msg = TestState.defaultInstance
+      val meta = MetaData().withRevisionNumber(1)
       val stateWrapper = StateWrapper().withState(Any.pack(msg)).withMeta(meta)
-      val actual       = TestCommandSender.unpackStateWrapper(stateWrapper)
+      val actual = TestCommandSender.unpackStateWrapper(stateWrapper)
       actual shouldBe Success((msg, meta))
     }
 
     "fail on unknown proto" in {
-      val badAny       = Any().withTypeUrl("whoopsidaisies")
+      val badAny = Any().withTypeUrl("whoopsidaisies")
       val stateWrapper = StateWrapper().withState(badAny)
-      val actual       = TestCommandSender.unpackStateWrapper(stateWrapper)
+      val actual = TestCommandSender.unpackStateWrapper(stateWrapper)
       actual.isFailure shouldBe true
       actual.failure.exception should have message "could not unpack unrecognized proto whoopsidaisies"
     }

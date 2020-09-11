@@ -36,7 +36,7 @@ class TestServiceImpl(
 
   override def testHello: ServiceCall[TestCommand, TestState] = { req =>
     val companyId: String = UUID.randomUUID().toString
-    val cmd               = req.update(_.companyUuid := companyId)
+    val cmd = req.update(_.companyUuid := companyId)
     sendCommand(companyId, cmd, Map.empty[String, String])
       .map((rst: StateWrapper) => rst.state.get.unpack(TestState))
   }

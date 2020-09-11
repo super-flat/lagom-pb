@@ -62,7 +62,7 @@ abstract class AggregateRoot(
         RetentionCriteria
           .snapshotEvery(
             numberOfEvents = ConfigReader.snapshotCriteria.frequency, // snapshotFrequency
-            keepNSnapshots = ConfigReader.snapshotCriteria.retention  //snapshotRetention
+            keepNSnapshots = ConfigReader.snapshotCriteria.retention //snapshotRetention
           )
       )
   }
@@ -110,9 +110,7 @@ abstract class AggregateRoot(
       encryptionAdapter.encryptOrThrow(event),
       // compute the resulting state once and reuse it
       encryptionAdapter.encryptOrThrow(state),
-      StateWrapper()
-        .withState(state)
-        .withMeta(metaData)
+      StateWrapper().withState(state).withMeta(metaData)
     )
   }
 
@@ -134,15 +132,10 @@ abstract class AggregateRoot(
       eventHandler.handle(event, state, metaData)
     } match {
       case Failure(exception: Throwable) =>
-        replyWithCriticalFailure(
-          s"[Lagompb] EventHandler failure: ${exception.getMessage}",
-          replyTo
-        )
+        replyWithCriticalFailure(s"[Lagompb] EventHandler failure: ${exception.getMessage}", replyTo)
 
       case Success(resultingState) =>
-        log.debug(
-          s"[Lagompb] user event handler returned ${resultingState.typeUrl}"
-        )
+        log.debug(s"[Lagompb] user event handler returned ${resultingState.typeUrl}")
 
         val (encryptedEvent, encryptedResultingState, decryptedStateWrapper) =
           encryptEvent(event, resultingState, metaData)
@@ -171,9 +164,7 @@ abstract class AggregateRoot(
 
     log.debug(s"[Lagompb] Critical Error: $message")
 
-    Effect.reply(replyTo)(
-      CommandReply().withFailure(FailureResponse().withCritical(message))
-    )
+    Effect.reply(replyTo)(CommandReply().withFailure(FailureResponse().withCritical(message)))
   }
 
   /**
@@ -189,9 +180,7 @@ abstract class AggregateRoot(
 
     log.debug(s"[Lagompb] Validation Error: $message")
 
-    Effect.reply(replyTo)(
-      CommandReply().withFailure(FailureResponse().withValidation(message))
-    )
+    Effect.reply(replyTo)(CommandReply().withFailure(FailureResponse().withValidation(message)))
   }
 
   /**
@@ -207,9 +196,7 @@ abstract class AggregateRoot(
 
     log.debug(s"[Lagompb] NotFound Error: $message")
 
-    Effect.reply(replyTo)(
-      CommandReply().withFailure(FailureResponse().withNotFound(message))
-    )
+    Effect.reply(replyTo)(CommandReply().withFailure(FailureResponse().withNotFound(message)))
   }
 
   /**
@@ -225,9 +212,7 @@ abstract class AggregateRoot(
 
     log.debug(s"[Lagompb] Custom Error: ${message.typeUrl}")
 
-    Effect.reply(replyTo)(
-      CommandReply().withFailure(FailureResponse().withCustom(message))
-    )
+    Effect.reply(replyTo)(CommandReply().withFailure(FailureResponse().withCustom(message)))
   }
 
   /**
@@ -272,10 +257,7 @@ abstract class AggregateRoot(
       priorState: StateWrapper,
       event: EventWrapper
   ): StateWrapper = {
-    priorState.update(
-      _.meta := event.getMeta,
-      _.state := event.getResultingState
-    )
+    priorState.update(_.meta := event.getMeta, _.state := event.getResultingState)
   }
 
   /**
@@ -302,49 +284,28 @@ abstract class AggregateRoot(
     maybeState match {
 
       case Failure(exception: Throwable) =>
-        replyWithCriticalFailure(
-          s"[Lagompb] state parser failure, ${exception.getMessage}",
-          cmd.replyTo
-        )
+        replyWithCriticalFailure(s"[Lagompb] state parser failure, ${exception.getMessage}", cmd.replyTo)
 
       case Success(decryptedState: Any) =>
         log.debug(s"[Lagompb] plugin data ${cmd.data} is valid...")
 
-        commandHandler.handle(
-          cmd.command,
-          decryptedState,
-          stateWrapper.getMeta
-        ) match {
+        commandHandler.handle(cmd.command, decryptedState, stateWrapper.getMeta) match {
 
           case Success(commandHandlerResponse: CommandHandlerResponse) =>
             commandHandlerResponse.response match {
               case Response.Empty =>
-                replyWithCriticalFailure(
-                  "empty command handler response",
-                  cmd.replyTo
-                )
+                replyWithCriticalFailure("empty command handler response", cmd.replyTo)
 
               case Response.NoEvent(_: Empty) =>
-                replyWithCurrentState(
-                  stateWrapper.withState(decryptedState),
-                  cmd.replyTo
-                )
+                replyWithCurrentState(stateWrapper.withState(decryptedState), cmd.replyTo)
 
               case Response.Event(event: Any) =>
-                persistEventAndReply(
-                  event,
-                  decryptedState,
-                  setStateMeta(stateWrapper, cmd.data),
-                  cmd.replyTo
-                )
+                persistEventAndReply(event, decryptedState, setStateMeta(stateWrapper, cmd.data), cmd.replyTo)
 
               case Response.Failure(failure: FailureResponse) =>
                 failure.failureType match {
                   case FailureType.Empty =>
-                    replyWithCriticalFailure(
-                      "unknown failure type",
-                      cmd.replyTo
-                    )
+                    replyWithCriticalFailure("unknown failure type", cmd.replyTo)
                   case FailureType.Critical(value: String) =>
                     replyWithCriticalFailure(value, cmd.replyTo)
                   case FailureType.Custom(value: Any) =>
@@ -357,10 +318,7 @@ abstract class AggregateRoot(
             }
 
           case Failure(exception: Throwable) =>
-            replyWithCriticalFailure(
-              s" , ${exception.getMessage}",
-              cmd.replyTo
-            )
+            replyWithCriticalFailure(s" , ${exception.getMessage}", cmd.replyTo)
         }
     }
   }

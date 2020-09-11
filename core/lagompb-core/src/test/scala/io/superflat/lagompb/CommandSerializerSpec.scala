@@ -25,7 +25,7 @@ class CommandSerializerSpec extends BaseActorTestKit(s"""
 
   "Verification of command serializer" in {
     val probe: TestProbe[CommandReply] = createTestProbe[CommandReply]()
-    val command                        = TestCommand(companyUUID, "John Ross")
+    val command = TestCommand(companyUUID, "John Ross")
     val data =
       Map("audit|employeeUuid" -> "1223", "audit|createdAt" -> "2020-04-17")
     serializationTestKit.verifySerialization(Command(Any.pack(command), probe.ref, data))

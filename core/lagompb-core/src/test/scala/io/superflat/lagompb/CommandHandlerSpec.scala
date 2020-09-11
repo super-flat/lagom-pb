@@ -19,14 +19,14 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
     """) {
 
   val actorSystem: ActorSystem = testKit.system.toClassic
-  val companyId: String        = UUID.randomUUID().toString
-  val cmdHandler               = new TestCommandHandler(actorSystem)
+  val companyId: String = UUID.randomUUID().toString
+  val cmdHandler = new TestCommandHandler(actorSystem)
 
   "CommandHandler implementation" should {
 
     "handle valid command as expected" in {
       val testCmd = TestCommand(companyId, "test")
-      val state   = TestState(companyId, "state")
+      val state = TestState(companyId, "state")
 
       val result: Try[CommandHandlerResponse] =
         cmdHandler.handleTyped(testCmd, state, MetaData.defaultInstance)
@@ -36,7 +36,7 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
 
     "handle invalid command as expected" in {
       val testCmd = TestCommand("", "test")
-      val state   = TestState(UUID.randomUUID().toString, "state")
+      val state = TestState(UUID.randomUUID().toString, "state")
       val result: Try[CommandHandlerResponse] =
         cmdHandler.handleTyped(testCmd, state, MetaData.defaultInstance)
 
@@ -46,8 +46,8 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
 
     "handle BaseCommand as expected" in {
       val testCmd = TestCommand(companyId, "test")
-      val state   = TestState(companyId, "state")
-      val meta    = MetaData(revisionNumber = 1)
+      val state = TestState(companyId, "state")
+      val meta = MetaData(revisionNumber = 1)
       val result: Try[CommandHandlerResponse] =
         cmdHandler.handleTyped(testCmd, state, meta)
 
@@ -57,8 +57,8 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
 
     "handle invalid BaseCommand as expected" in {
       val testCmd = TestCommand("", "test")
-      val state   = TestState(UUID.randomUUID().toString, "state")
-      val meta    = MetaData(revisionNumber = 1)
+      val state = TestState(UUID.randomUUID().toString, "state")
+      val meta = MetaData(revisionNumber = 1)
       val result: Try[CommandHandlerResponse] =
         cmdHandler.handleTyped(testCmd, state, meta)
 
@@ -68,7 +68,7 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
 
     "handle command handler breakdown" in {
       val noCmd = NoCmd()
-      val meta  = MetaData(revisionNumber = 1)
+      val meta = MetaData(revisionNumber = 1)
       cmdHandler
         .handleTyped(noCmd, TestState(companyId, "state"), meta)
         .failure
@@ -79,7 +79,7 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
 
     "handled custom error" in {
       val testCmd = CustomFailureTestCommand.defaultInstance
-      val state   = TestState(UUID.randomUUID().toString, "state")
+      val state = TestState(UUID.randomUUID().toString, "state")
       val result: Try[CommandHandlerResponse] =
         cmdHandler.handleTyped(testCmd, state, MetaData.defaultInstance)
 
