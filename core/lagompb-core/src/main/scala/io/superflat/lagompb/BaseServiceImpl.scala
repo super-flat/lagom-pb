@@ -2,10 +2,11 @@ package io.superflat.lagompb
 
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
 import akka.grpc.GrpcServiceException
-import com.lightbend.lagom.scaladsl.api.transport.BadRequest
+import com.lightbend.lagom.scaladsl.api.transport.{BadRequest, NotFound}
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import io.grpc.Status
-import io.superflat.lagompb.protobuf.v1.core.{FailedReply, FailureCause, StateWrapper}
+import io.superflat.lagompb.protobuf.v1.core.FailureResponse.FailureType
+import io.superflat.lagompb.protobuf.v1.core.{FailureResponse, StateWrapper}
 import org.slf4j.{Logger, LoggerFactory}
 import scalapb.GeneratedMessage
 
@@ -28,9 +29,14 @@ trait SharedBaseServiceImpl extends SendCommand {
    * @param data             additional data that need to be set in the state meta
    * @return Future of state
    */
-  def sendCommand(entityId: String, cmd: GeneratedMessage, data: Map[String, String])(implicit
+  def sendCommand(
+    entityId: String,
+    cmd: GeneratedMessage,
+    data: Map[String, String]
+  )(implicit
     ec: ExecutionContext
-  ): Future[StateWrapper] = sendCommand(clusterSharding, aggregateRoot, entityId, cmd, data)(ec)
+  ): Future[StateWrapper] =
+    sendCommand(clusterSharding, aggregateRoot, entityId, cmd, data)(ec)
 
 }
 
@@ -45,7 +51,8 @@ trait SharedBaseServiceImpl extends SendCommand {
 abstract class BaseServiceImpl(
   val clusterSharding: ClusterSharding,
   val persistentEntityRegistry: PersistentEntityRegistry,
-  val aggregateRoot: AggregateRoot
+  val aggregateRoot: AggregateRoot,
+  val commandFailureHandler: CommandFailureHandler
 ) extends BaseService
     with SharedBaseServiceImpl {
 
@@ -55,21 +62,28 @@ abstract class BaseServiceImpl(
    * generic conversion for failed replys into a scala Failure
    * with a gRPC exception
    *
-   * @param failedReply some command handler failed reply
+   * @param failureResponse some command handler failed reply
    * @return a Failure of type Try[StateWrapper]
    */
-  override def transformFailedReply(failedReply: FailedReply): Failure[Throwable] =
-    failedReply.cause match {
+  override def transformFailedReply(
+    failureResponse: FailureResponse
+  ): Failure[Throwable] = {
 
-      case FailureCause.VALIDATION_ERROR =>
-        Failure(BadRequest(failedReply.reason))
+    failureResponse.failureType match {
+      case FailureType.Empty =>
+        Failure(InternalServerError("unknown failure type"))
 
-      case _ if failedReply.reason.nonEmpty =>
-        Failure(InternalServerError(failedReply.reason))
+      case FailureType.Critical(value) => Failure(InternalServerError(value))
 
-      case _ =>
-        Failure(InternalServerError("critical failure"))
+      case FailureType.Custom(value) =>
+        commandFailureHandler.tryHandleError(value)
+
+      case FailureType.Validation(value) =>
+        Failure(BadRequest(value))
+
+      case FailureType.NotFound(value) => Failure(NotFound(value))
     }
+  }
 }
 
 /**
@@ -81,21 +95,44 @@ trait BaseGrpcServiceImpl extends SharedBaseServiceImpl {
    * generic conversion for failed replys into a scala Failure
    * with a gRPC exception
    *
-   * @param failedReply some command handler failed reply
+   * @param failureResponse some command handler failed reply
    * @return a Failure of type Try[StateWrapper]
    */
-  override def transformFailedReply(failedReply: FailedReply): Failure[Throwable] = {
-    val status: Status = failedReply.cause match {
-      case FailureCause.VALIDATION_ERROR =>
-        Status.INVALID_ARGUMENT.withDescription(failedReply.reason)
+  override def transformFailedReply(
+    failureResponse: FailureResponse
+  ): Failure[Throwable] = {
 
-      case FailureCause.INTERNAL_ERROR =>
-        Status.INTERNAL.withDescription(failedReply.reason)
+    failureResponse.failureType match {
+      case FailureType.Empty =>
+        Failure(
+          new GrpcServiceException(
+            status = Status.INTERNAL.withDescription("unknown failure type")
+          )
+        )
 
-      case _ =>
-        Status.INTERNAL.withDescription(failedReply.reason)
+      case FailureType.Critical(value) =>
+        Failure(
+          new GrpcServiceException(
+            status = Status.INTERNAL.withDescription(value)
+          )
+        )
+
+      case FailureType.Custom(value) =>
+        commandFailureHandler.tryHandleError(value)
+
+      case FailureType.Validation(value) =>
+        Failure(
+          new GrpcServiceException(
+            status = Status.INVALID_ARGUMENT.withDescription(value)
+          )
+        )
+
+      case FailureType.NotFound(value) =>
+        Failure(
+          new GrpcServiceException(
+            status = Status.NOT_FOUND.withDescription(value)
+          )
+        )
     }
-
-    Failure(new GrpcServiceException(status = status))
   }
 }

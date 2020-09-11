@@ -2,10 +2,9 @@ package io.superflat.lagompb.data
 
 import akka.actor.ActorSystem
 import com.google.protobuf.any.Any
+import io.superflat.lagompb.TypedCommandHandler
 import io.superflat.lagompb.protobuf.v1.core._
-import io.superflat.lagompb.protobuf.v1.core.CommandHandlerResponse.HandlerResponse
 import io.superflat.lagompb.protobuf.v1.tests._
-import io.superflat.lagompb.{ProtosRegistry, TypedCommandHandler}
 
 import scala.util.Try
 

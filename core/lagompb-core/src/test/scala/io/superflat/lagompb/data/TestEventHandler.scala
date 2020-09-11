@@ -1,7 +1,7 @@
 package io.superflat.lagompb.data
 
 import akka.actor.ActorSystem
-import io.superflat.lagompb.{ProtosRegistry, TypedEventHandler}
+import io.superflat.lagompb.TypedEventHandler
 import io.superflat.lagompb.protobuf.v1.core.MetaData
 import io.superflat.lagompb.protobuf.v1.tests.{TestEvent, TestEventFailure, TestState}
 

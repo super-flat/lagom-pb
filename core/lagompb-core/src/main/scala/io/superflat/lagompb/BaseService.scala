@@ -11,18 +11,15 @@ trait BaseService extends Service {
   protected val serviceName: String =
     ConfigReader.serviceName
 
-  implicit def messageSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]: ApiSerializer[A] = ApiSerializer[A]
+  implicit def messageSerializer[
+    A <: GeneratedMessage: GeneratedMessageCompanion
+  ]: ApiSerializer[A] = ApiSerializer[A]
 
   final override def descriptor: Descriptor = {
     import Service._
 
     routes
-      .foldLeft(
-        named(serviceName)
-          .withAutoAcl(true)
-      ) {
-        _.addCalls(_)
-      }
+      .foldLeft(named(serviceName).withAutoAcl(true))(_.addCalls(_))
 
   }
 

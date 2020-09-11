@@ -19,8 +19,11 @@ import scala.util.{Failure, Success, Try}
  * @param eventProcessor the actual event processor
  * @param encryptionAdapter handles encrypt/decrypt transformations
  */
-final class EventsReader(eventTag: String, eventProcessor: EventProcessor, encryptionAdapter: EncryptionAdapter)
-    extends SlickHandler[EventEnvelope[EventWrapper]] {
+final class EventsReader(
+  eventTag: String,
+  eventProcessor: EventProcessor,
+  encryptionAdapter: EncryptionAdapter
+) extends SlickHandler[EventEnvelope[EventWrapper]] {
 
   val log: Logger = LoggerFactory.getLogger(getClass)
 
@@ -39,7 +42,11 @@ final class EventsReader(eventTag: String, eventProcessor: EventProcessor, encry
           eventProcessor.process(event, eventTag, resultingState, meta)
 
         case _ =>
-          DBIO.failed(new GlobalException(s"[Lagompb] unknown event received ${envelope.event.getClass.getName}"))
+          DBIO.failed(
+            new GlobalException(
+              s"[Lagompb] unknown event received ${envelope.event.getClass.getName}"
+            )
+          )
       })
       .recoverWith({
         case DecryptPermanentFailure(reason) =>

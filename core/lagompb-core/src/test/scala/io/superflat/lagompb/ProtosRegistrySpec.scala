@@ -1,10 +1,9 @@
 package io.superflat.lagompb
 
 import com.google.protobuf.any.Any
-import io.superflat.lagompb.testkit.BaseSpec
 import io.superflat.lagompb.protobuf.v1.core.CoreProto
-
 import io.superflat.lagompb.protobuf.v1.tests.TestCmd
+import io.superflat.lagompb.testkit.BaseSpec
 import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 class ProtosRegistrySpec extends BaseSpec {

@@ -15,7 +15,9 @@ case class ApiSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]()
 
   override def serializerForRequest: MessageSerializer.NegotiatedSerializer[A, ByteString] = serializerJson
 
-  override def deserializer(protocol: MessageProtocol): MessageSerializer.NegotiatedDeserializer[A, ByteString] =
+  override def deserializer(
+    protocol: MessageProtocol
+  ): MessageSerializer.NegotiatedDeserializer[A, ByteString] =
     deserializer
 
   override def serializerForResponse(
@@ -26,13 +28,16 @@ case class ApiSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]()
 
 sealed trait GenericSerializers[T <: GeneratedMessage] {
 
-  def deserializer(implicit T: GeneratedMessageCompanion[T]): NegotiatedDeserializer[T, ByteString] = {
-    (wire: ByteString) =>
+  def deserializer(implicit
+    T: GeneratedMessageCompanion[T]
+  ): NegotiatedDeserializer[T, ByteString] = { (wire: ByteString) =>
 
-      ProtosRegistry.parser.fromJsonString(wire.utf8String)
+    ProtosRegistry.parser.fromJsonString(wire.utf8String)
   }
 
-  def negotiateResponse(acceptedMessageProtocols: Seq[MessageProtocol]): NegotiatedSerializer[T, ByteString] =
+  def negotiateResponse(
+    acceptedMessageProtocols: Seq[MessageProtocol]
+  ): NegotiatedSerializer[T, ByteString] =
     acceptedMessageProtocols match {
       case Nil => serializerJson
       case protocols =>

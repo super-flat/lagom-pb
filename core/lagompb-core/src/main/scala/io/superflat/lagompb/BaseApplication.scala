@@ -63,7 +63,9 @@ abstract class BaseApplication(context: LagomApplicationContext)
   def protoEncryption: Option[ProtoEncryption] = None
 
   // create an encryption adapter with above ProtoEncryption
-  final lazy val encryptionAdapter: EncryptionAdapter = new EncryptionAdapter(protoEncryption)
+  final lazy val encryptionAdapter: EncryptionAdapter = new EncryptionAdapter(
+    protoEncryption
+  )
 
   /**
    * Defines the persistent entity that will be used to handle commands

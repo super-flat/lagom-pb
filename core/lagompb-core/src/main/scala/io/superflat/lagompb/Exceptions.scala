@@ -9,8 +9,11 @@ import com.lightbend.lagom.scaladsl.api.transport.{ExceptionMessage, TransportEr
  * @param exceptionMessage the error message
  * @param cause the http exception
  */
-final class InternalServerError(errorCode: TransportErrorCode, exceptionMessage: ExceptionMessage, cause: Throwable)
-    extends TransportException(errorCode, exceptionMessage, cause) {
+final class InternalServerError(
+  errorCode: TransportErrorCode,
+  exceptionMessage: ExceptionMessage,
+  cause: Throwable
+) extends TransportException(errorCode, exceptionMessage, cause) {
   // $COVERAGE-OFF$
   def this(errorCode: TransportErrorCode, exceptionMessage: ExceptionMessage) =
     this(errorCode, exceptionMessage, new Throwable)
@@ -22,15 +25,19 @@ object InternalServerError {
   val ErrorCode: TransportErrorCode = TransportErrorCode.InternalServerError
 
   def apply(message: String) =
-    new InternalServerError(ErrorCode,
-                            new ExceptionMessage(classOf[InternalServerError].getSimpleName, message),
-                            new Throwable
+    new InternalServerError(
+      ErrorCode,
+      new ExceptionMessage(classOf[InternalServerError].getSimpleName, message),
+      new Throwable
     )
 
   def apply(cause: Throwable) =
     new InternalServerError(
       ErrorCode,
-      new ExceptionMessage(classOf[InternalServerError].getSimpleName, cause.getMessage),
+      new ExceptionMessage(
+        classOf[InternalServerError].getSimpleName,
+        cause.getMessage
+      ),
       cause
     )
   // $COVERAGE-ON$
@@ -50,3 +57,9 @@ final class GlobalException(message: String) extends RuntimeException(message)
  * @param message the exception message
  */
 final class InvalidCommandException(message: String) extends RuntimeException(message)
+
+/**
+ * NotFoundException. This will be used to handle not found command failure response
+ * @param message the exception message
+ */
+final class NotFoundException(message: String) extends RuntimeException(message)

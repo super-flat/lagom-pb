@@ -3,7 +3,6 @@ package io.superflat.lagompb
 import com.google.protobuf.any.Any
 import com.google.protobuf.wrappers.StringValue
 import io.superflat.lagompb.data.TestCommandSender
-import io.superflat.lagompb.protobuf.v1.core.FailureCause.Unrecognized
 import io.superflat.lagompb.protobuf.v1.core._
 import io.superflat.lagompb.protobuf.v1.tests.TestState
 import io.superflat.lagompb.testkit.BaseSpec

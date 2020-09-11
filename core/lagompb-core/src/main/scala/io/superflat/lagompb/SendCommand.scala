@@ -14,6 +14,11 @@ trait SendCommand {
   implicit val timeout: Timeout = ConfigReader.askTimeout
 
   /**
+   * Custom Command Error handler that needs to be implemented.
+   */
+  def commandFailureHandler: CommandFailureHandler
+
+  /**
    * sends commands to the aggregate root and return a future of the aggregate state given a entity Id
    * the given entity Id is obtained the cluster shard.
    *
@@ -56,7 +61,9 @@ trait SendCommand {
     entityId: String,
     cmd: scalapb.GeneratedMessage,
     data: Map[String, String]
-  )(implicit ec: ExecutionContext): Future[(scalapb.GeneratedMessage, MetaData)] =
+  )(implicit
+    ec: ExecutionContext
+  ): Future[(scalapb.GeneratedMessage, MetaData)] =
     sendCommand(clusterSharding, aggregateRoot, entityId, cmd, data)
       .flatMap(stateWrapper => Future.fromTry(unpackStateWrapper(stateWrapper)))
 
@@ -70,27 +77,29 @@ trait SendCommand {
    */
   private[lagompb] def handleLagompbCommandReply(
     commandReply: CommandReply
-  ): Try[StateWrapper] =
+  ): Try[StateWrapper] = {
     commandReply.reply match {
-      case Reply.SuccessfulReply(successReply) =>
-        Success(successReply.getStateWrapper)
-      case Reply.FailedReply(failureReply) =>
-        transformFailedReply(failureReply).asInstanceOf[Try[StateWrapper]]
-      case _ => Failure(new GlobalException(s"unknown CommandReply ${commandReply.reply.getClass.getName}"))
+      case Reply.Empty =>
+        Failure(
+          new GlobalException(
+            s"unknown CommandReply ${commandReply.reply.getClass.getName}"
+          )
+        )
+      case Reply.StateWrapper(value: StateWrapper) => Success(value)
+      case Reply.Failure(value: FailureResponse) =>
+        transformFailedReply(value).asInstanceOf[Try[StateWrapper]]
     }
+  }
 
   /**
    * generic conversion for failed replys into a scala Failure
    *
-   * @param failedReply some command handler failed reply
+   * @param failureResponse some command handler failed reply
    * @return a Failure of type Try[]
    */
-  def transformFailedReply(failedReply: FailedReply): Failure[Throwable] =
-    failedReply.cause match {
-      case FailureCause.VALIDATION_ERROR => Failure(new InvalidCommandException(failedReply.reason))
-      case FailureCause.INTERNAL_ERROR   => Failure(new GlobalException(failedReply.reason))
-      case _                             => Failure(new GlobalException("reason unknown"))
-    }
+  def transformFailedReply(
+    failureResponse: FailureResponse
+  ): Failure[Throwable]
 
   /**
    * unpack state wrapper, for use in sendCommandTyped
@@ -98,7 +107,9 @@ trait SendCommand {
    * @param stateWrapper a state wrapper instance
    * @return a Try with the unpacked state as a generated message
    */
-  def unpackStateWrapper(stateWrapper: StateWrapper): Try[(scalapb.GeneratedMessage, MetaData)] =
+  def unpackStateWrapper(
+    stateWrapper: StateWrapper
+  ): Try[(scalapb.GeneratedMessage, MetaData)] =
     stateWrapper.state match {
       case Some(state) =>
         ProtosRegistry.unpackAny(state) match {

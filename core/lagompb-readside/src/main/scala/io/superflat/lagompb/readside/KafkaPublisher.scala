@@ -7,8 +7,9 @@ import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.SendProducer
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.encryption.EncryptionAdapter
-import io.superflat.lagompb.protobuf.v1.core.{KafkaEvent, MetaData, StateWrapper}
+import io.superflat.lagompb.protobuf.v1.core.{MetaData, StateWrapper}
 import io.superflat.lagompb.protobuf.v1.extensions.ExtensionsProto
+import io.superflat.lagompb.protobuf.v1.readside.KafkaEvent
 import io.superflat.lagompb.{ConfigReader, GlobalException, ProtosRegistry}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
@@ -33,7 +34,9 @@ abstract class KafkaPublisher(encryptionAdapter: EncryptionAdapter)(implicit
 
   // The implementation class needs to set the akka.kafka.producer settings in the config file as well
   // as the lagompb.kafka-projections
-  val producerConfig: KafkaConfig = KafkaConfig(actorSystem.settings.config.getConfig("lagompb.projection.kafka"))
+  val producerConfig: KafkaConfig = KafkaConfig(
+    actorSystem.settings.config.getConfig("lagompb.projection.kafka")
+  )
 
   private[this] val sendProducer: SendProducer[String, String] = SendProducer(
     ProducerSettings(actorSystem, new StringSerializer, new StringSerializer)
@@ -65,7 +68,9 @@ abstract class KafkaPublisher(encryptionAdapter: EncryptionAdapter)(implicit
                 ProtosRegistry.printer.print(
                   KafkaEvent.defaultInstance
                     .withEvent(anyEvent)
-                    .withState(StateWrapper().withMeta(meta).withState(anyState))
+                    .withState(
+                      StateWrapper().withMeta(meta).withState(anyState)
+                    )
                     .withPartitionKey(event.getField(fd).as[String])
                     .withServiceName(ConfigReader.serviceName)
                 )
@@ -84,7 +89,11 @@ abstract class KafkaPublisher(encryptionAdapter: EncryptionAdapter)(implicit
         )
 
       case None =>
-        DBIOAction.failed(new GlobalException(s"No partition key field is defined for event ${anyEvent.typeUrl}"))
+        DBIOAction.failed(
+          new GlobalException(
+            s"No partition key field is defined for event ${anyEvent.typeUrl}"
+          )
+        )
     }
   }
 }
