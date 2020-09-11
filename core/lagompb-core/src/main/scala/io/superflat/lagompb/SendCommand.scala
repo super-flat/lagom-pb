@@ -4,6 +4,7 @@ import akka.cluster.sharding.typed.scaladsl.ClusterSharding
 import akka.util.Timeout
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.protobuf.v1.core.CommandReply.Reply
+import io.superflat.lagompb.protobuf.v1.core.FailureResponse.FailureType
 import io.superflat.lagompb.protobuf.v1.core._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -16,7 +17,7 @@ trait SendCommand {
   /**
    * Custom Command Error handler that needs to be implemented.
    */
-  def commandFailureHandler: CommandFailureHandler
+  def commandFailureHandler: Option[CommandFailureHandler]
 
   /**
    * sends commands to the aggregate root and return a future of the aggregate state given a entity Id
@@ -31,11 +32,11 @@ trait SendCommand {
    * @return Future of state
    */
   def sendCommand(
-    clusterSharding: ClusterSharding,
-    aggregateRoot: AggregateRoot,
-    entityId: String,
-    cmd: scalapb.GeneratedMessage,
-    data: Map[String, String]
+      clusterSharding: ClusterSharding,
+      aggregateRoot: AggregateRoot,
+      entityId: String,
+      cmd: scalapb.GeneratedMessage,
+      data: Map[String, String]
   )(implicit ec: ExecutionContext): Future[StateWrapper] =
     clusterSharding
       .entityRefFor(aggregateRoot.typeKey, entityId)
@@ -56,13 +57,13 @@ trait SendCommand {
    * @return Future of state
    */
   def sendCommandTyped(
-    clusterSharding: ClusterSharding,
-    aggregateRoot: AggregateRoot,
-    entityId: String,
-    cmd: scalapb.GeneratedMessage,
-    data: Map[String, String]
+      clusterSharding: ClusterSharding,
+      aggregateRoot: AggregateRoot,
+      entityId: String,
+      cmd: scalapb.GeneratedMessage,
+      data: Map[String, String]
   )(implicit
-    ec: ExecutionContext
+      ec: ExecutionContext
   ): Future[(scalapb.GeneratedMessage, MetaData)] =
     sendCommand(clusterSharding, aggregateRoot, entityId, cmd, data)
       .flatMap(stateWrapper => Future.fromTry(unpackStateWrapper(stateWrapper)))
@@ -76,12 +77,12 @@ trait SendCommand {
    * @return a state wrapper instance with state ane meta
    */
   private[lagompb] def handleLagompbCommandReply(
-    commandReply: CommandReply
+      commandReply: CommandReply
   ): Try[StateWrapper] = {
     commandReply.reply match {
       case Reply.Empty =>
         Failure(
-          new GlobalException(
+          new LagompbException(
             s"unknown CommandReply ${commandReply.reply.getClass.getName}"
           )
         )
@@ -98,8 +99,20 @@ trait SendCommand {
    * @return a Failure of type Try[]
    */
   def transformFailedReply(
-    failureResponse: FailureResponse
-  ): Failure[Throwable]
+      failureResponse: FailureResponse
+  ): Failure[Throwable] = {
+    failureResponse.failureType match {
+      case FailureType.Empty           => Failure(new LagompbException("reason unknown"))
+      case FailureType.Critical(value) => Failure(new LagompbException(value))
+      case FailureType.Custom(value) =>
+        commandFailureHandler match {
+          case Some(handler) => handler.tryHandleError(value)
+          case None          => Failure(new LagompbException("Error handler not set."))
+        }
+      case FailureType.Validation(value) => Failure(new InvalidCommandException(value))
+      case FailureType.NotFound(value)   => Failure(new NotFoundException(value))
+    }
+  }
 
   /**
    * unpack state wrapper, for use in sendCommandTyped
@@ -108,7 +121,7 @@ trait SendCommand {
    * @return a Try with the unpacked state as a generated message
    */
   def unpackStateWrapper(
-    stateWrapper: StateWrapper
+      stateWrapper: StateWrapper
   ): Try[(scalapb.GeneratedMessage, MetaData)] =
     stateWrapper.state match {
       case Some(state) =>
@@ -116,6 +129,6 @@ trait SendCommand {
           case Failure(exception) => Failure(exception)
           case Success(newState)  => Success((newState, stateWrapper.getMeta))
         }
-      case None => Failure(new GlobalException("state not found"))
+      case None => Failure(new LagompbException("state not found"))
     }
 }

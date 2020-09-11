@@ -20,9 +20,9 @@ trait CommandHandler {
    * @return a command handler response or Failure
    */
   def handle(
-    command: Any,
-    currentState: Any,
-    currentMetaData: MetaData
+      command: Any,
+      currentState: Any,
+      currentMetaData: MetaData
   ): Try[CommandHandlerResponse]
 }
 
@@ -51,7 +51,7 @@ trait EventHandler {
  * @tparam S the aggregate state type
  */
 abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](
-  actorSystem: ActorSystem
+    actorSystem: ActorSystem
 ) extends CommandHandler {
 
   /**
@@ -64,9 +64,9 @@ abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](
    * @return a command handler response or Failure
    */
   final def handle(
-    command: Any,
-    currentState: Any,
-    currentMetaData: MetaData
+      command: Any,
+      currentState: Any,
+      currentMetaData: MetaData
   ): Try[CommandHandlerResponse] =
     ProtosRegistry.unpackAnys(currentState, command) match {
       case Failure(exception) =>
@@ -89,9 +89,9 @@ abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](
    * @return CommandHandlerResponse
    */
   def handleTyped(
-    command: scalapb.GeneratedMessage,
-    currentState: S,
-    currentMetaData: MetaData
+      command: scalapb.GeneratedMessage,
+      currentState: S,
+      currentMetaData: MetaData
   ): Try[CommandHandlerResponse]
 }
 
@@ -104,7 +104,7 @@ abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](
  * @tparam S the aggregate state type
  */
 abstract class TypedEventHandler[S <: scalapb.GeneratedMessage](
-  actorSystem: ActorSystem
+    actorSystem: ActorSystem
 ) extends EventHandler {
 
   /**
@@ -139,8 +139,8 @@ abstract class TypedEventHandler[S <: scalapb.GeneratedMessage](
    * @return the resulting state
    */
   def handleTyped(
-    event: scalapb.GeneratedMessage,
-    currentState: S,
-    metaData: MetaData
+      event: scalapb.GeneratedMessage,
+      currentState: S,
+      metaData: MetaData
   ): S
 }

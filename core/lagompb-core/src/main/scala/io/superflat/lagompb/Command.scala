@@ -15,7 +15,7 @@ import io.superflat.lagompb.protobuf.v1.core.CommandReply
  * The CommandReply message type will be sent back that actor reference
  */
 final case class Command(
-  command: Any,
-  replyTo: ActorRef[CommandReply],
-  data: Map[String, String]
+    command: Any,
+    replyTo: ActorRef[CommandReply],
+    data: Map[String, String]
 )

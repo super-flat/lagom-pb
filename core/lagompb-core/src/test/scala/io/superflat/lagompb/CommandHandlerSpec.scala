@@ -6,8 +6,8 @@ import akka.actor.ActorSystem
 import akka.actor.typed.scaladsl.adapter._
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.data.TestCommandHandler
-import io.superflat.lagompb.protobuf.v1.core._
-import io.superflat.lagompb.protobuf.v1.tests.{NoCmd, TestCmd, TestEvent, TestState}
+import io.superflat.lagompb.protobuf.v1.core.{CommandHandlerResponse, _}
+import io.superflat.lagompb.protobuf.v1.tests._
 import io.superflat.lagompb.testkit.BaseActorTestKit
 
 import scala.util.Try
@@ -23,89 +23,68 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
   val cmdHandler = new TestCommandHandler(actorSystem)
 
   "CommandHandler implementation" should {
+
     "handle valid command as expected" in {
-      val testCmd = TestCmd(companyId, "test")
+      val testCmd = TestCommand(companyId, "test")
       val state = TestState(companyId, "state")
 
       val result: Try[CommandHandlerResponse] =
-        cmdHandler.handleTestCmd(testCmd, state)
+        cmdHandler.handleTyped(testCmd, state, MetaData.defaultInstance)
       result.success.value shouldBe
-        CommandHandlerResponse()
-          .withSuccessResponse(
-            SuccessCommandHandlerResponse()
-              .withEvent(Any.pack(TestEvent(companyId, "test")))
-          )
+        CommandHandlerResponse().withEvent(Any.pack(TestEvent(companyId, "test")))
     }
 
     "handle invalid command as expected" in {
-      val testCmd = TestCmd("", "test")
+      val testCmd = TestCommand("", "test")
       val state = TestState(UUID.randomUUID().toString, "state")
       val result: Try[CommandHandlerResponse] =
-        cmdHandler.handleTestCmd(testCmd, state)
+        cmdHandler.handleTyped(testCmd, state, MetaData.defaultInstance)
 
       result.success.value shouldBe
-        CommandHandlerResponse()
-          .withFailedResponse(
-            FailedCommandHandlerResponse()
-              .withReason("command is invalid")
-              .withCause(FailureCause.VALIDATION_ERROR)
-          )
+        CommandHandlerResponse().withFailure(FailureResponse().withValidation("command is invalid"))
     }
 
     "handle BaseCommand as expected" in {
-      val testCmd = TestCmd(companyId, "test")
+      val testCmd = TestCommand(companyId, "test")
       val state = TestState(companyId, "state")
       val meta = MetaData(revisionNumber = 1)
       val result: Try[CommandHandlerResponse] =
-        cmdHandler.handle(Any.pack(testCmd), Any.pack(state), meta)
+        cmdHandler.handleTyped(testCmd, state, meta)
 
       result.success.value shouldBe
-        CommandHandlerResponse()
-          .withSuccessResponse(
-            SuccessCommandHandlerResponse()
-              .withEvent(Any.pack(TestEvent(companyId, "test")))
-          )
+        CommandHandlerResponse().withEvent(Any.pack(TestEvent(companyId, "test")))
     }
 
     "handle invalid BaseCommand as expected" in {
-      val testCmd = TestCmd("", "test")
+      val testCmd = TestCommand("", "test")
       val state = TestState(UUID.randomUUID().toString, "state")
       val meta = MetaData(revisionNumber = 1)
       val result: Try[CommandHandlerResponse] =
-        cmdHandler.handle(Any.pack(testCmd), Any.pack(state), meta)
+        cmdHandler.handleTyped(testCmd, state, meta)
 
       result.success.value shouldBe
-        CommandHandlerResponse()
-          .withFailedResponse(
-            FailedCommandHandlerResponse()
-              .withReason("command is invalid")
-              .withCause(FailureCause.VALIDATION_ERROR)
-          )
+        CommandHandlerResponse().withFailure(FailureResponse().withValidation("command is invalid"))
     }
 
-    "handle no such command" in {
-      cmdHandler.handleInvalidCommand().success.value shouldBe
-        CommandHandlerResponse()
-          .withFailedResponse(
-            FailedCommandHandlerResponse()
-              .withReason("no such command")
-              .withCause(FailureCause.INTERNAL_ERROR)
-          )
-    }
-
-    "handle no such LagompbCommand" in {
+    "handle command handler breakdown" in {
       val noCmd = NoCmd()
       val meta = MetaData(revisionNumber = 1)
       cmdHandler
-        .handle(Any.pack(noCmd), Any.pack(TestState(companyId, "state")), meta)
-        .success
-        .value shouldBe
-        CommandHandlerResponse()
-          .withFailedResponse(
-            FailedCommandHandlerResponse()
-              .withReason("no such command")
-              .withCause(FailureCause.INTERNAL_ERROR)
-          )
+        .handleTyped(noCmd, TestState(companyId, "state"), meta)
+        .failure
+        .exception
+        .getMessage shouldBe "unknown"
+
+    }
+
+    "handled custom error" in {
+      val testCmd = CustomFailureTestCommand.defaultInstance
+      val state = TestState(UUID.randomUUID().toString, "state")
+      val result: Try[CommandHandlerResponse] =
+        cmdHandler.handleTyped(testCmd, state, MetaData.defaultInstance)
+
+      val value = result.success.value.getFailure
+      value.failureType shouldBe a[FailureResponse.FailureType.Custom]
     }
   }
 }

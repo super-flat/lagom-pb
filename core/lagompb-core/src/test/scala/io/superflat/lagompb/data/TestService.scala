@@ -9,14 +9,14 @@ import com.lightbend.lagom.scaladsl.api.transport.Method
 import com.lightbend.lagom.scaladsl.api.{Descriptor, ServiceCall}
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import io.superflat.lagompb.protobuf.v1.core.StateWrapper
-import io.superflat.lagompb.protobuf.v1.tests.{TestCmd, TestState}
+import io.superflat.lagompb.protobuf.v1.tests.{TestCommand, TestState}
 import io.superflat.lagompb.{AggregateRoot, BaseService, BaseServiceImpl}
 
 import scala.concurrent.ExecutionContext
 
 trait TestService extends BaseService {
 
-  def testHello: ServiceCall[TestCmd, TestState]
+  def testHello: ServiceCall[TestCommand, TestState]
 
   /**
    * routes define the various routes handled by the service.
@@ -34,7 +34,7 @@ class TestServiceImpl(
     extends BaseServiceImpl(clusterSharding, persistentEntityRegistry, aggregateRoot)
     with TestService {
 
-  override def testHello: ServiceCall[TestCmd, TestState] = { req =>
+  override def testHello: ServiceCall[TestCommand, TestState] = { req =>
     val companyId: String = UUID.randomUUID().toString
     val cmd = req.update(_.companyUuid := companyId)
     sendCommand(companyId, cmd, Map.empty[String, String])

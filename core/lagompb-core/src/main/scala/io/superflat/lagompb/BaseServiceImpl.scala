@@ -30,11 +30,11 @@ trait SharedBaseServiceImpl extends SendCommand {
    * @return Future of state
    */
   def sendCommand(
-    entityId: String,
-    cmd: GeneratedMessage,
-    data: Map[String, String]
+      entityId: String,
+      cmd: GeneratedMessage,
+      data: Map[String, String]
   )(implicit
-    ec: ExecutionContext
+      ec: ExecutionContext
   ): Future[StateWrapper] =
     sendCommand(clusterSharding, aggregateRoot, entityId, cmd, data)(ec)
 
@@ -49,10 +49,10 @@ trait SharedBaseServiceImpl extends SendCommand {
  * @param persistentEntityRegistry the persistence entity registrythe execution context
  */
 abstract class BaseServiceImpl(
-  val clusterSharding: ClusterSharding,
-  val persistentEntityRegistry: PersistentEntityRegistry,
-  val aggregateRoot: AggregateRoot,
-  val commandFailureHandler: CommandFailureHandler
+    val clusterSharding: ClusterSharding,
+    val persistentEntityRegistry: PersistentEntityRegistry,
+    val aggregateRoot: AggregateRoot,
+    val commandFailureHandler: Option[CommandFailureHandler] = None
 ) extends BaseService
     with SharedBaseServiceImpl {
 
@@ -65,8 +65,8 @@ abstract class BaseServiceImpl(
    * @param failureResponse some command handler failed reply
    * @return a Failure of type Try[StateWrapper]
    */
-  override def transformFailedReply(
-    failureResponse: FailureResponse
+  final override def transformFailedReply(
+      failureResponse: FailureResponse
   ): Failure[Throwable] = {
 
     failureResponse.failureType match {
@@ -76,7 +76,10 @@ abstract class BaseServiceImpl(
       case FailureType.Critical(value) => Failure(InternalServerError(value))
 
       case FailureType.Custom(value) =>
-        commandFailureHandler.tryHandleError(value)
+        commandFailureHandler match {
+          case Some(handler) => handler.tryHandleError(value)
+          case None          => Failure(InternalServerError("Error handler not set."))
+        }
 
       case FailureType.Validation(value) =>
         Failure(BadRequest(value))
@@ -98,8 +101,8 @@ trait BaseGrpcServiceImpl extends SharedBaseServiceImpl {
    * @param failureResponse some command handler failed reply
    * @return a Failure of type Try[StateWrapper]
    */
-  override def transformFailedReply(
-    failureResponse: FailureResponse
+  final override def transformFailedReply(
+      failureResponse: FailureResponse
   ): Failure[Throwable] = {
 
     failureResponse.failureType match {
@@ -118,7 +121,15 @@ trait BaseGrpcServiceImpl extends SharedBaseServiceImpl {
         )
 
       case FailureType.Custom(value) =>
-        commandFailureHandler.tryHandleError(value)
+        commandFailureHandler match {
+          case Some(handler) => handler.tryHandleError(value)
+          case None =>
+            Failure(
+              new GrpcServiceException(
+                status = Status.INTERNAL.withDescription("Error handler not set.")
+              )
+            )
+        }
 
       case FailureType.Validation(value) =>
         Failure(

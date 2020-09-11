@@ -6,81 +6,67 @@ option java_package = "io.superflat.lagompb.protobuf.v1";
 
 import "google/protobuf/any.proto";
 
-message TestCmd {
-    string company_uuid = 1;
-    string name = 2;
+// used to test a normal command cycle where event are persisted
+// and a new state emitted
+message TestCommand {
+  string company_uuid = 1;
+  string name = 2;
 }
 
-// Used to test successful command
-// handler response without persisting
-// an event
-message TestGetCmd {
-    string company_uuid = 1;
-}
+// used to test NoEvent to be persisted
+message NoEventTestCommand {}
 
-// It is used to test unhandled
-// command handler response
-message TestEmptyCmd {
-    string company_uuid = 1;
-}
+// used to test Critical Command Handler Failure
+message CriticalFailureTestCommand {}
 
-// Used to test Empty command handler
-// success response
-message TestEmptySuccessCmd {
-    string company_uuid = 1;
-}
+// used to test NotFound Command Handler Failure
+message NotFoundFailureTestCommand{}
 
-// Used to handle wrong event emitted by
-// the command handler
-message TestUnknownEventCmd {
-    string company_uuid = 1;
-}
+// used to test Custom Failure Command Handler Failure
+message CustomFailureTestCommand{}
 
-// Used to test a fail command handler response
-message TestFailCmd {
-    string company_uuid = 1;
-}
+// used to test Unknown Command
+message UnknownTestCommand{}
 
-// Used to test event handler failure in the aggregate root
-message TestEventFailureCmd {
-    string company_uuid = 1;
-}
+// used to test when the command handler return an empty response
+// which will result into a critical error
+message EmptyCommandHandlerResponseTestCommand{}
 
-// Event emitted to test event handler failure in the aggregate root
-message TestEventFailure {
+// used to test Unknown Event emitted by a command handler
+message UnknownTestEventCommand{}
 
-}
+// used to test event handler failure in the aggregate root
+message EventHandlerFailureTestEvent{}
 
-message NoCmd {
-}
+message NoCmd {}
 
 message WrongEventTagger {
 }
 
 message TestEvent {
-    string event_uuid = 1;
-    string name = 2;
+  string event_uuid = 1;
+  string name = 2;
 }
 
 message TestState {
-    string company_uuid = 1;
-    string name = 2;
+  string company_uuid = 1;
+  string name = 2;
 }
 
 message WrongEvent {
-    string event_uuid = 1;
+  string event_uuid = 1;
 }
 
 message TestAny {
-    google.protobuf.Any cmd = 1;
+  google.protobuf.Any cmd = 1;
 }
 
 enum TestEnum {
-    ZERO = 0;
-    ONE = 1;
-    TWO = 2;
+  ZERO = 0;
+  ONE = 1;
+  TWO = 2;
 }
 
 message Outer {
-    string val = 1;
+  string val = 1;
 }

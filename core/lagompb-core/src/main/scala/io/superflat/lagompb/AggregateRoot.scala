@@ -32,11 +32,11 @@ import scala.util.{Failure, Success, Try}
  * @param encryptionAdapter optional ProtoEncryption implementatione scala type of the aggregate state
  */
 abstract class AggregateRoot(
-  actorSystem: ActorSystem,
-  commandHandler: CommandHandler,
-  eventHandler: EventHandler,
-  initialState: scalapb.GeneratedMessage,
-  encryptionAdapter: EncryptionAdapter
+    actorSystem: ActorSystem,
+    commandHandler: CommandHandler,
+    eventHandler: EventHandler,
+    initialState: scalapb.GeneratedMessage,
+    encryptionAdapter: EncryptionAdapter
 ) {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
@@ -50,8 +50,8 @@ abstract class AggregateRoot(
   def aggregateName: String
 
   final def create(
-    entityContext: EntityContext[Command],
-    shardIndex: Int
+      entityContext: EntityContext[Command],
+      shardIndex: Int
   ): Behavior[Command] = {
     val persistenceId: PersistenceId =
       PersistenceId(entityContext.entityTypeKey.name, entityContext.entityId)
@@ -62,7 +62,7 @@ abstract class AggregateRoot(
         RetentionCriteria
           .snapshotEvery(
             numberOfEvents = ConfigReader.snapshotCriteria.frequency, // snapshotFrequency
-            keepNSnapshots = ConfigReader.snapshotCriteria.retention //snapshotRetention
+            keepNSnapshots = ConfigReader.snapshotCriteria.retention  //snapshotRetention
           )
       )
   }
@@ -74,7 +74,7 @@ abstract class AggregateRoot(
    * @param persistenceId the aggregate persistence Id
    */
   private[lagompb] def create(
-    persistenceId: PersistenceId
+      persistenceId: PersistenceId
   ): EventSourcedBehavior[Command, EventWrapper, StateWrapper] = {
     val splitter: Char = PersistenceId.DefaultSeparator(0)
     val entityId: String =
@@ -102,9 +102,9 @@ abstract class AggregateRoot(
    * @param metaData the additional meta
    */
   private[lagompb] def encryptEvent(
-    event: Any,
-    state: Any,
-    metaData: MetaData
+      event: Any,
+      state: Any,
+      metaData: MetaData
   ): (Any, Any, StateWrapper) = {
     (
       encryptionAdapter.encryptOrThrow(event),
@@ -125,10 +125,10 @@ abstract class AggregateRoot(
    * @param replyTo the actor ref to reply to
    */
   private[lagompb] def persistEventAndReply(
-    event: Any,
-    state: Any,
-    metaData: MetaData,
-    replyTo: ActorRef[CommandReply]
+      event: Any,
+      state: Any,
+      metaData: MetaData,
+      replyTo: ActorRef[CommandReply]
   ): ReplyEffect[EventWrapper, StateWrapper] = {
     Try {
       eventHandler.handle(event, state, metaData)
@@ -165,8 +165,8 @@ abstract class AggregateRoot(
    * @param replyTo the receiver of the message
    */
   private[lagompb] def replyWithCriticalFailure(
-    message: String,
-    replyTo: ActorRef[CommandReply]
+      message: String,
+      replyTo: ActorRef[CommandReply]
   ): ReplyEffect[EventWrapper, StateWrapper] = {
 
     log.debug(s"[Lagompb] Critical Error: $message")
@@ -183,8 +183,8 @@ abstract class AggregateRoot(
    * @param replyTo the receiver of the message
    */
   private[lagompb] def replyWithValidationFailure(
-    message: String,
-    replyTo: ActorRef[CommandReply]
+      message: String,
+      replyTo: ActorRef[CommandReply]
   ): ReplyEffect[EventWrapper, StateWrapper] = {
 
     log.debug(s"[Lagompb] Validation Error: $message")
@@ -201,8 +201,8 @@ abstract class AggregateRoot(
    * @param replyTo the receiver of the message
    */
   private[lagompb] def replyWithNotFoundFailure(
-    message: String,
-    replyTo: ActorRef[CommandReply]
+      message: String,
+      replyTo: ActorRef[CommandReply]
   ): ReplyEffect[EventWrapper, StateWrapper] = {
 
     log.debug(s"[Lagompb] NotFound Error: $message")
@@ -219,8 +219,8 @@ abstract class AggregateRoot(
    * @param replyTo the receiver of the message
    */
   private[lagompb] def replyWithCustomFailure(
-    message: Any,
-    replyTo: ActorRef[CommandReply]
+      message: Any,
+      replyTo: ActorRef[CommandReply]
   ): ReplyEffect[EventWrapper, StateWrapper] = {
 
     log.debug(s"[Lagompb] Custom Error: ${message.typeUrl}")
@@ -237,8 +237,8 @@ abstract class AggregateRoot(
    * @param replyTo the receiver of the message
    */
   private[lagompb] def replyWithCurrentState(
-    stateWrapper: StateWrapper,
-    replyTo: ActorRef[CommandReply]
+      stateWrapper: StateWrapper,
+      replyTo: ActorRef[CommandReply]
   ): ReplyEffect[EventWrapper, StateWrapper] = {
     Effect.reply(replyTo)(CommandReply().withStateWrapper(stateWrapper))
   }
@@ -252,8 +252,8 @@ abstract class AggregateRoot(
    * @return newly created MetaData
    */
   private[lagompb] def setStateMeta(
-    stateWrapper: StateWrapper,
-    data: Map[String, String]
+      stateWrapper: StateWrapper,
+      data: Map[String, String]
   ): MetaData = {
     MetaData()
       .withRevisionNumber(stateWrapper.getMeta.revisionNumber + 1)
@@ -269,8 +269,8 @@ abstract class AggregateRoot(
    * @param event      the event wrapper
    */
   private[lagompb] def genericEventHandler(
-    priorState: StateWrapper,
-    event: EventWrapper
+      priorState: StateWrapper,
+      event: EventWrapper
   ): StateWrapper = {
     priorState.update(
       _.meta := event.getMeta,
@@ -287,8 +287,8 @@ abstract class AggregateRoot(
    * @param cmd          the command to process
    */
   final def genericCommandHandler(
-    stateWrapper: StateWrapper,
-    cmd: Command
+      stateWrapper: StateWrapper,
+      cmd: Command
   ): ReplyEffect[EventWrapper, StateWrapper] = {
 
     val maybeState: Try[Any] =
@@ -303,7 +303,7 @@ abstract class AggregateRoot(
 
       case Failure(exception: Throwable) =>
         replyWithCriticalFailure(
-          s"state parser failure, ${exception.getMessage}",
+          s"[Lagompb] state parser failure, ${exception.getMessage}",
           cmd.replyTo
         )
 
@@ -358,7 +358,7 @@ abstract class AggregateRoot(
 
           case Failure(exception: Throwable) =>
             replyWithCriticalFailure(
-              s"command handler breakdown, ${exception.getMessage}",
+              s" , ${exception.getMessage}",
               cmd.replyTo
             )
         }

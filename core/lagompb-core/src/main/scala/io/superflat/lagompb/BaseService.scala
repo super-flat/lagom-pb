@@ -12,7 +12,7 @@ trait BaseService extends Service {
     ConfigReader.serviceName
 
   implicit def messageSerializer[
-    A <: GeneratedMessage: GeneratedMessageCompanion
+      A <: GeneratedMessage: GeneratedMessageCompanion
   ]: ApiSerializer[A] = ApiSerializer[A]
 
   final override def descriptor: Descriptor = {

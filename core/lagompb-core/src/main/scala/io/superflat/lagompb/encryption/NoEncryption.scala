@@ -38,7 +38,7 @@ object NoEncryption extends ProtoEncryption {
     Try {
       // fake decryption back to ByteString -> ByteArray -> Any
       val encryptedByteString: ByteString = encryptedProto.encryptedProto
-      val byteArray: Array[Byte] = encryptedByteString.toByteArray
+      val byteArray: Array[Byte]          = encryptedByteString.toByteArray
       Any.parseFrom(byteArray)
     }
 }

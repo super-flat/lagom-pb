@@ -11,7 +11,7 @@ final case class EventsConfig(tagName: String, numShards: Int)
 
 object ConfigReader {
   private lazy val config: Config = ConfigFactory.load()
-  private val LP = "lagompb"
+  private val LP                  = "lagompb"
 
   def serviceName: String = config.getString(s"$LP.service-name")
 

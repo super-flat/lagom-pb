@@ -63,7 +63,7 @@ object ProtosRegistry {
    * @return the maybe scalapb GeneratedMessageCompanion object
    */
   def getCompanion(
-    any: Any
+      any: Any
   ): Option[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
     any.typeUrl.split('/').lastOption.flatMap(companionsMap.get)
 

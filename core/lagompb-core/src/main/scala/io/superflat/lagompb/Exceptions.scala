@@ -10,9 +10,9 @@ import com.lightbend.lagom.scaladsl.api.transport.{ExceptionMessage, TransportEr
  * @param cause the http exception
  */
 final class InternalServerError(
-  errorCode: TransportErrorCode,
-  exceptionMessage: ExceptionMessage,
-  cause: Throwable
+    errorCode: TransportErrorCode,
+    exceptionMessage: ExceptionMessage,
+    cause: Throwable
 ) extends TransportException(errorCode, exceptionMessage, cause) {
   // $COVERAGE-OFF$
   def this(errorCode: TransportErrorCode, exceptionMessage: ExceptionMessage) =
@@ -49,7 +49,7 @@ object InternalServerError {
  *
  * @param message the exception message
  */
-final class GlobalException(message: String) extends RuntimeException(message)
+final class LagompbException(message: String) extends RuntimeException(message)
 
 /**
  * InvalidCommandException.

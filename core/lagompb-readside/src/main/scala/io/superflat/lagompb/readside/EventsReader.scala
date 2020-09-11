@@ -3,7 +3,7 @@ package io.superflat.lagompb.readside
 import akka.Done
 import akka.projection.eventsourced.EventEnvelope
 import akka.projection.slick.SlickHandler
-import io.superflat.lagompb.GlobalException
+import io.superflat.lagompb.LagompbException
 import io.superflat.lagompb.encryption.{DecryptPermanentFailure, EncryptionAdapter}
 import io.superflat.lagompb.protobuf.v1.core.EventWrapper
 import org.slf4j.{Logger, LoggerFactory}
@@ -43,7 +43,7 @@ final class EventsReader(
 
         case _ =>
           DBIO.failed(
-            new GlobalException(
+            new LagompbException(
               s"[Lagompb] unknown event received ${envelope.event.getClass.getName}"
             )
           )
