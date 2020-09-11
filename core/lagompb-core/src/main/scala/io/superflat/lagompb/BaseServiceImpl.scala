@@ -2,7 +2,6 @@ package io.superflat.lagompb
 
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
 import akka.grpc.GrpcServiceException
-import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.api.transport.{BadRequest, NotFound}
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import io.grpc.Status
@@ -39,16 +38,6 @@ trait SharedBaseServiceImpl extends SendCommand {
   ): Future[StateWrapper] = {
     sendCommand(clusterSharding, aggregateRoot, entityId, cmd, data)(ec)
   }
-
-  /**
-   * handleCustomErrors handle custom defined proto message errors
-   *
-   * @param errorDetails the proto message error
-   * @return a Failure of type Try[Throwable]
-   */
-  def handleCustomErrors(errorDetails: Any): Failure[Throwable] = {
-    Failure(Http500(ProtosRegistry.printer.print(errorDetails)))
-  }
 }
 
 /**
@@ -75,22 +64,22 @@ abstract class BaseServiceImpl(
    * @param failureResponse some command handler failed reply
    * @return a Failure of type Try[StateWrapper]
    */
-  final override def transformFailedReply(
+  override def transformFailedReply(
       failureResponse: FailureResponse
   ): Failure[Throwable] = {
-
     failureResponse.failureType match {
-      case FailureType.Empty =>
-        Failure(Http500("unknown failure type"))
-
       case FailureType.Critical(value) => Failure(Http500(value))
 
-      case FailureType.Custom(value) => handleCustomErrors(value)
+      case FailureType.Custom(value) => Failure(Http500(s"unhandled custom error: ${value.typeUrl}"))
 
       case FailureType.Validation(value) =>
         Failure(BadRequest(value))
 
       case FailureType.NotFound(value) => Failure(NotFound(value))
+
+      case FailureType.Empty =>
+        Failure(Http500("unknown failure type"))
+
     }
   }
 }
@@ -107,18 +96,11 @@ trait BaseGrpcServiceImpl extends SharedBaseServiceImpl {
    * @param failureResponse some command handler failed reply
    * @return a Failure of type Try[StateWrapper]
    */
-  final override def transformFailedReply(
+  override def transformFailedReply(
       failureResponse: FailureResponse
   ): Failure[Throwable] = {
 
     failureResponse.failureType match {
-      case FailureType.Empty =>
-        Failure(
-          new GrpcServiceException(
-            status = Status.INTERNAL.withDescription("unknown failure type")
-          )
-        )
-
       case FailureType.Critical(value) =>
         Failure(
           new GrpcServiceException(
@@ -126,7 +108,12 @@ trait BaseGrpcServiceImpl extends SharedBaseServiceImpl {
           )
         )
 
-      case FailureType.Custom(value) => handleCustomErrors(value)
+      case FailureType.Custom(value) =>
+        Failure(
+          new GrpcServiceException(
+            status = Status.INTERNAL.withDescription(s"unhandled custom error: ${value.typeUrl}")
+          )
+        )
 
       case FailureType.Validation(value) =>
         Failure(
@@ -141,6 +128,14 @@ trait BaseGrpcServiceImpl extends SharedBaseServiceImpl {
             status = Status.NOT_FOUND.withDescription(value)
           )
         )
+
+      case FailureType.Empty =>
+        Failure(
+          new GrpcServiceException(
+            status = Status.INTERNAL.withDescription("unknown failure type")
+          )
+        )
+
     }
   }
 }
