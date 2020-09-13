@@ -8,7 +8,6 @@ import com.lightbend.lagom.scaladsl.persistence.slick.SlickPersistenceComponents
 import com.lightbend.lagom.scaladsl.playjson.{EmptyJsonSerializerRegistry, JsonSerializerRegistry}
 import com.lightbend.lagom.scaladsl.server.{LagomApplication, LagomApplicationContext, LagomServer}
 import io.superflat.lagompb.encryption.{EncryptionAdapter, ProtoEncryption}
-import kamon.Kamon
 import play.api.db.HikariCPComponents
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.mvc.EssentialFilter
@@ -40,11 +39,6 @@ abstract class BaseApplication(context: LagomApplicationContext)
     extends LagomApplication(context)
     with PostgresPersistenceComponents
     with BaseApplicationComponents {
-
-  // $COVERAGE-OFF$
-  // initialize instrumentation and tracing if it is enabled
-  if (ConfigReader.isInstrumentationEnabled)
-    Kamon.init()
 
   ProtosRegistry.load()
 
@@ -101,8 +95,6 @@ abstract class BaseApplication(context: LagomApplicationContext)
       selectShard(ConfigReader.eventsConfig.numShards, entityContext.entityId)
     aggregateRoot.create(entityContext, shardIndex)
   })
-
-  // $COVERAGE-ON$
 }
 
 /**
@@ -114,8 +106,6 @@ abstract class BaseApplication(context: LagomApplicationContext)
 abstract class BaseStatelessApplication(context: LagomApplicationContext)
     extends LagomApplication(context)
     with BaseApplicationComponents {
-
-  // $COVERAGE-OFF$
 
   // lagomServer is set by the server definition in the implementation class
   override lazy val lagomServer: LagomServer = server
@@ -133,6 +123,4 @@ abstract class BaseStatelessApplication(context: LagomApplicationContext)
    * @return ServiceLocator
    */
   override def serviceLocator: ServiceLocator
-
-  // $COVERAGE-ON$
 }
