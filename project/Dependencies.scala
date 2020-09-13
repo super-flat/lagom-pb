@@ -22,18 +22,13 @@ object Dependencies {
     val AkkaManagementVersion = "1.0.8"
     val AkkaManagementClusterBootstrapVersion = "1.0.8"
     val AkkaManagementClusterHttpVersion = "1.0.8"
-    val JwtPlayJsonVersion = "4.3.0"
-    val SlickMigrationApiVersion = "0.7.0"
     val ScalaMockVersion = "5.0.0"
-    val KamonVersion = "2.1.6"
-    val KanelaVersion = "1.0.6"
     val SilencerVersion = "1.6.0"
     val AkkaGrpcVersion = "1.0.0"
     val H2Version = "1.4.200"
     val ScalapbJson4sVersion = "0.10.1"
     val PlayGrpcVersion = "0.9.0"
     val ReflectionsVersion = "0.9.12"
-    val ApacheCommonValidatorVersion = "1.7"
     val ScalapbCommonProtoVersion = "1.18.0-0"
     val EmbeddedPostgresVersion = "0.13.3"
     val EmbeddedKafkaVersion = "2.6.0"
@@ -67,19 +62,10 @@ object Dependencies {
 
     val AkkaManagementClusterHttp: ModuleID =
       "com.lightbend.akka.management" %% "akka-management-cluster-http" % Versions.AkkaManagementClusterHttpVersion
-    val JwtPlayJson: ModuleID = "com.pauldijou" %% "jwt-play-json" % Versions.JwtPlayJsonVersion
-    val SlickMigrationApi: ModuleID = "io.github.nafg" %% "slick-migration-api" % Versions.SlickMigrationApiVersion
-    val KamonBundle: ModuleID = "io.kamon" %% "kamon-bundle" % Versions.KamonVersion
-    val KamonPrometheus: ModuleID = "io.kamon" %% "kamon-prometheus" % Versions.KamonVersion
-    val KamonZipkin: ModuleID = "io.kamon" %% "kamon-zipkin" % Versions.KamonVersion
-    val KamonJaeger: ModuleID = "io.kamon" %% "kamon-jaeger" % Versions.KamonVersion
-    val Kanela: ModuleID = "io.kamon" % "kanela-agent" % Versions.KanelaVersion
 
     val H2Driver: ModuleID = "com.h2database" % "h2" % Versions.H2Version
     val ScalapbJson4s: ModuleID = "com.thesamet.scalapb" %% "scalapb-json4s" % Versions.ScalapbJson4sVersion
     val Reflections: ModuleID = "org.reflections" % "reflections" % Versions.ReflectionsVersion
-    val ApacheCommonValidator: ModuleID =
-      "commons-validator" % "commons-validator" % Versions.ApacheCommonValidatorVersion
 
     val ScalapbCommonProtos: ModuleID =
       "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % Versions.ScalapbCommonProtoVersion

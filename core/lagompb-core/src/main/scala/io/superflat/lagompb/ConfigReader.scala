@@ -38,7 +38,4 @@ object ConfigReader {
 
   def createOffsetStore: Boolean =
     config.getBoolean("lagompb.projection.create-tables.auto")
-
-  def isInstrumentationEnabled: Boolean =
-    config.getBoolean(s"$LP.instrumentation.enabled")
 }

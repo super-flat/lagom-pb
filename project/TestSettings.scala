@@ -18,7 +18,6 @@ object TestSettings extends AutoPlugin {
         Dependencies.Test.AkkaTestkit,
         Dependencies.Test.AkkaStreamTestkit,
         Dependencies.Test.AkkaActorTestkitTyped,
-        Dependencies.Compile.SlickMigrationApi,
         Dependencies.Compile.postgresDriver,
         Dependencies.Compile.H2Driver
       )
