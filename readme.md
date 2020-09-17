@@ -5,6 +5,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.superflat/lagompb-core_2.13/badge.svg)]((https://maven-badges.herokuapp.com/maven-central/io.superflat/lagompb-core_2.13))
 [![Snapshot Artifacts][Badge-SonatypeSnapshots]][Link-SonatypeSnapshots]
+[![Join the chat at https://gitter.im/super-flat/lagom-pb](https://badges.gitter.im/super-flat/lagom-pb.svg)](https://gitter.im/super-flat/lagom-pb?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Scala Developer velocity in [lagom](https://www.lagomframework.com/documentation/1.6.x/scala/Home.html) development using protocol buffer.
 
