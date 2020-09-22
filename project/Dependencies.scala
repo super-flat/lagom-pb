@@ -24,7 +24,7 @@ object Dependencies {
     val AkkaManagementClusterHttpVersion = "1.0.8"
     val ScalaMockVersion = "5.0.0"
     val SilencerVersion = "1.6.0"
-    val AkkaGrpcVersion = "1.0.0"
+    val AkkaGrpcVersion = "1.0.2"
     val H2Version = "1.4.200"
     val ScalapbJson4sVersion = "0.10.1"
     val PlayGrpcVersion = "0.9.0"
@@ -32,7 +32,7 @@ object Dependencies {
     val ScalapbCommonProtoVersion = "1.18.0-0"
     val EmbeddedPostgresVersion = "0.13.3"
     val EmbeddedKafkaVersion = "2.6.0"
-    val AkkaProjectionVersion = "1.0.0"
+    val AkkaProjectionVersion = "1.0.2"
     val CatsVersion = "2.2.0"
 
     val SbtProtocVersion = "0.99.34"
