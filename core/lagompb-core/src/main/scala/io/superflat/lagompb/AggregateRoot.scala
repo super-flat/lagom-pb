@@ -51,18 +51,24 @@ abstract class AggregateRoot(
       entityContext: EntityContext[Command],
       shardIndex: Int
   ): Behavior[Command] = {
-    val persistenceId: PersistenceId =
-      PersistenceId(entityContext.entityTypeKey.name, entityContext.entityId)
-    val selectedTag: String = ConfigReader.allEventTags(shardIndex)
-    create(persistenceId)
-      .withTagger(_ => Set(selectedTag))
-      .withRetention(
-        RetentionCriteria
+
+    val retentionCriteria =
+      if (ConfigReader.snapshotCriteria.disableSnapshot) RetentionCriteria.disabled
+      else {
+        // journal/snapshot retention criteria
+        val rc = RetentionCriteria
           .snapshotEvery(
             numberOfEvents = ConfigReader.snapshotCriteria.frequency, // snapshotFrequency
             keepNSnapshots = ConfigReader.snapshotCriteria.retention //snapshotRetention
           )
-      )
+        // journal/snapshot retention criteria
+        if (ConfigReader.snapshotCriteria.deleteEventsOnSnapshot) rc.withDeleteEventsOnSnapshot
+        rc
+      }
+
+    create(PersistenceId(entityContext.entityTypeKey.name, entityContext.entityId))
+      .withTagger(_ => Set(ConfigReader.allEventTags(shardIndex)))
+      .withRetention(retentionCriteria)
   }
 
   /**
