@@ -5,7 +5,12 @@ import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.duration._
 
-final case class SnapshotCriteria(frequency: Int, retention: Int)
+final case class SnapshotCriteria(
+    frequency: Int,
+    retention: Int,
+    deleteEventsOnSnapshot: Boolean,
+    disableSnapshot: Boolean
+)
 
 final case class EventsConfig(tagName: String, numShards: Int)
 
@@ -23,7 +28,9 @@ object ConfigReader {
   def snapshotCriteria: SnapshotCriteria =
     SnapshotCriteria(
       frequency = config.getInt(s"$LP.snapshot-criteria.frequency"),
-      retention = config.getInt(s"$LP.snapshot-criteria.retention")
+      retention = config.getInt(s"$LP.snapshot-criteria.retention"),
+      deleteEventsOnSnapshot = config.getBoolean(s"$LP.snapshot-criteria.delete-events-on-snapshot"),
+      disableSnapshot = config.getBoolean(s"$LP.snapshot-criteria.disable-snapshot")
     )
 
   def allEventTags: Vector[String] =
