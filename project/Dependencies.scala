@@ -27,7 +27,7 @@ object Dependencies {
     val AkkaGrpcVersion = "1.0.0"
     val H2Version = "1.4.200"
     val ScalapbJson4sVersion = "0.10.1"
-    val PlayGrpcVersion = "0.9.0"
+    val PlayGrpcVersion = "0.9.1"
     val ReflectionsVersion = "0.9.12"
     val ScalapbCommonProtoVersion = "1.18.0-0"
     val EmbeddedPostgresVersion = "0.13.3"
