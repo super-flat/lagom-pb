@@ -8,28 +8,41 @@ import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
 
 class ProtosRegistrySpec extends BaseSpec {
 
-  "Loading GeneratedFileObject" should {
+  "The Protos registry" should {
 
-    "succeed" in {
+    "load protos definitions as expected" in {
       val fos = ProtosRegistry.registry
       fos.size should be >= 1
       fos should contain(CoreProto)
     }
 
-    "should be loaded" in {
+    "load message companions as expected" in {
       val size: Int = ProtosRegistry.companions.size
       size should be >= 1
     }
 
-    "Contains the companions" in {
+    "help build the message companions map as expected" in {
       val map: Map[String, GeneratedMessageCompanion[_ <: GeneratedMessage]] =
         ProtosRegistry.companionsMap
       map.keySet should contain("lagompb.v1.TestCommand")
     }
 
-    "Gets scalapb GeneratedMessageCompanion object" in {
+    "help get scalapb GeneratedMessageCompanion object" in {
       val any = Any.pack(TestCommand.defaultInstance)
       ProtosRegistry.getCompanion(any) should be(Symbol("defined"))
+    }
+
+    "help convert a proto message to json" in {
+      val testCommand = TestCommand.defaultInstance.withCompanyUuid("123").withName("test")
+      val json = ProtosRegistry.toJson(testCommand)
+      json shouldBe """{"companyUuid":"123","name":"test"}""".stripMargin
+    }
+
+    "help convert a json string to a proto message" in {
+      val jsonString = """{"companyUuid":"123","name":"test"}""".stripMargin
+      val testCommand = ProtosRegistry.fromJson[TestCommand](jsonString)
+      testCommand.companyUuid shouldBe "123"
+      testCommand.name shouldBe "test"
     }
   }
 }

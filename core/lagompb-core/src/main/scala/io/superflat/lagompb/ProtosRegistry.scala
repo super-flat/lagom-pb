@@ -54,11 +54,36 @@ object ProtosRegistry {
     new Parser().withTypeRegistry(typeRegistry)
 
   private[lagompb] lazy val printer: Printer =
-    new Printer().includingDefaultValueFields
+    new Printer().includingDefaultValueFields.formattingLongAsNumber
       .withTypeRegistry(typeRegistry)
 
   /**
+   * Converts a scalapb GeneratedMessage to printable Json string using the available
+   * registry
+   * @param message the proto message
+   * @return the json string
+   */
+  def toJson(message: GeneratedMessage): String = {
+    printer.print(message)
+  }
+
+  /**
+   * Converts a json string to a scalapb message
+   *
+   * @param jsonString the json string
+   * @param A the scalapb message
+   * @tparam A the scala type of the proto message to parse the json string into
+   * @return the scalapb message parsed from the json string
+   */
+  def fromJson[A <: GeneratedMessage](
+      jsonString: String
+  )(implicit A: GeneratedMessageCompanion[A]): A = {
+    parser.fromJsonString(jsonString)
+  }
+
+  /**
    * Gets the maybe scalapb GeneratedMessageCompanion object defining an Any protobuf message
+   *
    * @param any the protobuf message
    * @return the maybe scalapb GeneratedMessageCompanion object
    */

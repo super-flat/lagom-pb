@@ -31,8 +31,7 @@ sealed trait GenericSerializers[A <: GeneratedMessage] {
   def deserializer(implicit
       A: GeneratedMessageCompanion[A]
   ): NegotiatedDeserializer[A, ByteString] = { (wire: ByteString) =>
-
-    ProtosRegistry.parser.fromJsonString(wire.utf8String)
+    ProtosRegistry.fromJson(wire.utf8String)
   }
 
   def negotiateResponse(
@@ -57,7 +56,7 @@ sealed trait GenericSerializers[A <: GeneratedMessage] {
         MessageProtocol(Some("application/json"))
 
       override def serialize(message: A): ByteString =
-        ByteString(ProtosRegistry.printer.print(message))
+        ByteString(ProtosRegistry.toJson(message))
     }
 
   def serializerProtobuf: NegotiatedSerializer[A, ByteString] =
