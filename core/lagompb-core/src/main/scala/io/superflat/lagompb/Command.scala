@@ -17,5 +17,5 @@ import io.superflat.lagompb.protobuf.v1.core.CommandReply
 final case class Command(
     command: Any,
     replyTo: ActorRef[CommandReply],
-    data: Map[String, String]
+    data: Map[String, Any]
 )

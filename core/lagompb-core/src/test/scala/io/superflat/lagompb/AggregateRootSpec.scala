@@ -65,7 +65,8 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       val testCmd = TestCommand(companyUUID, "first test")
 
       // let us send the command to the aggregate
-      val data = Map("audit|employeeUuid" -> "1223", "audit|createdAt" -> "2020-04-17")
+      val auditing = AuditingData.defaultInstance.withData(Map("employeeUuid" -> "123"))
+      val data = Map("audit" -> Any.pack(auditing))
 
       aggregateRef ! Command(Any.pack(testCmd), commandSender.ref, data)
 
@@ -104,7 +105,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       val testCmd = TestCommand("", "first test")
 
       // let us send the command to the aggregate
-      aggregateRef ! Command(Any.pack(testCmd), commandSender.ref, Map.empty[String, String])
+      aggregateRef ! Command(Any.pack(testCmd), commandSender.ref, Map.empty[String, Any])
 
       commandSender.receiveMessage(replyTimeout) match {
         case CommandReply(reply, _) =>
@@ -141,8 +142,8 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
       val testCmd = NoEventTestCommand.defaultInstance
 
       // let us send the command to the aggregate
-      val data =
-        Map("audit|employeeUuid" -> "1223", "audit|createdAt" -> "2020-04-17")
+      val auditing = AuditingData.defaultInstance.withData(Map("employeeUuid" -> "123"))
+      val data = Map("audit" -> Any.pack(auditing))
 
       aggregateRef ! Command(Any.pack(testCmd), commandSender.ref, data)
 

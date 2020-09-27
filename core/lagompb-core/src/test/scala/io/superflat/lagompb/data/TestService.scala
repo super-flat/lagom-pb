@@ -4,6 +4,7 @@ import java.util.UUID
 
 import akka.actor.ActorSystem
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
+import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.api.Service.restCall
 import com.lightbend.lagom.scaladsl.api.transport.Method
 import com.lightbend.lagom.scaladsl.api.{Descriptor, ServiceCall}
@@ -37,7 +38,7 @@ class TestServiceImpl(
   override def testHello: ServiceCall[TestCommand, TestState] = { req =>
     val companyId: String = UUID.randomUUID().toString
     val cmd = req.update(_.companyUuid := companyId)
-    sendCommand(companyId, cmd, Map.empty[String, String])
+    sendCommand(companyId, cmd, Map.empty[String, Any])
       .map((rst: StateWrapper) => rst.state.get.unpack(TestState))
   }
 }
