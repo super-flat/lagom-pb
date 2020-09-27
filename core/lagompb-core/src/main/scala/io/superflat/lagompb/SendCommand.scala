@@ -34,7 +34,7 @@ trait SendCommand {
       aggregateRoot: AggregateRoot,
       entityId: String,
       cmd: scalapb.GeneratedMessage,
-      data: Map[String, String]
+      data: Map[String, Any]
   )(implicit ec: ExecutionContext): Future[StateWrapper] =
     clusterSharding
       .entityRefFor(aggregateRoot.typeKey, entityId)
@@ -59,7 +59,7 @@ trait SendCommand {
       aggregateRoot: AggregateRoot,
       entityId: String,
       cmd: scalapb.GeneratedMessage,
-      data: Map[String, String]
+      data: Map[String, Any]
   )(implicit
       ec: ExecutionContext
   ): Future[(scalapb.GeneratedMessage, MetaData)] =

@@ -166,7 +166,7 @@ abstract class AggregateRoot(
    */
   private[lagompb] def nextMeta(
       stateWrapper: StateWrapper,
-      data: Map[String, String]
+      data: Map[String, Any]
   ): MetaData = {
     MetaData()
       .withRevisionNumber(stateWrapper.getMeta.revisionNumber + 1)

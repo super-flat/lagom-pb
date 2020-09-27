@@ -13,6 +13,11 @@ message TestCommand {
   string name = 2;
 }
 
+// used for auditing plugin
+message AuditingData{
+  map<string, string> data = 1;
+}
+
 // used to test NoEvent to be persisted
 message NoEventTestCommand {}
 

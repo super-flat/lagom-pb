@@ -2,6 +2,7 @@ package io.superflat.lagompb
 
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
 import akka.grpc.GrpcServiceException
+import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.api.transport.{BadRequest, NotFound}
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import io.grpc.Status
@@ -32,7 +33,7 @@ trait SharedBaseServiceImpl extends SendCommand {
   def sendCommand(
       entityId: String,
       cmd: GeneratedMessage,
-      data: Map[String, String]
+      data: Map[String, Any]
   )(implicit
       ec: ExecutionContext
   ): Future[StateWrapper] = {
