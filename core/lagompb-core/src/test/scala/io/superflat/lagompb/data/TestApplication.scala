@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2020 Superflat. <https://github.com/super-flat>
+ */
+
 package io.superflat.lagompb.data
 
 import com.lightbend.lagom.scaladsl.server.{LagomApplicationContext, LagomServer, LocalServiceLocator}

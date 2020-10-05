@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2020 Superflat. <https://github.com/super-flat>
+ */
+
 package io.superflat.lagompb.readside
 
 import com.typesafe.config.Config
