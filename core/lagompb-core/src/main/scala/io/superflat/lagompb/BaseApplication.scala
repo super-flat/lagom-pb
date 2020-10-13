@@ -66,25 +66,17 @@ abstract class BaseApplication(context: LagomApplicationContext)
   )
 
   /**
-   * Defines the persistent entity that will be used to handle commands
-   * It is recommended to override it lazily
-   *
-   * @see [[io.superflat.lagompb.AggregateRoot]].
-   *      Also for more info refer to the lagom doc [[https://www.lagomframework.com/documentation/1.6.x/scala/UsingAkkaPersistenceTyped.html]]
-   */
-  val aggregateRoot: AggregateRoot
-
-  /**
    * server helps define the lagom server. Please refer to the lagom doc
    * It is recommended to override it lazily
    *
    * @example
-   *          override lazy val server: LagomServer = serverFor[TestService](wire[TestServiceImpl])
+   * override lazy val server: LagomServer = serverFor[TestService](wire[TestServiceImpl])
    */
   val server: LagomServer
 
   /**
    * serviceLocator is used to enable service discovery and api gateway
+   *
    * @see [[https://www.lagomframework.com/documentation/1.6.x/scala/ServiceLocator.html]]
    * @return ServiceLocator
    */
@@ -93,12 +85,18 @@ abstract class BaseApplication(context: LagomApplicationContext)
   def selectShard(numShards: Int, entityId: String): Int =
     Math.abs(entityId.hashCode) % numShards
 
-  // initialize cluster sharding
-  clusterSharding.init(Entity(aggregateRoot.typeKey) { entityContext =>
-    val shardIndex =
-      selectShard(ConfigReader.eventsConfig.numShards, entityContext.entityId)
-    aggregateRoot.create(entityContext, shardIndex)
-  })
+  /**
+   * starts the cluster sharding for the given aggregateroot
+   * @param aggregateRoot the aggregate root
+   */
+  def startAggregateCluster(aggregateRoot: AggregateRoot): Unit = {
+    // initialize cluster sharding
+    clusterSharding.init(Entity(aggregateRoot.typeKey) { entityContext =>
+      val shardIndex =
+        selectShard(ConfigReader.eventsConfig.numShards, entityContext.entityId)
+      aggregateRoot.create(entityContext, shardIndex)
+    })
+  }
 }
 
 /**
@@ -116,13 +114,15 @@ abstract class BaseStatelessApplication(context: LagomApplicationContext)
 
   /**
    * server helps define the lagom server. Please refer to the lagom doc
+   *
    * @example
-   *          override val server: LagomServer = serverFor[TestService](wire[TestServiceImpl])
+   * override val server: LagomServer = serverFor[TestService](wire[TestServiceImpl])
    */
   val server: LagomServer
 
   /**
    * serviceLocator is used to enable service discovery and api gateway
+   *
    * @see [[https://www.lagomframework.com/documentation/1.6.x/scala/ServiceLocator.html]]
    * @return ServiceLocator
    */

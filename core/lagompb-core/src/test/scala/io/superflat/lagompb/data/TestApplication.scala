@@ -15,8 +15,10 @@ class TestApplication(context: LagomApplicationContext) extends BaseApplication(
 
   def commandHandler: TypedCommandHandler[TestState] = wire[TestCommandHandler]
 
-  override lazy val aggregateRoot: AggregateRoot =
+  val aggregateRoot: AggregateRoot =
     new TestAggregateRoot(actorSystem, commandHandler, eventHandler, TestState(), encryptionAdapter)
+
+  startAggregateCluster(aggregateRoot)
 
   /**
    * server helps define the lagom server. Please refer to the lagom doc
