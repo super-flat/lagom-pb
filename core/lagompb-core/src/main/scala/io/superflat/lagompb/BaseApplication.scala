@@ -66,6 +66,15 @@ abstract class BaseApplication(context: LagomApplicationContext)
   )
 
   /**
+   * Defines the persistent entity that will be used to handle commands
+   * It is recommended to override it lazily
+   *
+   * @see [[io.superflat.lagompb.AggregateRoot]].
+   *      Also for more info refer to the lagom doc [[https://www.lagomframework.com/documentation/1.6.x/scala/UsingAkkaPersistenceTyped.html]]
+   */
+  val aggregateRoot: AggregateRoot
+
+  /**
    * server helps define the lagom server. Please refer to the lagom doc
    * It is recommended to override it lazily
    *
@@ -86,15 +95,14 @@ abstract class BaseApplication(context: LagomApplicationContext)
     Math.abs(entityId.hashCode) % numShards
 
   /**
-   * starts the cluster sharding for the given aggregateroot
-   * @param aggregateRoot the aggregate root
+   * starts the cluster sharding for the given aggregateRoot
    */
-  def startAggregateCluster(aggregateRoot: AggregateRoot): Unit = {
+  def startAggregateRootCluster(): Unit = {
     // initialize cluster sharding
-    clusterSharding.init(Entity(aggregateRoot.typeKey) { entityContext =>
+    clusterSharding.init(Entity(this.aggregateRoot.typeKey) { entityContext =>
       val shardIndex =
         selectShard(ConfigReader.eventsConfig.numShards, entityContext.entityId)
-      aggregateRoot.create(entityContext, shardIndex)
+      this.aggregateRoot.create(entityContext, shardIndex)
     })
   }
 }
