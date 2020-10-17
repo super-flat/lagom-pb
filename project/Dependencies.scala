@@ -18,7 +18,7 @@ object Dependencies {
     val ScalaTestVersion = "3.2.2"
     val PlayJsonDerivedCodecsVersion = "7.0.0"
     val AkkaDiscoveryKubernetesApiVersion = "1.0.8"
-    val PostgresDriverVersion = "42.2.17"
+    val PostgresDriverVersion = "42.2.18"
     val AkkaManagementVersion = "1.0.8"
     val AkkaManagementClusterBootstrapVersion = "1.0.8"
     val AkkaManagementClusterHttpVersion = "1.0.8"
