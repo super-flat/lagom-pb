@@ -81,7 +81,7 @@ abstract class AggregateRoot(
    *
    * @param persistenceId the aggregate persistence Id
    */
-  protected[lagompb] def create(
+  protected def create(
       persistenceId: PersistenceId
   ): EventSourcedBehavior[Command, EventWrapper, StateWrapper] = {
     val splitter: Char = PersistenceId.DefaultSeparator(0)
