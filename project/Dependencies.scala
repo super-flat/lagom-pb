@@ -29,7 +29,7 @@ object Dependencies {
     val ScalapbJson4sVersion = "0.10.1"
     val PlayGrpcVersion = "0.9.1"
     val ReflectionsVersion = "0.9.12"
-    val ScalapbCommonProtoVersion = "1.18.0-0"
+    val ScalapbCommonProtoVersion = "1.18.1-0"
     val EmbeddedPostgresVersion = "0.13.3"
     val EmbeddedKafkaVersion = "2.6.0"
     val AkkaProjectionVersion = "1.0.0"
