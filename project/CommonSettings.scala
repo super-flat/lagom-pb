@@ -2,7 +2,6 @@ import Dependencies.Versions
 import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile
 import sbt.Keys._
 import sbt._
-import scoverage.ScoverageKeys.{coverageFailOnMinimum, coverageMinimum}
 
 object CommonSettings extends AutoPlugin {
   override def requires: Plugins = plugins.JvmPlugin
@@ -24,9 +23,7 @@ object CommonSettings extends AutoPlugin {
         "",
         url("https://github.com/super-flat/lagom-pb/graphs/contributors")
       ),
-      description := "lagom-pb - Scala shared code for lagom development in lagom using protobuf.\n",
-      coverageMinimum := 60,
-      coverageFailOnMinimum := true
+      description := "lagom-pb - Scala shared code for lagom development in lagom using protobuf.\n"
     )
 
   override def projectSettings =
@@ -59,7 +56,7 @@ object CommonSettings extends AutoPlugin {
       ),
       resolvers ++= Seq(Resolver.jcenterRepo, Resolver.sonatypeRepo("public"), Resolver.sonatypeRepo("snapshots")),
       libraryDependencies ++= Seq(
-        compilerPlugin("com.github.ghik" % "silencer-plugin" %  Versions.SilencerVersion cross CrossVersion.full),
+        compilerPlugin("com.github.ghik" % "silencer-plugin" % Versions.SilencerVersion cross CrossVersion.full),
         "com.github.ghik" % "silencer-lib" % Versions.SilencerVersion % Provided cross CrossVersion.full
       ),
       scalafmtOnCompile := true

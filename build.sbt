@@ -18,7 +18,6 @@ lazy val `lagompb-core` = project
   .settings(
     name := "lagompb-core",
     unmanagedResources / excludeFilter := HiddenFileFilter || "*tests*",
-    coverageExcludedPackages := CoverageExclusionList.whitelist.mkString(";"),
     PB.protoSources in Compile ++= Seq(file("submodules/protobuf"), file("core/lagompb-core/src/test/protobuf")),
     PB.includePaths in Compile ++= Seq(file("submodules/protobuf")),
     PB.targets in Compile := Seq(
@@ -31,7 +30,7 @@ lazy val `lagompb-readside` = project
   .enablePlugins(LagomScala)
   .enablePlugins(BuildSettings)
   .enablePlugins(Publish)
-  .settings(name := "lagompb-readside", coverageExcludedPackages := CoverageExclusionList.whitelist.mkString(";"))
+  .settings(name := "lagompb-readside")
   .dependsOn(`lagompb-core`)
 
 lazy val `lagompb-plugin` = project
@@ -40,7 +39,6 @@ lazy val `lagompb-plugin` = project
   .enablePlugins(Publish)
   .settings(
     name := "lagompb-plugin",
-    coverageExcludedPackages := CoverageExclusionList.whitelist.mkString(";"),
     crossScalaVersions := Dependencies.Versions.CrossScalaForPlugin,
     scalaVersion := Dependencies.Versions.Scala212,
     resolvers += Resolver.bintrayRepo("playframework", "maven"),
