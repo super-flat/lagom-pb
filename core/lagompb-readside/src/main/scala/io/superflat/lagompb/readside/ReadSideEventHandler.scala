@@ -7,8 +7,9 @@ package io.superflat.lagompb.readside
 import akka.Done
 import akka.projection.eventsourced.EventEnvelope
 import akka.projection.slick.SlickHandler
+import com.google.protobuf.any
 import io.superflat.lagompb.encryption.{DecryptPermanentFailure, EncryptionAdapter}
-import io.superflat.lagompb.protobuf.v1.core.EventWrapper
+import io.superflat.lagompb.protobuf.v1.core.{EventWrapper, MetaData}
 import org.slf4j.{Logger, LoggerFactory}
 import slick.dbio.{DBIO, DBIOAction}
 
@@ -22,10 +23,10 @@ import scala.util.{Failure, Success, Try}
  * @param eventProcessor the actual event processor
  * @param encryptionAdapter handles encrypt/decrypt transformations
  */
-final class EventsReader(
+final class ReadSideEventHandler(
     eventTag: String,
-    eventProcessor: EventProcessor,
-    encryptionAdapter: EncryptionAdapter
+    encryptionAdapter: EncryptionAdapter,
+    handler: (any.Any, String, any.Any, MetaData) => DBIO[Done]
 ) extends SlickHandler[EventEnvelope[EventWrapper]] {
 
   val log: Logger = LoggerFactory.getLogger(getClass)
@@ -42,7 +43,7 @@ final class EventsReader(
       .decryptEventWrapper(envelope.event)
       .map({
         case EventWrapper(Some(event), Some(resultingState), Some(meta), _) =>
-          eventProcessor.process(event, eventTag, resultingState, meta)
+          handler(event, eventTag, resultingState, meta)
 
         case _ =>
           DBIO.failed(
