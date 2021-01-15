@@ -45,7 +45,7 @@ import scala.util.{Failure, Success, Try}
 @silent abstract class ReadSideProcessor(encryptionAdapter: EncryptionAdapter)(implicit
     ec: ExecutionContext,
     actorSystem: ActorSystem[_]
-) extends EventProcessor {
+) {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
 
@@ -55,7 +55,7 @@ import scala.util.{Failure, Success, Try}
 
   protected val baseTag: String = ConfigReader.eventsConfig.tagName
 
-  final override def process(
+  private def process(
       event: Any,
       eventTag: String,
       resultingState: Any,
@@ -105,7 +105,7 @@ import scala.util.{Failure, Success, Try}
         projectionId = ProjectionId(projectionName, tagName),
         sourceProvider(tagName),
         offsetStoreDatabaseConfig,
-        handler = () => new EventsReader(tagName, this, encryptionAdapter)
+        handler = () => new ReadSideEventHandler(tagName, encryptionAdapter, process)
       )
   }
 
