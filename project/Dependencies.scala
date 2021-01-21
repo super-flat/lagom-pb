@@ -32,7 +32,7 @@ object Dependencies {
     val ScalapbCommonProtoVersion = "1.18.1-0"
     val EmbeddedPostgresVersion = "0.13.3"
     val EmbeddedKafkaVersion = "2.7.0"
-    val AkkaProjectionVersion = "1.0.0"
+    val AkkaProjectionVersion = "1.1.0"
     val CatsVersion = "2.3.1"
 
     val SbtProtocVersion = "0.99.34"
