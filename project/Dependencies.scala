@@ -37,7 +37,7 @@ object Dependencies {
 
     val SbtProtocVersion = "0.99.34"
     val ScalapbCompilerVersion = "0.10.8"
-    val ScalapbValidationVersion = "0.1.4"
+    val ScalapbValidationVersion = "0.2.0"
     val JavaAgentVersion = "0.1.5"
     val CrossScalaForPlugin = Seq(Scala212)
     val AkkaVersion = "2.6.11"
