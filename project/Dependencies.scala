@@ -40,7 +40,7 @@ object Dependencies {
     val ScalapbValidationVersion = "0.2.0"
     val JavaAgentVersion = "0.1.5"
     val CrossScalaForPlugin = Seq(Scala212)
-    val AkkaVersion = "2.6.11"
+    val AkkaVersion = "2.6.12"
   }
 
   object Compile {
