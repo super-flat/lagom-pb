@@ -9,7 +9,7 @@ import com.lightbend.lagom.sbt.LagomPlugin
 import sbt.AutoPlugin
 import sbtprotoc.ProtocPlugin
 
-object LagompbPlugin extends AutoPlugin {
+object Plugin extends AutoPlugin {
 
   override def trigger = allRequirements
 
