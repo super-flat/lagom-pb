@@ -62,7 +62,7 @@ object CommonSettings extends AutoPlugin {
       ),
       coverageExcludedPackages := "<empty>;" +
         "io.superflat.lagompb.protobuf.*;" +
-        "io.superflat.lagompb.LagompbPlugin;" +
+        "io.superflat.lagompb.Plugin;" +
         "io.superflat.lagompb.SharedBaseServiceImpl;" +
         "io.superflat.lagompb.BaseGrpcServiceImpl;",
       scalafmtOnCompile := true

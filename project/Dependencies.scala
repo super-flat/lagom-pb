@@ -14,8 +14,8 @@ object Dependencies {
   object Versions {
     val Scala213 = "2.13.1"
     val Scala212 = "2.12.11"
-    val MacwireVersion = "2.3.7"
-    val ScalaTestVersion = "3.2.3"
+    val MacWireVersion = "2.3.7"
+    val ScalaTestVersion = "3.2.4"
     val PlayJsonDerivedCodecsVersion = "7.0.0"
     val AkkaDiscoveryKubernetesApiVersion = "1.0.9"
     val PostgresDriverVersion = "42.2.19"
@@ -44,7 +44,7 @@ object Dependencies {
   }
 
   object Compile {
-    val Macwire: ModuleID = "com.softwaremill.macwire" %% "macros" % Versions.MacwireVersion
+    val Macwire: ModuleID = "com.softwaremill.macwire" %% "macros" % Versions.MacWireVersion
 
     val LagomScaladslAkkaDiscovery: ModuleID =
       "com.lightbend.lagom" %% "lagom-scaladsl-akka-discovery-service-locator" % LagomVersion.current
