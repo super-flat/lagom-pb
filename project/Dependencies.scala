@@ -12,7 +12,7 @@ object Dependencies {
    * Versions number
    */
   object Versions {
-    val Scala213 = "2.13.1"
+    val Scala213 = "2.13.5"
     val Scala212 = "2.12.11"
     val MacWireVersion = "2.3.7"
     val ScalaTestVersion = "3.2.4"
