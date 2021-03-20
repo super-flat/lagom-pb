@@ -11,7 +11,7 @@ pull_request_rules:
     conditions:
       - author=scala-steward
       - "#approved-reviews-by>=1"
-      - status-success=continuous-integration/travis-ci/pr
+      - check-success=Travis CI - Pull Request
     actions:
       merge:
         method: squash
