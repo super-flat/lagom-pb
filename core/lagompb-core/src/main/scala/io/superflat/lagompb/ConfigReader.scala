@@ -7,6 +7,7 @@ package io.superflat.lagompb
 import akka.util.Timeout
 import com.typesafe.config.{Config, ConfigFactory}
 
+import java.util.concurrent.TimeUnit
 import scala.concurrent.duration._
 
 final case class SnapshotCriteria(
@@ -26,8 +27,7 @@ object ConfigReader {
 
   def protosPackage: String = config.getString(s"$LP.protos-package")
 
-  def askTimeout: Timeout =
-    Timeout(config.getInt("lagompb.ask-timeout").seconds)
+  def askTimeout: FiniteDuration = config.getDuration("lagom.persistence.ask-timeout", TimeUnit.MILLISECONDS).millis
 
   def snapshotCriteria: SnapshotCriteria =
     SnapshotCriteria(
