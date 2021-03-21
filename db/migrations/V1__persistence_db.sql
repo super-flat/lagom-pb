@@ -20,26 +20,17 @@ CREATE TABLE IF NOT EXISTS snapshot
     PRIMARY KEY (persistence_id, sequence_number)
 );
 
-
-CREATE TABLE IF NOT EXISTS read_side_offsets
+create table if not exists "AKKA_PROJECTION_OFFSET_STORE"
 (
-    read_side_id     VARCHAR(255),
-    tag              VARCHAR(255),
-    sequence_offset  bigint,
-    time_uuid_offset char(36),
-    PRIMARY KEY (read_side_id, tag)
-);
-
-create table if not exists "AKKA_PROJECTION_OFFSET_STORE" (
-  "PROJECTION_NAME" VARCHAR(255) NOT NULL,
-  "PROJECTION_KEY" VARCHAR(255) NOT NULL,
-  "CURRENT_OFFSET" VARCHAR(255) NOT NULL,
-  "MANIFEST" VARCHAR(4) NOT NULL,
-  "MERGEABLE" BOOLEAN NOT NULL,
-  "LAST_UPDATED" BIGINT NOT NULL
+    "PROJECTION_NAME" VARCHAR(255) NOT NULL,
+    "PROJECTION_KEY"  VARCHAR(255) NOT NULL,
+    "CURRENT_OFFSET"  VARCHAR(255) NOT NULL,
+    "MANIFEST"        VARCHAR(4)   NOT NULL,
+    "MERGEABLE"       BOOLEAN      NOT NULL,
+    "LAST_UPDATED"    BIGINT       NOT NULL
 );
 
 create index "PROJECTION_NAME_INDEX" on "AKKA_PROJECTION_OFFSET_STORE" ("PROJECTION_NAME");
 
 alter table "AKKA_PROJECTION_OFFSET_STORE"
-  add constraint "PK_PROJECTION_ID" primary key("PROJECTION_NAME","PROJECTION_KEY");
+    add constraint "PK_PROJECTION_ID" primary key ("PROJECTION_NAME", "PROJECTION_KEY");
