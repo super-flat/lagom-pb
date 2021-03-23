@@ -26,7 +26,7 @@ object Dependencies {
     val SilencerVersion = "1.6.0"
     val AkkaGrpcVersion = "1.0.3"
     val H2Version = "1.4.200"
-    val ScalapbJson4sVersion = "0.10.3"
+    val ScalapbJson4sVersion = "0.11.0"
     val PlayGrpcVersion = "0.9.1"
     val ReflectionsVersion = "0.9.12"
     val ScalapbCommonProtoVersion = "1.18.1-1"
