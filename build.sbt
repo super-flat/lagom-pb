@@ -1,6 +1,6 @@
 import com.lightbend.lagom.core.LagomVersion
 
-parallelExecution in test := true
+test / parallelExecution := true
 
 lazy val root = project
   .in(file("."))
@@ -18,9 +18,9 @@ lazy val `lagompb-core` = project
   .settings(
     name := "lagompb-core",
     unmanagedResources / excludeFilter := HiddenFileFilter || "*tests*",
-    PB.protoSources in Compile ++= Seq(file("submodules/protobuf"), file("core/lagompb-core/src/test/protobuf")),
-    PB.includePaths in Compile ++= Seq(file("submodules/protobuf")),
-    PB.targets in Compile := Seq(
+    Compile / PB.protoSources ++= Seq(file("submodules/protobuf"), file("core/lagompb-core/src/test/protobuf")),
+    Compile / PB.includePaths ++= Seq(file("submodules/protobuf")),
+    Compile / PB.targets := Seq(
       scalapb.gen(flatPackage = false, javaConversions = false, grpc = false) -> (sourceManaged in Compile).value
     )
   )

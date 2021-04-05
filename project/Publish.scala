@@ -7,7 +7,7 @@ import sbt.{plugins, AutoPlugin, _}
 object NoPublish extends AutoPlugin {
   override def requires: Plugins = plugins.JvmPlugin
 
-  override def projectSettings = Seq(publishArtifact := false, skip in publish := true)
+  override def projectSettings = Seq(publishArtifact := false, skip / publish := true)
 }
 
 object Publish extends AutoPlugin {
