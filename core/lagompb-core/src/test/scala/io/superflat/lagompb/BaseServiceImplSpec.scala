@@ -4,21 +4,35 @@
 
 package io.superflat.lagompb
 
-import java.util.UUID
-
+import akka.actor.ActorSystem
+import akka.cluster.sharding.typed.scaladsl.ClusterSharding
+import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
 import com.google.protobuf.any.Any
+import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.testkit.ServiceTest
-import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import io.superflat.lagompb.data._
 import io.superflat.lagompb.encryption.EncryptionAdapter
-import io.superflat.lagompb.protobuf.v1.core.CommandReply.Reply
 import io.superflat.lagompb.protobuf.v1.core._
+import io.superflat.lagompb.protobuf.v1.core.CommandReply.Reply
 import io.superflat.lagompb.protobuf.v1.tests.{TestCommand, TestState}
 import io.superflat.lagompb.testkit.BaseSpec
+import org.testcontainers.utility.DockerImageName
 
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class BaseServiceImplSpec extends BaseSpec {
+class BaseServiceImplSpec extends BaseSpec with ForAllTestContainer {
+
+  override val container: PostgreSQLContainer = PostgreSQLContainer
+    .Def(
+      dockerImageName = DockerImageName.parse("postgres"),
+      databaseName = "postgres",
+      username = "postgres",
+      password = "postgres",
+      urlParams = Map("currentSchema" -> "public")
+    )
+    .createContainer()
+
   val companyId: String = UUID.randomUUID().toString
 
   val any: Any =
@@ -28,22 +42,24 @@ class BaseServiceImplSpec extends BaseSpec {
         .withName("test")
     )
 
-  val embeddedPostgres: EmbeddedPostgres.Builder = EmbeddedPostgres.builder()
-
   val defaultEncryptionAdapter = new EncryptionAdapter(None)
+  var actorSystem: ActorSystem = _
+  var clusterSharding: ClusterSharding = _
+  var peristenceRegistry: PersistentEntityRegistry = _
 
-  override protected def beforeAll(): Unit =
-    embeddedPostgres.start()
+  val commandHandler = new TestCommandHandler(actorSystem)
+  val eventHandler = new TestEventHandler(actorSystem)
+  val aggregate =
+    new TestAggregateRoot(actorSystem, commandHandler, eventHandler, TestState(), defaultEncryptionAdapter)
+  val testImpl = new TestServiceImpl(actorSystem, clusterSharding, peristenceRegistry, aggregate)
+
+  override protected def afterAll(): Unit = {
+    super.afterAll()
+  }
 
   "Service implementation" should {
 
     "handle SuccessfulReply" in {
-      val commandHandler = new TestCommandHandler(null)
-      val eventHandler = new TestEventHandler(null)
-      val aggregate =
-        new TestAggregateRoot(null, commandHandler, eventHandler, TestState(), defaultEncryptionAdapter)
-      val testImpl = new TestServiceImpl(null, null, null, aggregate)
-
       val cmdReply = CommandReply().withStateWrapper(
         StateWrapper()
           .withState(any)
@@ -60,24 +76,12 @@ class BaseServiceImplSpec extends BaseSpec {
     }
 
     "handle FailedReply" in {
-      val commandHandler = new TestCommandHandler(null)
-      val eventHandler = new TestEventHandler(null)
-      val aggregate =
-        new TestAggregateRoot(null, commandHandler, eventHandler, TestState(), defaultEncryptionAdapter)
-      val testImpl = new TestServiceImpl(null, null, null, aggregate)
       val rejected =
         CommandReply().withFailure(FailureResponse().withCritical("failed"))
-
       testImpl.handleLagompbCommandReply(rejected).failure.exception shouldBe an[RuntimeException]
     }
 
     "failed to handle CommandReply" in {
-      val commandHandler = new TestCommandHandler(null)
-      val eventHandler = new TestEventHandler(null)
-      val aggregate =
-        new TestAggregateRoot(null, commandHandler, eventHandler, TestState(), defaultEncryptionAdapter)
-      val testImpl = new TestServiceImpl(null, null, null, aggregate)
-
       testImpl
         .handleLagompbCommandReply(CommandReply().withReply(Reply.Empty))
         .failure

@@ -34,7 +34,7 @@ sealed trait PostgresPersistenceComponents
     with LagomKafkaComponents
 
 /**
- * LagompbApplication an abstract class that will be implemented to define the lagom application that needs
+ * BaseApplication an abstract class that will be implemented to define the lagom application that needs
  * akka persistence for journal and snapshot
  *
  * @param context the lagom application context
@@ -108,7 +108,7 @@ abstract class BaseApplication(context: LagomApplicationContext)
 }
 
 /**
- * LagompbStatelessApplication an abstract class that will be implemented to define the lagom application that does not need
+ * BaseStatelessApplication an abstract class that will be implemented to define the lagom application that does not need
  * akka persistence. Therefore no events and state are persisted
  *
  * @param context the lagom application context

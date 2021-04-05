@@ -1,5 +1,5 @@
 import com.lightbend.lagom.core.LagomVersion
-import sbt._
+import sbt.{Test, _}
 import scalapb.compiler.Version.scalapbVersion
 
 /**
@@ -26,7 +26,7 @@ object Dependencies {
     val SilencerVersion = "1.6.0"
     val AkkaGrpcVersion = "1.0.3"
     val H2Version = "1.4.200"
-    val ScalapbJson4sVersion = "0.10.3"
+    val ScalapbJson4sVersion = "0.11.0"
     val PlayGrpcVersion = "0.9.1"
     val ReflectionsVersion = "0.9.12"
     val ScalapbCommonProtoVersion = "1.18.1-1"
@@ -41,76 +41,57 @@ object Dependencies {
     val JavaAgentVersion = "0.1.5"
     val CrossScalaForPlugin = Seq(Scala212)
     val AkkaVersion = "2.6.13"
+
+    val TestContainers: String = "0.39.3"
   }
 
-  object Compile {
-    val Macwire: ModuleID = "com.softwaremill.macwire" %% "macros" % Versions.MacWireVersion
-
-    val LagomScaladslAkkaDiscovery: ModuleID =
-      "com.lightbend.lagom" %% "lagom-scaladsl-akka-discovery-service-locator" % LagomVersion.current
-
-    val AkkaKubernetesDiscoveryApi: ModuleID =
-      "com.lightbend.akka.discovery" %% "akka-discovery-kubernetes-api" % Versions.AkkaDiscoveryKubernetesApiVersion
-    val postgresDriver: ModuleID = "org.postgresql" % "postgresql" % Versions.PostgresDriverVersion
-
-    val LagomAkkaServiceLocator: ModuleID =
-      "com.lightbend.lagom" %% "lagom-scaladsl-akka-discovery-service-locator" % LagomVersion.current
-    val AkkaManagement: ModuleID = "com.lightbend.akka.management" %% "akka-management" % Versions.AkkaManagementVersion
-
-    val AkkaManagementClusterBootstrap: ModuleID =
-      "com.lightbend.akka.management" %% "akka-management-cluster-bootstrap" % Versions.AkkaManagementClusterBootstrapVersion
-
-    val AkkaManagementClusterHttp: ModuleID =
-      "com.lightbend.akka.management" %% "akka-management-cluster-http" % Versions.AkkaManagementClusterHttpVersion
-
-    val H2Driver: ModuleID = "com.h2database" % "h2" % Versions.H2Version
-    val ScalapbJson4s: ModuleID = "com.thesamet.scalapb" %% "scalapb-json4s" % Versions.ScalapbJson4sVersion
-    val Reflections: ModuleID = "org.reflections" % "reflections" % Versions.ReflectionsVersion
-
-    val ScalapbCommonProtos: ModuleID =
-      "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % Versions.ScalapbCommonProtoVersion
-    val AkkaProjectionCore: ModuleID = "com.lightbend.akka" %% "akka-projection-core" % Versions.AkkaProjectionVersion
-    val AkkaProjectionSlick: ModuleID = "com.lightbend.akka" %% "akka-projection-slick" % Versions.AkkaProjectionVersion
-    val AkkaProjectionKafka: ModuleID = "com.lightbend.akka" %% "akka-projection-kafka" % Versions.AkkaProjectionVersion
-
-    val AkkaProjectionEventSourced: ModuleID =
-      "com.lightbend.akka" %% "akka-projection-eventsourced" % Versions.AkkaProjectionVersion
-
-    val CatsCore = "org.typelevel" %% "cats-core" % Versions.CatsVersion
-    val AkkaHttp = "com.typesafe.akka" %% "akka-http2-support" % LagomVersion.akkaHttp
-    val AkkaStream = "com.typesafe.akka" %% "akka-stream" % Versions.AkkaVersion
-    val AkkaClusterSharding = "com.typesafe.akka" %% "akka-cluster-sharding" % Versions.AkkaVersion
-    val AkkaDiscovery = "com.typesafe.akka" %% "akka-discovery" % Versions.AkkaVersion
-    val AkkaCluster = "com.typesafe.akka" %% "akka-cluster-typed" % Versions.AkkaVersion
-  }
-
-  object Runtime {
-    val ScalapbRuntime: ModuleID = "com.thesamet.scalapb" %% "scalapb-runtime" % scalapbVersion
-
-    val ScalapbValidationRuntime =
-      "com.thesamet.scalapb" %% "scalapb-validate-core" % scalapb.validate.compiler.BuildInfo.version
-    val AkkaGrpcRuntime: ModuleID = "com.lightbend.akka.grpc" %% "akka-grpc-runtime" % Versions.AkkaGrpcVersion
-    val PlayGrpcRuntime: ModuleID = "com.lightbend.play" %% "play-grpc-runtime" % Versions.PlayGrpcVersion
-    val ScalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % Versions.Scala213
-
-    val ScalapbCommonProtosRuntime: ModuleID =
-      "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % Versions.ScalapbCommonProtoVersion % "protobuf"
-  }
+  val Jars = Seq(
+    "com.softwaremill.macwire" %% "macros" % Versions.MacWireVersion,
+    "com.lightbend.lagom" %% "lagom-scaladsl-akka-discovery-service-locator" % LagomVersion.current,
+    "com.lightbend.akka.discovery" %% "akka-discovery-kubernetes-api" % Versions.AkkaDiscoveryKubernetesApiVersion,
+    "org.postgresql" % "postgresql" % Versions.PostgresDriverVersion,
+    "org.typelevel" %% "cats-core" % Versions.CatsVersion,
+    "com.lightbend.lagom" %% "lagom-scaladsl-akka-discovery-service-locator" % LagomVersion.current,
+    "com.lightbend.akka.management" %% "akka-management" % Versions.AkkaManagementVersion,
+    "com.lightbend.akka.management" %% "akka-management-cluster-bootstrap" % Versions.AkkaManagementClusterBootstrapVersion,
+    "com.lightbend.akka.management" %% "akka-management-cluster-http" % Versions.AkkaManagementClusterHttpVersion,
+    "com.h2database" % "h2" % Versions.H2Version,
+    "com.thesamet.scalapb" %% "scalapb-json4s" % Versions.ScalapbJson4sVersion,
+    "org.reflections" % "reflections" % Versions.ReflectionsVersion,
+    // Akka Projection
+    "com.lightbend.akka" %% "akka-projection-core" % Versions.AkkaProjectionVersion,
+    "com.lightbend.akka" %% "akka-projection-slick" % Versions.AkkaProjectionVersion,
+    "com.lightbend.akka" %% "akka-projection-kafka" % Versions.AkkaProjectionVersion,
+    "com.lightbend.akka" %% "akka-projection-eventsourced" % Versions.AkkaProjectionVersion,
+    // Akka clustering
+    "com.typesafe.akka" %% "akka-http2-support" % LagomVersion.akkaHttp,
+    "com.typesafe.akka" %% "akka-stream" % Versions.AkkaVersion,
+    "com.typesafe.akka" %% "akka-cluster-sharding" % Versions.AkkaVersion,
+    "com.typesafe.akka" %% "akka-discovery" % Versions.AkkaVersion,
+    "com.typesafe.akka" %% "akka-cluster-typed" % Versions.AkkaVersion,
+    // Runtime
+    "com.thesamet.scalapb" %% "scalapb-runtime" % scalapbVersion,
+    "com.thesamet.scalapb" %% "scalapb-validate-core" % scalapb.validate.compiler.BuildInfo.version,
+    "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % Versions.ScalapbCommonProtoVersion % "protobuf",
+    "com.lightbend.akka.grpc" %% "akka-grpc-runtime" % Versions.AkkaGrpcVersion,
+    "com.lightbend.play" %% "play-grpc-runtime" % Versions.PlayGrpcVersion,
+    "org.scala-lang" % "scala-reflect" % Versions.Scala213
+  )
 
   /**
    * Test dependencies
    */
-  object Test {
-    val ScalaTest: ModuleID = "org.scalatest" %% "scalatest" % Versions.ScalaTestVersion
-    val ScalaMock: ModuleID = "org.scalamock" %% "scalamock" % Versions.ScalaMockVersion
-    val AkkaMultiNodeTestkit: ModuleID = "com.typesafe.akka" %% "akka-multi-node-testkit" % Versions.AkkaVersion
-    val AkkaTestkit: ModuleID = "com.typesafe.akka" %% "akka-testkit" % Versions.AkkaVersion
-    val AkkaStreamTestkit: ModuleID = "com.typesafe.akka" %% "akka-stream-testkit" % Versions.AkkaVersion
-    val AkkaActorTestkitTyped: ModuleID = "com.typesafe.akka" %% "akka-actor-testkit-typed" % Versions.AkkaVersion
-    val EmbeddedPostgres: ModuleID =
-      "com.opentable.components" % "otj-pg-embedded" % Versions.EmbeddedPostgresVersion % "test"
-    val EmbeddedKafka: ModuleID = "io.github.embeddedkafka" %% "embedded-kafka" % Versions.EmbeddedKafkaVersion % "test"
-  }
+  val TestJars: Seq[ModuleID] = Seq(
+    "org.scalatest" %% "scalatest" % Versions.ScalaTestVersion,
+    "org.scalamock" %% "scalamock" % Versions.ScalaMockVersion,
+    "com.typesafe.akka" %% "akka-multi-node-testkit" % Versions.AkkaVersion,
+    "com.typesafe.akka" %% "akka-testkit" % Versions.AkkaVersion,
+    "com.typesafe.akka" %% "akka-stream-testkit" % Versions.AkkaVersion,
+    "com.typesafe.akka" %% "akka-actor-testkit-typed" % Versions.AkkaVersion,
+    // test containers
+    "com.dimafeng" %% "testcontainers-scala-scalatest" % Versions.TestContainers % Test,
+    "com.dimafeng" %% "testcontainers-scala-postgresql" % Versions.TestContainers % Test
+  )
 
   val SbtPlugin = Seq(
     "com.lightbend.play" %% "play-grpc-generators" % Dependencies.Versions.PlayGrpcVersion,
