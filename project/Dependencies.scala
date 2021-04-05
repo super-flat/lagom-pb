@@ -30,15 +30,13 @@ object Dependencies {
     val PlayGrpcVersion = "0.9.1"
     val ReflectionsVersion = "0.9.12"
     val ScalapbCommonProtoVersion = "1.18.1-1"
-    val EmbeddedPostgresVersion = "0.13.3"
-    val EmbeddedKafkaVersion = "2.7.0"
     val AkkaProjectionVersion = "1.1.0"
     val CatsVersion = "2.5.0"
 
     val SbtProtocVersion = "1.0.2"
     val ScalapbCompilerVersion = scalapbVersion
     val ScalapbValidationVersion = scalapb.validate.compiler.BuildInfo.version
-    val JavaAgentVersion = "0.1.5"
+    val JavaAgentVersion = "0.1.6"
     val CrossScalaForPlugin = Seq(Scala212)
     val AkkaVersion = "2.6.13"
 
