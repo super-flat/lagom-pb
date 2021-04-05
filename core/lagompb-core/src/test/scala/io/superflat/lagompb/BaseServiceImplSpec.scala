@@ -22,7 +22,7 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class BaseServiceImplSpec extends BaseSpec with ForAllTestContainer {
-
+  // start the postgres database
   override val container: PostgreSQLContainer = PostgreSQLContainer
     .Def(
       dockerImageName = DockerImageName.parse("postgres"),
