@@ -20,7 +20,7 @@ import org.slf4j.{ Logger, LoggerFactory }
 import scala.util.{ Failure, Success, Try }
 
 /**
- * LagompbAggregate abstract class encapsulate all the necessary setup required to
+ * AggregateRoot abstract class encapsulate all the necessary setup required to
  * create an aggregate in the lagom ecosystem. There are three main components an aggregate
  * requires to be functional: a commands handler, an events handler and a state.
  *
@@ -29,9 +29,9 @@ import scala.util.{ Failure, Success, Try }
  * @param eventHandler    the events handler
  * @param initialState    the aggregate initial state.
  *                        Note: The type of the state must be the same as define as type parameter
- *                        in both commands and events handler when using the [[io.superflat.lagompb.TypedCommandHandler]] and
- *                        [[io.superflat.lagompb.TypedEventHandler]]
- * @param encryptionAdapter optional ProtoEncryption implementatione scala type of the aggregate state
+ *                        in both commands and events handler when using the [[io.superflat.lagompb.CommandHandler]] and
+ *                        [[io.superflat.lagompb.EventHandler]]
+ * @param encryptionAdapter optional ProtoEncryption implementation scala type of the aggregate state
  */
 abstract class AggregateRoot(
     actorSystem: ActorSystem,
@@ -71,8 +71,7 @@ abstract class AggregateRoot(
   }
 
   /**
-   * Returns the EventSourcedBehavior for lagom, wiring together the
-   * user-provided LagompbCommandHandler and LagompbEventHandler
+   * Returns the EventSourcedBehavior for lagom
    *
    * @param persistenceId the aggregate persistence Id
    */
@@ -88,6 +87,12 @@ abstract class AggregateRoot(
       eventHandler = genericEventHandler)
   }
 
+  /**
+   * Sets the initial state
+   *
+   * @param entityId the entity id
+   * @return the initial state
+   */
   private[lagompb] def initialState(entityId: String): StateWrapper = {
     StateWrapper().withState(Any.pack(initialState)).withMeta(MetaData.defaultInstance.withEntityId(entityId))
   }
@@ -168,9 +173,7 @@ abstract class AggregateRoot(
   }
 
   /**
-   * Given a LagompbState implementation and a LagompbCommand, run the
-   * implemented commandHandler.handle and persist/reply any event/state
-   * as needed.
+   *  Main command handler
    *
    * @param stateWrapper state wrapper
    * @param cmd          the command to process
