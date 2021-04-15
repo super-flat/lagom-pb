@@ -6,9 +6,9 @@ package io.superflat.lagompb
 
 import akka.actor.ActorSystem
 import com.google.protobuf.any.Any
-import io.superflat.lagompb.protobuf.v1.core.{CommandHandlerResponse, MetaData}
+import io.superflat.lagompb.protobuf.v1.core.{ CommandHandlerResponse, MetaData }
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 /**
  * CommandHandler is a generic command handler
@@ -23,11 +23,7 @@ trait CommandHandler {
    * @param currentMetaData lagom-pb meta data
    * @return a command handler response or Failure
    */
-  def handle(
-      command: Any,
-      currentState: Any,
-      currentMetaData: MetaData
-  ): Try[CommandHandlerResponse]
+  def handle(command: Any, currentState: Any, currentMetaData: MetaData): Try[CommandHandlerResponse]
 }
 
 /**
@@ -54,9 +50,7 @@ trait EventHandler {
  * @param actorSystem the actor system
  * @tparam S the aggregate state type
  */
-abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](
-    actorSystem: ActorSystem
-) extends CommandHandler {
+abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](actorSystem: ActorSystem) extends CommandHandler {
 
   /**
    * implements CommandHandler.handle and uses proto registry to unmarshal
@@ -67,11 +61,7 @@ abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](
    * @param currentMetaData lagomPb MetaData
    * @return a command handler response or Failure
    */
-  final def handle(
-      command: Any,
-      currentState: Any,
-      currentMetaData: MetaData
-  ): Try[CommandHandlerResponse] =
+  final def handle(command: Any, currentState: Any, currentMetaData: MetaData): Try[CommandHandlerResponse] =
     ProtosRegistry.unpackAnys(currentState, command) match {
       case Failure(exception) =>
         Failure(exception)
@@ -80,8 +70,7 @@ abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](
         handleTyped(
           command = messages.lift(1).head,
           currentState = messages.head.asInstanceOf[S],
-          currentMetaData = currentMetaData
-        )
+          currentMetaData = currentMetaData)
     }
 
   /**
@@ -95,8 +84,7 @@ abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](
   def handleTyped(
       command: scalapb.GeneratedMessage,
       currentState: S,
-      currentMetaData: MetaData
-  ): Try[CommandHandlerResponse]
+      currentMetaData: MetaData): Try[CommandHandlerResponse]
 }
 
 /**
@@ -107,9 +95,7 @@ abstract class TypedCommandHandler[S <: scalapb.GeneratedMessage](
  * @param actorSystem the actor system
  * @tparam S the aggregate state type
  */
-abstract class TypedEventHandler[S <: scalapb.GeneratedMessage](
-    actorSystem: ActorSystem
-) extends EventHandler {
+abstract class TypedEventHandler[S <: scalapb.GeneratedMessage](actorSystem: ActorSystem) extends EventHandler {
 
   /**
    * uses protosRegistry to unmarshal proto messages and invoke implemented handleTyped
@@ -125,13 +111,7 @@ abstract class TypedEventHandler[S <: scalapb.GeneratedMessage](
         throw exception
 
       case Success(messages) =>
-        Any.pack(
-          handleTyped(
-            messages.lift(1).head,
-            messages.head.asInstanceOf[S],
-            metaData
-          )
-        )
+        Any.pack(handleTyped(messages.lift(1).head, messages.head.asInstanceOf[S], metaData))
     }
 
   /**
@@ -142,9 +122,5 @@ abstract class TypedEventHandler[S <: scalapb.GeneratedMessage](
    * @param metaData the event meta characterising the actual event.
    * @return the resulting state
    */
-  def handleTyped(
-      event: scalapb.GeneratedMessage,
-      currentState: S,
-      metaData: MetaData
-  ): S
+  def handleTyped(event: scalapb.GeneratedMessage, currentState: S, metaData: MetaData): S
 }

@@ -8,12 +8,12 @@ import akka.Done
 import akka.projection.eventsourced.EventEnvelope
 import akka.projection.slick.SlickHandler
 import com.google.protobuf.any
-import io.superflat.lagompb.encryption.{DecryptPermanentFailure, EncryptionAdapter}
-import io.superflat.lagompb.protobuf.v1.core.{EventWrapper, MetaData}
-import org.slf4j.{Logger, LoggerFactory}
-import slick.dbio.{DBIO, DBIOAction}
+import io.superflat.lagompb.encryption.{ DecryptPermanentFailure, EncryptionAdapter }
+import io.superflat.lagompb.protobuf.v1.core.{ EventWrapper, MetaData }
+import org.slf4j.{ Logger, LoggerFactory }
+import slick.dbio.{ DBIO, DBIOAction }
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 /**
  * Reads the journal events, runs provided eventProcessor, and
@@ -26,8 +26,8 @@ import scala.util.{Failure, Success, Try}
 final class ReadSideEventHandler(
     eventTag: String,
     encryptionAdapter: EncryptionAdapter,
-    handler: (any.Any, String, any.Any, MetaData) => DBIO[Done]
-) extends SlickHandler[EventEnvelope[EventWrapper]] {
+    handler: (any.Any, String, any.Any, MetaData) => DBIO[Done])
+    extends SlickHandler[EventEnvelope[EventWrapper]] {
 
   val log: Logger = LoggerFactory.getLogger(getClass)
 
@@ -46,11 +46,7 @@ final class ReadSideEventHandler(
           handler(event, eventTag, resultingState, meta)
 
         case _ =>
-          DBIO.failed(
-            new RuntimeException(
-              s"[Lagompb] unknown event received ${envelope.event.getClass.getName}"
-            )
-          )
+          DBIO.failed(new RuntimeException(s"[Lagompb] unknown event received ${envelope.event.getClass.getName}"))
       })
       .recoverWith({
         case DecryptPermanentFailure(reason) =>

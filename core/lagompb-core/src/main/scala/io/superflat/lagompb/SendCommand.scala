@@ -10,8 +10,8 @@ import com.google.protobuf.any.Any
 import io.superflat.lagompb.protobuf.v1.core.CommandReply.Reply
 import io.superflat.lagompb.protobuf.v1.core._
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.util.{ Failure, Success, Try }
 
 trait SendCommand {
   // $COVERAGE-OFF$
@@ -38,8 +38,7 @@ trait SendCommand {
       aggregateRoot: AggregateRoot,
       entityId: String,
       cmd: scalapb.GeneratedMessage,
-      data: Map[String, Any]
-  )(implicit ec: ExecutionContext): Future[StateWrapper] =
+      data: Map[String, Any])(implicit ec: ExecutionContext): Future[StateWrapper] =
     clusterSharding
       .entityRefFor(aggregateRoot.typeKey, entityId)
       .ask[CommandReply](replyTo => Command(Any.pack(cmd), replyTo, data))
@@ -63,12 +62,9 @@ trait SendCommand {
       aggregateRoot: AggregateRoot,
       entityId: String,
       cmd: scalapb.GeneratedMessage,
-      data: Map[String, Any]
-  )(implicit
-      ec: ExecutionContext
-  ): Future[(scalapb.GeneratedMessage, MetaData)] =
-    sendCommand(clusterSharding, aggregateRoot, entityId, cmd, data)
-      .flatMap(stateWrapper => Future.fromTry(unpackStateWrapper(stateWrapper)))
+      data: Map[String, Any])(implicit ec: ExecutionContext): Future[(scalapb.GeneratedMessage, MetaData)] =
+    sendCommand(clusterSharding, aggregateRoot, entityId, cmd, data).flatMap(stateWrapper =>
+      Future.fromTry(unpackStateWrapper(stateWrapper)))
 
   // $COVERAGE-ON$
 
@@ -78,16 +74,10 @@ trait SendCommand {
    * @param commandReply some command handler reply
    * @return a state wrapper instance with state ane meta
    */
-  private[lagompb] def handleLagompbCommandReply(
-      commandReply: CommandReply
-  ): Try[StateWrapper] = {
+  private[lagompb] def handleLagompbCommandReply(commandReply: CommandReply): Try[StateWrapper] = {
     commandReply.reply match {
       case Reply.Empty =>
-        Failure(
-          new RuntimeException(
-            s"unknown CommandReply ${commandReply.reply.getClass.getName}"
-          )
-        )
+        Failure(new RuntimeException(s"unknown CommandReply ${commandReply.reply.getClass.getName}"))
       case Reply.StateWrapper(value: StateWrapper) => Success(value)
       case Reply.Failure(value: FailureResponse) =>
         transformFailedReply(value).asInstanceOf[Try[StateWrapper]]
@@ -100,9 +90,7 @@ trait SendCommand {
    * @param failureResponse some command handler failed reply
    * @return a Failure of type Try[]
    */
-  def transformFailedReply(
-      failureResponse: FailureResponse
-  ): Failure[Throwable]
+  def transformFailedReply(failureResponse: FailureResponse): Failure[Throwable]
 
   /**
    * unpack state wrapper, for use in sendCommandTyped
@@ -110,9 +98,7 @@ trait SendCommand {
    * @param stateWrapper a state wrapper instance
    * @return a Try with the unpacked state as a generated message
    */
-  def unpackStateWrapper(
-      stateWrapper: StateWrapper
-  ): Try[(scalapb.GeneratedMessage, MetaData)] =
+  def unpackStateWrapper(stateWrapper: StateWrapper): Try[(scalapb.GeneratedMessage, MetaData)] =
     stateWrapper.state match {
       case Some(state) =>
         ProtosRegistry.unpackAny(state) match {

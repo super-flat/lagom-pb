@@ -11,7 +11,7 @@ import akka.actor.typed.scaladsl.adapter._
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.data.TestEventHandler
 import io.superflat.lagompb.protobuf.v1.core.MetaData
-import io.superflat.lagompb.protobuf.v1.tests.{TestEvent, TestState, WrongEvent}
+import io.superflat.lagompb.protobuf.v1.tests.{ TestEvent, TestState, WrongEvent }
 import io.superflat.lagompb.testkit.BaseActorTestKit
 
 class EventHandlerSpec extends BaseActorTestKit(s"""
@@ -38,8 +38,7 @@ class EventHandlerSpec extends BaseActorTestKit(s"""
     "handle wrong event" in {
       val prevState: TestState = TestState(companyId, "state")
       assertThrows[NotImplementedError](
-        eventHandler.handle(Any.pack(WrongEvent()), Any.pack(prevState), MetaData.defaultInstance)
-      )
+        eventHandler.handle(Any.pack(WrongEvent()), Any.pack(prevState), MetaData.defaultInstance))
     }
   }
 }

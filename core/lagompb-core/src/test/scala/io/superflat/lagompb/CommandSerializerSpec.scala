@@ -7,7 +7,7 @@ package io.superflat.lagompb
 import akka.actor.testkit.typed.scaladsl.TestProbe
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.protobuf.v1.core.CommandReply
-import io.superflat.lagompb.protobuf.v1.tests.{AuditingData, TestCommand}
+import io.superflat.lagompb.protobuf.v1.tests.{ AuditingData, TestCommand }
 import io.superflat.lagompb.testkit.BaseActorTestKit
 
 class CommandSerializerSpec extends BaseActorTestKit(s"""

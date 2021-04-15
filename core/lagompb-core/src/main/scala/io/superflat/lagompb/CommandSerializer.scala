@@ -8,10 +8,10 @@ import java.nio.charset.StandardCharsets
 
 import akka.actor.ExtendedActorSystem
 import akka.actor.typed.scaladsl.adapter._
-import akka.actor.typed.{ActorRef, ActorRefResolver}
+import akka.actor.typed.{ ActorRef, ActorRefResolver }
 import akka.serialization.SerializerWithStringManifest
-import io.superflat.lagompb.protobuf.v1.core.{CommandReply, CommandWrapper}
-import org.slf4j.{Logger, LoggerFactory}
+import io.superflat.lagompb.protobuf.v1.core.{ CommandReply, CommandWrapper }
+import org.slf4j.{ Logger, LoggerFactory }
 
 /**
  * LagomPbCommandSerializer
@@ -31,9 +31,7 @@ sealed class CommandSerializer(val system: ExtendedActorSystem) extends Serializ
   override def toBinary(o: AnyRef): Array[Byte] =
     o match {
       case Command(cmd, actorRef, pluginData) =>
-        val actorBytes: Array[Byte] = actorRefResolver
-          .toSerializationFormat(actorRef)
-          .getBytes(StandardCharsets.UTF_8)
+        val actorBytes: Array[Byte] = actorRefResolver.toSerializationFormat(actorRef).getBytes(StandardCharsets.UTF_8)
 
         log.debug(s"serializing Command [${cmd.typeUrl}]")
 

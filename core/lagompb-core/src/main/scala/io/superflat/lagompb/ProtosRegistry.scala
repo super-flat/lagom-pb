@@ -6,14 +6,14 @@ package io.superflat.lagompb
 
 import com.google.protobuf.any.Any
 import org.reflections.Reflections
-import org.slf4j.{Logger, LoggerFactory}
-import scalapb.json4s.{Parser, Printer, TypeRegistry}
-import scalapb.{GeneratedFileObject, GeneratedMessage, GeneratedMessageCompanion}
+import org.slf4j.{ Logger, LoggerFactory }
+import scalapb.json4s.{ Parser, Printer, TypeRegistry }
+import scalapb.{ GeneratedFileObject, GeneratedMessage, GeneratedMessageCompanion }
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.reflect.runtime.universe
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 /**
  * Helpful registry of scalapb protobuf classes that can be used to find
@@ -30,36 +30,28 @@ object ProtosRegistry {
    * scalapb generated message companions list
    */
   private[lagompb] lazy val companions: Vector[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
-    registry
-      .foldLeft[Vector[
-        scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]
-      ]](Vector.empty) { (s, fileObject) =>
+    registry.foldLeft[Vector[scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]]](Vector.empty) {
+      (s, fileObject) =>
         s ++ fileObject.messagesCompanions
-      }
+    }
 
   /**
    * Creates a map between the generated message typeUrl and the appropriate message companion
    */
-  private[lagompb] lazy val companionsMap: Map[
-    String,
-    scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]
-  ] =
-    companions
-      .map(companion => (companion.scalaDescriptor.fullName, companion))
-      .toMap
+  private[lagompb] lazy val companionsMap
+      : Map[String, scalapb.GeneratedMessageCompanion[_ <: scalapb.GeneratedMessage]] =
+    companions.map(companion => (companion.scalaDescriptor.fullName, companion)).toMap
 
   private[lagompb] lazy val typeRegistry: TypeRegistry =
-    registry
-      .foldLeft(TypeRegistry.empty) { (reg: TypeRegistry, fileObject) =>
-        reg.addFile(fileObject)
-      }
+    registry.foldLeft(TypeRegistry.empty) { (reg: TypeRegistry, fileObject) =>
+      reg.addFile(fileObject)
+    }
 
   private[lagompb] lazy val parser: Parser =
     new Parser().withTypeRegistry(typeRegistry)
 
   private[lagompb] lazy val printer: Printer =
-    new Printer().includingDefaultValueFields.formattingLongAsNumber
-      .withTypeRegistry(typeRegistry)
+    new Printer().includingDefaultValueFields.formattingLongAsNumber.withTypeRegistry(typeRegistry)
 
   /**
    * Converts a scalapb GeneratedMessage to printable Json string using the available
@@ -79,9 +71,7 @@ object ProtosRegistry {
    * @tparam A the scala type of the proto message to parse the json string into
    * @return the scalapb message parsed from the json string
    */
-  def fromJson[A <: GeneratedMessage](
-      jsonString: String
-  )(implicit A: GeneratedMessageCompanion[A]): A = {
+  def fromJson[A <: GeneratedMessage](jsonString: String)(implicit A: GeneratedMessageCompanion[A]): A = {
     parser.fromJsonString(jsonString)
   }
 
@@ -91,9 +81,7 @@ object ProtosRegistry {
    * @param any the protobuf message
    * @return the maybe scalapb GeneratedMessageCompanion object
    */
-  def getCompanion(
-      any: Any
-  ): Option[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
+  def getCompanion(any: Any): Option[GeneratedMessageCompanion[_ <: GeneratedMessage]] =
     any.typeUrl.split('/').lastOption.flatMap(companionsMap.get)
 
   /**
@@ -105,9 +93,7 @@ object ProtosRegistry {
   def unpackAny(any: Any): Try[GeneratedMessage] =
     getCompanion(any) match {
       case None =>
-        Failure(
-          new Exception(s"could not unpack unrecognized proto ${any.typeUrl}")
-        )
+        Failure(new Exception(s"could not unpack unrecognized proto ${any.typeUrl}"))
       case Some(comp) => Try(any.unpack(comp))
     }
 
@@ -137,10 +123,7 @@ object ProtosRegistry {
   @throws(classOf[ScalaReflectionException])
   private def reflectFileObjects(): Seq[GeneratedFileObject] = {
     val fileObjects: Seq[Class[_ <: GeneratedFileObject]] =
-      new Reflections(ConfigReader.protosPackage)
-        .getSubTypesOf(classOf[scalapb.GeneratedFileObject])
-        .asScala
-        .toSeq
+      new Reflections(ConfigReader.protosPackage).getSubTypesOf(classOf[scalapb.GeneratedFileObject]).asScala.toSeq
 
     fileObjects.foldLeft(Seq.empty[GeneratedFileObject]) { (seq, fo) =>
       Try {
@@ -148,10 +131,7 @@ object ProtosRegistry {
           universe.runtimeMirror(fo.getClassLoader)
         val module: universe.ModuleSymbol =
           runtimeMirror.staticModule(fo.getName)
-        runtimeMirror
-          .reflectModule(module)
-          .instance
-          .asInstanceOf[GeneratedFileObject]
+        runtimeMirror.reflectModule(module).instance.asInstanceOf[GeneratedFileObject]
       } match {
         case Failure(exception) =>
           exception match {
@@ -161,8 +141,7 @@ object ProtosRegistry {
         case Success(fileObject) =>
           val subMsg: String = fileObject.messagesCompanions
             .map(mc =>
-              s"\n|\t\t - companion typeUrl: ${mc.scalaDescriptor.fullName}, jvmName: ${mc.getClass.getCanonicalName}"
-            )
+              s"\n|\t\t - companion typeUrl: ${mc.scalaDescriptor.fullName}, jvmName: ${mc.getClass.getCanonicalName}")
             .mkString("")
           val msg: String =
             s"|\t - fileObject jvmName: ${fileObject.getClass.getCanonicalName}"

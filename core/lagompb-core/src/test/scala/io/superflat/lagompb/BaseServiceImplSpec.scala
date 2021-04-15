@@ -6,7 +6,7 @@ package io.superflat.lagompb
 
 import akka.actor.ActorSystem
 import akka.cluster.sharding.typed.scaladsl.ClusterSharding
-import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
+import com.dimafeng.testcontainers.{ ForAllTestContainer, PostgreSQLContainer }
 import com.google.protobuf.any.Any
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
 import com.lightbend.lagom.scaladsl.testkit.ServiceTest
@@ -14,7 +14,7 @@ import io.superflat.lagompb.data._
 import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.protobuf.v1.core._
 import io.superflat.lagompb.protobuf.v1.core.CommandReply.Reply
-import io.superflat.lagompb.protobuf.v1.tests.{TestCommand, TestState}
+import io.superflat.lagompb.protobuf.v1.tests.{ TestCommand, TestState }
 import io.superflat.lagompb.testkit.BaseSpec
 import org.testcontainers.utility.DockerImageName
 
@@ -29,18 +29,13 @@ class BaseServiceImplSpec extends BaseSpec with ForAllTestContainer {
       databaseName = "postgres",
       username = "postgres",
       password = "postgres",
-      urlParams = Map("currentSchema" -> "public")
-    )
+      urlParams = Map("currentSchema" -> "public"))
     .createContainer()
 
   val companyId: String = UUID.randomUUID().toString
 
   val any: Any =
-    Any.pack(
-      TestState()
-        .withCompanyUuid(companyId)
-        .withName("test")
-    )
+    Any.pack(TestState().withCompanyUuid(companyId).withName("test"))
 
   val defaultEncryptionAdapter = new EncryptionAdapter(None)
   var actorSystem: ActorSystem = _
@@ -60,17 +55,12 @@ class BaseServiceImplSpec extends BaseSpec with ForAllTestContainer {
   "Service implementation" should {
 
     "handle SuccessfulReply" in {
-      val cmdReply = CommandReply().withStateWrapper(
-        StateWrapper()
-          .withState(any)
-          .withMeta(MetaData().withRevisionNumber(1))
-      )
+      val cmdReply =
+        CommandReply().withStateWrapper(StateWrapper().withState(any).withMeta(MetaData().withRevisionNumber(1)))
 
       val result: StateWrapper = testImpl.handleLagompbCommandReply(cmdReply).success.value
 
-      val expectedState = TestState()
-        .withCompanyUuid(companyId)
-        .withName("test")
+      val expectedState = TestState().withCompanyUuid(companyId).withName("test")
 
       result.state shouldBe Some(Any.pack(expectedState))
     }
@@ -94,11 +84,7 @@ class BaseServiceImplSpec extends BaseSpec with ForAllTestContainer {
       val testCmd: TestCommand = TestCommand().withCompanyUuid(companyId).withName("John")
       val client: TestService = server.serviceClient.implement[TestService]
       client.testHello.invoke(testCmd).map { response: TestState =>
-        response should ===(
-          TestState()
-            .withCompanyUuid(companyId)
-            .withName("John")
-        )
+        response should ===(TestState().withCompanyUuid(companyId).withName("John"))
       }
     }
   }

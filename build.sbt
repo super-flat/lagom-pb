@@ -21,9 +21,7 @@ lazy val `lagompb-core` = project
     Compile / PB.protoSources ++= Seq(file("submodules/protobuf"), file("core/lagompb-core/src/test/protobuf")),
     Compile / PB.includePaths ++= Seq(file("submodules/protobuf")),
     Compile / PB.targets := Seq(
-      scalapb.gen(flatPackage = false, javaConversions = false, grpc = false) -> (sourceManaged in Compile).value
-    )
-  )
+      scalapb.gen(flatPackage = false, javaConversions = false, grpc = false) -> (Compile / sourceManaged).value))
 
 lazy val `lagompb-readside` = project
   .in(file("core/lagompb-readside"))
@@ -41,13 +39,13 @@ lazy val `lagompb-plugin` = project
     name := "lagompb-plugin",
     crossScalaVersions := Dependencies.Versions.CrossScalaForPlugin,
     scalaVersion := Dependencies.Versions.Scala212,
+    pluginCrossBuild / sbtVersion := Dependencies.Versions.TargetSbt1,
     resolvers += Resolver.bintrayRepo("playframework", "maven"),
     resolvers ++= Seq(Resolver.jcenterRepo, Resolver.sonatypeRepo("public"), Resolver.sonatypeRepo("snapshots")),
     addSbtPlugin("com.lightbend.lagom" % "lagom-sbt-plugin" % LagomVersion.current),
     addSbtPlugin("com.lightbend.akka.grpc" %% "sbt-akka-grpc" % Dependencies.Versions.AkkaGrpcVersion),
     addSbtPlugin("com.thesamet" % "sbt-protoc" % Dependencies.Versions.SbtProtocVersion),
     addSbtPlugin("com.lightbend.sbt" % "sbt-javaagent" % Dependencies.Versions.JavaAgentVersion),
-    libraryDependencies ++= Dependencies.SbtPlugin
-  )
+    libraryDependencies ++= Dependencies.SbtPlugin)
 
 cancelable in Global := true

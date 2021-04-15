@@ -7,17 +7,17 @@ package io.superflat.lagompb
 import java.time.Instant
 
 import akka.actor.ActorSystem
-import akka.actor.typed.{ActorRef, Behavior}
-import akka.cluster.sharding.typed.scaladsl.{EntityContext, EntityTypeKey}
+import akka.actor.typed.{ ActorRef, Behavior }
+import akka.cluster.sharding.typed.scaladsl.{ EntityContext, EntityTypeKey }
 import akka.persistence.typed.PersistenceId
-import akka.persistence.typed.scaladsl.{Effect, EventSourcedBehavior, ReplyEffect, RetentionCriteria}
+import akka.persistence.typed.scaladsl.{ Effect, EventSourcedBehavior, ReplyEffect, RetentionCriteria }
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.protobuf.v1.core._
 import io.superflat.lagompb.protobuf.v1.core.CommandHandlerResponse.Response
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{ Logger, LoggerFactory }
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 /**
  * LagompbAggregate abstract class encapsulate all the necessary setup required to
@@ -38,8 +38,7 @@ abstract class AggregateRoot(
     commandHandler: CommandHandler,
     eventHandler: EventHandler,
     initialState: scalapb.GeneratedMessage,
-    encryptionAdapter: EncryptionAdapter
-) {
+    encryptionAdapter: EncryptionAdapter) {
 
   final val log: Logger = LoggerFactory.getLogger(getClass)
 
@@ -51,20 +50,16 @@ abstract class AggregateRoot(
    */
   def aggregateName: String
 
-  final def create(
-      entityContext: EntityContext[Command],
-      shardIndex: Int
-  ): Behavior[Command] = {
+  final def create(entityContext: EntityContext[Command], shardIndex: Int): Behavior[Command] = {
 
     val retentionCriteria =
       if (ConfigReader.snapshotCriteria.disableSnapshot) RetentionCriteria.disabled
       else {
         // journal/snapshot retention criteria
-        val rc = RetentionCriteria
-          .snapshotEvery(
-            numberOfEvents = ConfigReader.snapshotCriteria.frequency, // snapshotFrequency
-            keepNSnapshots = ConfigReader.snapshotCriteria.retention //snapshotRetention
-          )
+        val rc = RetentionCriteria.snapshotEvery(
+          numberOfEvents = ConfigReader.snapshotCriteria.frequency, // snapshotFrequency
+          keepNSnapshots = ConfigReader.snapshotCriteria.retention //snapshotRetention
+        )
         // journal/snapshot retention criteria
         if (ConfigReader.snapshotCriteria.deleteEventsOnSnapshot) rc.withDeleteEventsOnSnapshot
         rc
@@ -82,24 +77,19 @@ abstract class AggregateRoot(
    * @param persistenceId the aggregate persistence Id
    */
   protected[lagompb] def create(
-      persistenceId: PersistenceId
-  ): EventSourcedBehavior[Command, EventWrapper, StateWrapper] = {
+      persistenceId: PersistenceId): EventSourcedBehavior[Command, EventWrapper, StateWrapper] = {
     val splitter: Char = PersistenceId.DefaultSeparator(0)
     val entityId: String =
       persistenceId.id.split(splitter).lastOption.getOrElse("")
-    EventSourcedBehavior
-      .withEnforcedReplies[Command, EventWrapper, StateWrapper](
-        persistenceId = persistenceId,
-        emptyState = initialState(entityId),
-        commandHandler = genericCommandHandler,
-        eventHandler = genericEventHandler
-      )
+    EventSourcedBehavior.withEnforcedReplies[Command, EventWrapper, StateWrapper](
+      persistenceId = persistenceId,
+      emptyState = initialState(entityId),
+      commandHandler = genericCommandHandler,
+      eventHandler = genericEventHandler)
   }
 
   private[lagompb] def initialState(entityId: String): StateWrapper = {
-    StateWrapper()
-      .withState(Any.pack(initialState))
-      .withMeta(MetaData.defaultInstance.withEntityId(entityId))
+    StateWrapper().withState(Any.pack(initialState)).withMeta(MetaData.defaultInstance.withEntityId(entityId))
   }
 
   /**
@@ -109,17 +99,12 @@ abstract class AggregateRoot(
    * @param state the resulting state
    * @param metaData the additional meta
    */
-  private[lagompb] def encryptEvent(
-      event: Any,
-      state: Any,
-      metaData: MetaData
-  ): (Any, Any, StateWrapper) = {
+  private[lagompb] def encryptEvent(event: Any, state: Any, metaData: MetaData): (Any, Any, StateWrapper) = {
     (
       encryptionAdapter.encryptOrThrow(event),
       // compute the resulting state once and reuse it
       encryptionAdapter.encryptOrThrow(state),
-      StateWrapper().withState(state).withMeta(metaData)
-    )
+      StateWrapper().withState(state).withMeta(metaData))
   }
 
   /**
@@ -134,17 +119,14 @@ abstract class AggregateRoot(
       event: Any,
       state: Any,
       metaData: MetaData,
-      replyTo: ActorRef[CommandReply]
-  ): ReplyEffect[EventWrapper, StateWrapper] = {
+      replyTo: ActorRef[CommandReply]): ReplyEffect[EventWrapper, StateWrapper] = {
     Try {
       eventHandler.handle(event, state, metaData)
     } match {
       case Failure(exception: Throwable) =>
         Effect.reply(replyTo)(
           CommandReply().withFailure(
-            FailureResponse().withCritical(s"[Lagompb] EventHandler failure:, ${exception.getMessage}")
-          )
-        )
+            FailureResponse().withCritical(s"[Lagompb] EventHandler failure:, ${exception.getMessage}")))
 
       case Success(resultingState) =>
         log.debug(s"[Lagompb] Event handler returned ${resultingState.typeUrl}")
@@ -154,8 +136,7 @@ abstract class AggregateRoot(
 
         Effect
           .persist(
-            EventWrapper().withEvent(encryptedEvent).withResultingState(encryptedResultingState).withMeta(metaData)
-          )
+            EventWrapper().withEvent(encryptedEvent).withResultingState(encryptedResultingState).withMeta(metaData))
           .thenReply(replyTo)((_: StateWrapper) => CommandReply().withStateWrapper(decryptedStateWrapper))
     }
   }
@@ -168,10 +149,7 @@ abstract class AggregateRoot(
    * @param data the addional data
    * @return newly created MetaData
    */
-  private[lagompb] def nextMeta(
-      stateWrapper: StateWrapper,
-      data: Map[String, Any]
-  ): MetaData = {
+  private[lagompb] def nextMeta(stateWrapper: StateWrapper, data: Map[String, Any]): MetaData = {
     MetaData()
       .withRevisionNumber(stateWrapper.getMeta.revisionNumber + 1)
       .withRevisionDate(Instant.now().toTimestamp)
@@ -185,10 +163,7 @@ abstract class AggregateRoot(
    * @param priorState the current state
    * @param event      the event wrapper
    */
-  private[lagompb] def genericEventHandler(
-      priorState: StateWrapper,
-      event: EventWrapper
-  ): StateWrapper = {
+  private[lagompb] def genericEventHandler(priorState: StateWrapper, event: EventWrapper): StateWrapper = {
     priorState.update(_.meta := event.getMeta, _.state := event.getResultingState)
   }
 
@@ -200,10 +175,7 @@ abstract class AggregateRoot(
    * @param stateWrapper state wrapper
    * @param cmd          the command to process
    */
-  final def genericCommandHandler(
-      stateWrapper: StateWrapper,
-      cmd: Command
-  ): ReplyEffect[EventWrapper, StateWrapper] = {
+  final def genericCommandHandler(stateWrapper: StateWrapper, cmd: Command): ReplyEffect[EventWrapper, StateWrapper] = {
 
     val maybeState: Try[Any] =
       // if no prior revisions, use default instance state
@@ -217,9 +189,7 @@ abstract class AggregateRoot(
       case Failure(exception: Throwable) =>
         Effect.reply(cmd.replyTo)(
           CommandReply().withFailure(
-            FailureResponse().withCritical(s"[Lagompb] state parser failure, ${exception.getMessage}")
-          )
-        )
+            FailureResponse().withCritical(s"[Lagompb] state parser failure, ${exception.getMessage}")))
 
       case Success(decryptedState: Any) =>
         log.debug(s"[Lagompb] plugin data ${cmd.data} is valid...")
@@ -241,9 +211,7 @@ abstract class AggregateRoot(
           case Failure(exception: Throwable) =>
             Effect.reply(cmd.replyTo)(
               CommandReply().withFailure(
-                FailureResponse().withCritical(s"[Lagompb] command handler failure: ${exception.getMessage}")
-              )
-            )
+                FailureResponse().withCritical(s"[Lagompb] command handler failure: ${exception.getMessage}")))
         }
     }
   }

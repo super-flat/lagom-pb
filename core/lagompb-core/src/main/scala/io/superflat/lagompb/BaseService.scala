@@ -4,8 +4,8 @@
 
 package io.superflat.lagompb
 
-import com.lightbend.lagom.scaladsl.api.{Descriptor, Service}
-import scalapb.{GeneratedMessage, GeneratedMessageCompanion}
+import com.lightbend.lagom.scaladsl.api.{ Descriptor, Service }
+import scalapb.{ GeneratedMessage, GeneratedMessageCompanion }
 
 /**
  * Must be implemented by any lagom api without message broker integration
@@ -14,13 +14,13 @@ trait BaseService extends Service {
 
   protected val serviceName: String = ConfigReader.serviceName
 
-  implicit def messageSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]: ApiSerializer[A] = ApiSerializer[A]
+  implicit def messageSerializer[A <: GeneratedMessage: GeneratedMessageCompanion]: ApiSerializer[A] =
+    ApiSerializer[A]()
 
   final override def descriptor: Descriptor = {
     import Service._
 
-    routes
-      .foldLeft(named(serviceName).withAutoAcl(true))(_.addCalls(_))
+    routes.foldLeft(named(serviceName).withAutoAcl(true))(_.addCalls(_))
 
   }
 

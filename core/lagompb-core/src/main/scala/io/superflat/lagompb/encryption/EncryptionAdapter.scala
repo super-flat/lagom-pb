@@ -7,9 +7,9 @@ package io.superflat.lagompb.encryption
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.protobuf.v1.core.EventWrapper
 import io.superflat.lagompb.protobuf.v1.encryption.EncryptedProto
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{ Logger, LoggerFactory }
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 /**
  * Adapter that optionally applies encryption if a ProtoEncryption is
@@ -39,9 +39,7 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
     encryptor match {
       // if encryptor provided, attempt the encrypt
       case Some(enc) =>
-        log.debug(
-          s"[Lagompb] encrypting message ${any.typeUrl} using ${enc.getClass.getName}"
-        )
+        log.debug(s"[Lagompb] encrypting message ${any.typeUrl} using ${enc.getClass.getName}")
         enc.encrypt(any).map(encryptedProto => Any.pack(encryptedProto))
       // if no encryptor provided, pass through
       case None => Success(any)
@@ -57,18 +55,14 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
     encryptor match {
       // if an encryptor provided and it's an encrypted proto, attempt decrypt
       case Some(enc) if EncryptionAdapter.isEncryptedProto(any) =>
-        log.debug(
-          s"[Lagompb] decrypting message ${any.typeUrl} using ${enc.getClass.getName}"
-        )
+        log.debug(s"[Lagompb] decrypting message ${any.typeUrl} using ${enc.getClass.getName}")
         Try(any.unpack(EncryptedProto)).flatMap(enc.decrypt)
 
       // if ProtoEncryption is configured/provided but nested type is not encrypted proto,
       // just pass original message through. this is especially useful if someone turns
       // on encryption late and has events in the journal that are not yet encrypted
       case Some(_) =>
-        log.warn(
-          s"[Lagompb] skipping decrypt because message was not an EncryptedProto, ${any.typeUrl}"
-        )
+        log.warn(s"[Lagompb] skipping decrypt because message was not an EncryptedProto, ${any.typeUrl}")
         Success(any)
 
       // if no encryptor provided, just pass through
@@ -111,9 +105,7 @@ class EncryptionAdapter(encryptor: Option[ProtoEncryption]) {
     Try(eventWrapper)
       // decrypt the event
       .flatMap { eventWrapper =>
-        this
-          .decrypt(eventWrapper.getEvent)
-          .map(decryptedEvent => eventWrapper.withEvent(decryptedEvent))
+        this.decrypt(eventWrapper.getEvent).map(decryptedEvent => eventWrapper.withEvent(decryptedEvent))
       }
       // decrypt the state
       .flatMap { eventWrapper =>
@@ -134,5 +126,5 @@ object EncryptionAdapter {
    */
   def isEncryptedProto(any: Any): Boolean =
     any.typeUrl.contains(EncryptedProto.scalaDescriptor.fullName) ||
-      EncryptedProto.scalaDescriptor.fullName.contains(any.typeUrl)
+    EncryptedProto.scalaDescriptor.fullName.contains(any.typeUrl)
 }

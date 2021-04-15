@@ -5,10 +5,10 @@
 package io.superflat.lagompb.testkit
 
 import akka.actor.testkit.typed.TestKitSettings
-import akka.actor.testkit.typed.scaladsl.{ActorTestKit, ActorTestKitBase}
-import com.typesafe.config.{Config, ConfigFactory}
+import akka.actor.testkit.typed.scaladsl.{ ActorTestKit, ActorTestKitBase }
+import com.typesafe.config.{ Config, ConfigFactory }
 import org.scalatest._
-import org.scalatest.concurrent.{Eventually, ScalaFutures}
+import org.scalatest.concurrent.{ Eventually, ScalaFutures }
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.time.Span
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -37,12 +37,7 @@ abstract class BaseActorTestKit(testKit: ActorTestKit)
    * Use a custom config for the actor system.
    */
   def this(config: String) =
-    this(
-      ActorTestKit(
-        ActorTestKitBase.testNameFromCallStack(),
-        ConfigFactory.parseString(config)
-      )
-    )
+    this(ActorTestKit(ActorTestKitBase.testNameFromCallStack(), ConfigFactory.parseString(config)))
 
   /**
    * Use a custom config for the actor system.
@@ -54,18 +49,13 @@ abstract class BaseActorTestKit(testKit: ActorTestKit)
    * Use a custom config for the actor system, and a custom akka TestKitSettings.
    */
   def this(config: Config, settings: TestKitSettings) =
-    this(
-      ActorTestKit(ActorTestKitBase.testNameFromCallStack(), config, settings)
-    )
+    this(ActorTestKit(ActorTestKitBase.testNameFromCallStack(), config, settings))
 
   /**
    * `PatienceConfig` from akka test kit default timeout
    */
   implicit val patience: PatienceConfig =
-    PatienceConfig(
-      testKit.testKitSettings.DefaultTimeout.duration,
-      Span(100, org.scalatest.time.Millis)
-    )
+    PatienceConfig(testKit.testKitSettings.DefaultTimeout.duration, Span(100, org.scalatest.time.Millis))
 
   /**
    * Shuts down the ActorTestKit. If override be sure to call super.afterAll

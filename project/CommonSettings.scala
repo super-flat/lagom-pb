@@ -22,10 +22,8 @@ object CommonSettings extends AutoPlugin {
         "contributors",
         "Contributors",
         "",
-        url("https://github.com/super-flat/lagom-pb/graphs/contributors")
-      ),
-      description := "lagom-pb - Scala shared code for lagom development in lagom using protobuf.\n"
-    )
+        url("https://github.com/super-flat/lagom-pb/graphs/contributors")),
+      description := "lagom-pb - Scala shared code for lagom development in lagom using protobuf.\n")
 
   override def projectSettings =
     Seq(
@@ -37,11 +35,13 @@ object CommonSettings extends AutoPlugin {
         "-Xlint:-options",
         "-encoding",
         "UTF-8",
-        "-XDignore.symbol.file"
-      ),
+        "-XDignore.symbol.file"),
       scalacOptions ++= Seq(
+        "-feature",
+        "-unchecked",
         "-Xfatal-warnings",
         "-deprecation",
+        // linter option
         "-Xlint",
         "-P:silencer:checkUnused",
         "-P:silencer:globalFilters=Unused import;Marked as deprecated in proto file",
@@ -53,18 +53,16 @@ object CommonSettings extends AutoPlugin {
         "-P:silencer:globalFilters=Use `scala.jdk.CollectionConverters` instead",
         "-P:silencer:globalFilters=Use LazyList instead of Stream",
         // ignore imports in templates
-        "-P:silencer:pathFilters=.*.txt"
-      ),
+        "-P:silencer:pathFilters=.*.txt"),
       resolvers ++= Seq(Resolver.jcenterRepo, Resolver.sonatypeRepo("public"), Resolver.sonatypeRepo("snapshots")),
       libraryDependencies ++= Seq(
-        compilerPlugin("com.github.ghik" % "silencer-plugin" % Versions.SilencerVersion cross CrossVersion.full),
-        "com.github.ghik" % "silencer-lib" % Versions.SilencerVersion % Provided cross CrossVersion.full
-      ),
+        compilerPlugin(("com.github.ghik" % "silencer-plugin" % Versions.SilencerVersion).cross(CrossVersion.full)),
+        ("com.github.ghik" % "silencer-lib" % Versions.SilencerVersion % Provided).cross(CrossVersion.full)),
+      scalafmtOnCompile := true,
       coverageExcludedPackages := "<empty>;" +
-        "io.superflat.lagompb.protobuf.*;" +
-        "io.superflat.lagompb.Plugin;" +
-        "io.superflat.lagompb.SharedBaseServiceImpl;" +
-        "io.superflat.lagompb.BaseGrpcServiceImpl;",
-      scalafmtOnCompile := true
-    )
+      "io.superflat.lagompb.protobuf.*;" +
+      "io.superflat.lagompb.Plugin;" +
+      "io.superflat.lagompb.SharedBaseServiceImpl;" +
+      "io.superflat.lagompb.BaseGrpcServiceImpl;",
+      scalafmtOnCompile := true)
 }

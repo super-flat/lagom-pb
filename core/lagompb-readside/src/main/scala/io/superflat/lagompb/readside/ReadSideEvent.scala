@@ -15,9 +15,4 @@ import io.superflat.lagompb.protobuf.v1.core.MetaData
  * @param state the resulting state of the event
  * @param metaData the additional metadata
  */
-case class ReadSideEvent(
-    event: Any,
-    eventTag: String,
-    state: Any,
-    metaData: MetaData
-)
+case class ReadSideEvent(event: Any, eventTag: String, state: Any, metaData: MetaData)

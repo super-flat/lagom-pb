@@ -5,7 +5,7 @@
 package io.superflat.lagompb
 
 import akka.util.Timeout
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{ Config, ConfigFactory }
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration._
@@ -14,8 +14,7 @@ final case class SnapshotCriteria(
     frequency: Int,
     retention: Int,
     deleteEventsOnSnapshot: Boolean,
-    disableSnapshot: Boolean
-)
+    disableSnapshot: Boolean)
 
 final case class EventsConfig(tagName: String, numShards: Int)
 
@@ -34,8 +33,7 @@ object ConfigReader {
       frequency = config.getInt(s"$LP.snapshot-criteria.frequency"),
       retention = config.getInt(s"$LP.snapshot-criteria.retention"),
       deleteEventsOnSnapshot = config.getBoolean(s"$LP.snapshot-criteria.delete-events-on-snapshot"),
-      disableSnapshot = config.getBoolean(s"$LP.snapshot-criteria.disable-snapshot")
-    )
+      disableSnapshot = config.getBoolean(s"$LP.snapshot-criteria.disable-snapshot"))
 
   def allEventTags: Vector[String] =
     (for (shardNo <- 0 until ConfigReader.eventsConfig.numShards)
@@ -44,8 +42,7 @@ object ConfigReader {
   def eventsConfig: EventsConfig =
     EventsConfig(
       tagName = config.getString(s"$LP.events.tagname"),
-      numShards = config.getInt("akka.cluster.sharding.number-of-shards")
-    )
+      numShards = config.getInt("akka.cluster.sharding.number-of-shards"))
 
   def createOffsetStore: Boolean =
     config.getBoolean("lagompb.projection.create-tables.auto")

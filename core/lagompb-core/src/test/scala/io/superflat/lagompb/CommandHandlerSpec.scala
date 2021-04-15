@@ -10,7 +10,7 @@ import akka.actor.ActorSystem
 import akka.actor.typed.scaladsl.adapter._
 import com.google.protobuf.any.Any
 import io.superflat.lagompb.data.TestCommandHandler
-import io.superflat.lagompb.protobuf.v1.core.{CommandHandlerResponse, _}
+import io.superflat.lagompb.protobuf.v1.core.{ CommandHandlerResponse, _ }
 import io.superflat.lagompb.protobuf.v1.tests._
 import io.superflat.lagompb.testkit.BaseActorTestKit
 
@@ -35,7 +35,7 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
       val result: Try[CommandHandlerResponse] =
         cmdHandler.handleTyped(testCmd, state, MetaData.defaultInstance)
       result.success.value shouldBe
-        CommandHandlerResponse().withEvent(Any.pack(TestEvent(companyId, "test")))
+      CommandHandlerResponse().withEvent(Any.pack(TestEvent(companyId, "test")))
     }
 
     "handle invalid command as expected" in {
@@ -45,7 +45,7 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
         cmdHandler.handleTyped(testCmd, state, MetaData.defaultInstance)
 
       result.success.value shouldBe
-        CommandHandlerResponse().withFailure(FailureResponse().withValidation("command is invalid"))
+      CommandHandlerResponse().withFailure(FailureResponse().withValidation("command is invalid"))
     }
 
     "handle BaseCommand as expected" in {
@@ -56,7 +56,7 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
         cmdHandler.handleTyped(testCmd, state, meta)
 
       result.success.value shouldBe
-        CommandHandlerResponse().withEvent(Any.pack(TestEvent(companyId, "test")))
+      CommandHandlerResponse().withEvent(Any.pack(TestEvent(companyId, "test")))
     }
 
     "handle invalid BaseCommand as expected" in {
@@ -67,17 +67,13 @@ class CommandHandlerSpec extends BaseActorTestKit(s"""
         cmdHandler.handleTyped(testCmd, state, meta)
 
       result.success.value shouldBe
-        CommandHandlerResponse().withFailure(FailureResponse().withValidation("command is invalid"))
+      CommandHandlerResponse().withFailure(FailureResponse().withValidation("command is invalid"))
     }
 
     "handle command handler breakdown" in {
       val noCmd = NoCmd()
       val meta = MetaData(revisionNumber = 1)
-      cmdHandler
-        .handleTyped(noCmd, TestState(companyId, "state"), meta)
-        .failure
-        .exception
-        .getMessage shouldBe "unknown"
+      cmdHandler.handleTyped(noCmd, TestState(companyId, "state"), meta).failure.exception.getMessage shouldBe "unknown"
 
     }
 

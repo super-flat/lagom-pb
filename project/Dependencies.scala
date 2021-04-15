@@ -1,5 +1,5 @@
 import com.lightbend.lagom.core.LagomVersion
-import sbt.{Test, _}
+import sbt.{ Test, _ }
 import scalapb.compiler.Version.scalapbVersion
 
 /**
@@ -12,8 +12,8 @@ object Dependencies {
    * Versions number
    */
   object Versions {
-    val Scala213 = "2.13.1"
-    val Scala212 = "2.12.11"
+    val Scala213 = "2.13.5"
+    val Scala212 = "2.12.13"
     val MacWireVersion = "2.3.7"
     val ScalaTestVersion = "3.2.7"
     val PlayJsonDerivedCodecsVersion = "7.0.0"
@@ -23,7 +23,7 @@ object Dependencies {
     val AkkaManagementClusterBootstrapVersion = "1.0.10"
     val AkkaManagementClusterHttpVersion = "1.0.10"
     val ScalaMockVersion = "5.1.0"
-    val SilencerVersion = "1.6.0"
+    val SilencerVersion = "1.7.3"
     val AkkaGrpcVersion = "1.0.3"
     val H2Version = "1.4.200"
     val ScalapbJson4sVersion = "0.11.0"
@@ -38,9 +38,13 @@ object Dependencies {
     val ScalapbValidationVersion = scalapb.validate.compiler.BuildInfo.version
     val JavaAgentVersion = "0.1.6"
     val CrossScalaForPlugin = Seq(Scala212)
-    val AkkaVersion = "2.6.13"
+    val AkkaVersion = "2.6.14"
 
     val TestContainers: String = "0.39.3"
+
+    // This is not the sbt version used by lagom-pb build itself, but
+    // instead the version used to build lagom-pb sbt plugin.
+    val TargetSbt1 = "1.3.13"
   }
 
   val Jars = Seq(
@@ -73,8 +77,7 @@ object Dependencies {
     "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % Versions.ScalapbCommonProtoVersion % "protobuf",
     "com.lightbend.akka.grpc" %% "akka-grpc-runtime" % Versions.AkkaGrpcVersion,
     "com.lightbend.play" %% "play-grpc-runtime" % Versions.PlayGrpcVersion,
-    "org.scala-lang" % "scala-reflect" % Versions.Scala213
-  )
+    "org.scala-lang" % "scala-reflect" % Versions.Scala213)
 
   /**
    * Test dependencies
@@ -88,14 +91,12 @@ object Dependencies {
     "com.typesafe.akka" %% "akka-actor-testkit-typed" % Versions.AkkaVersion,
     // test containers
     "com.dimafeng" %% "testcontainers-scala-scalatest" % Versions.TestContainers % Test,
-    "com.dimafeng" %% "testcontainers-scala-postgresql" % Versions.TestContainers % Test
-  )
+    "com.dimafeng" %% "testcontainers-scala-postgresql" % Versions.TestContainers % Test)
 
   val SbtPlugin = Seq(
     "com.lightbend.play" %% "play-grpc-generators" % Dependencies.Versions.PlayGrpcVersion,
     "com.thesamet.scalapb" %% "compilerplugin" % Dependencies.Versions.ScalapbCompilerVersion,
-    "com.thesamet.scalapb" %% "scalapb-validate-codegen" % Dependencies.Versions.ScalapbValidationVersion
-  )
+    "com.thesamet.scalapb" %% "scalapb-validate-codegen" % Dependencies.Versions.ScalapbValidationVersion)
 
   val akkaVersion: String = Dependencies.Versions.AkkaVersion
   val AkkaOverrideDeps = Seq(
@@ -120,6 +121,5 @@ object Dependencies {
     "com.typesafe.akka" %% "akka-multi-node-testkit" % akkaVersion,
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion,
     "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion,
-    "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion
-  )
+    "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion)
 }

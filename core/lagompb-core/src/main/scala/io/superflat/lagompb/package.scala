@@ -4,7 +4,7 @@
 
 package io.superflat
 
-import java.time.{Instant, LocalDate, ZoneId}
+import java.time.{ Instant, LocalDate, ZoneId }
 
 import com.google.protobuf.timestamp.Timestamp
 
@@ -27,10 +27,7 @@ package object lagompb {
      * @return java Instant date
      */
     def toInstant(zoneId: ZoneId): Instant =
-      Instant
-        .ofEpochSecond(timestamp.seconds, timestamp.nanos)
-        .atZone(zoneId)
-        .toInstant
+      Instant.ofEpochSecond(timestamp.seconds, timestamp.nanos).atZone(zoneId).toInstant
 
     /**
      * converts a protocol buffer timestamp to java local date based upon a given time zone
@@ -39,10 +36,7 @@ package object lagompb {
      * @return  java local date
      */
     def toLocalDate(zoneId: ZoneId): LocalDate =
-      Instant
-        .ofEpochSecond(timestamp.seconds, timestamp.nanos)
-        .atZone(zoneId)
-        .toLocalDate
+      Instant.ofEpochSecond(timestamp.seconds, timestamp.nanos).atZone(zoneId).toLocalDate
   }
 
   implicit class Instants(instant: Instant) {
@@ -53,8 +47,6 @@ package object lagompb {
      * @return Protobuf timestamp
      */
     def toTimestamp: Timestamp =
-      Timestamp()
-        .withNanos(instant.getNano)
-        .withSeconds(instant.getEpochSecond)
+      Timestamp().withNanos(instant.getNano).withSeconds(instant.getEpochSecond)
   }
 }

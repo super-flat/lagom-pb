@@ -10,15 +10,14 @@ import io.superflat.lagompb.TypedCommandHandler
 import io.superflat.lagompb.protobuf.v1.core._
 import io.superflat.lagompb.protobuf.v1.tests._
 
-import scala.util.{Failure, Try}
+import scala.util.{ Failure, Try }
 
 class TestCommandHandler(actorSystem: ActorSystem) extends TypedCommandHandler[TestState](actorSystem) {
 
   override def handleTyped(
       command: scalapb.GeneratedMessage,
       currentState: TestState,
-      currentEventMeta: MetaData
-  ): Try[CommandHandlerResponse] =
+      currentEventMeta: MetaData): Try[CommandHandlerResponse] =
     command match {
       case cmd: TestCommand                          => handleTestCommand(cmd, currentState)
       case cmd: NoEventTestCommand                   => handleNoEventTestCommand(cmd, currentState)
@@ -32,15 +31,13 @@ class TestCommandHandler(actorSystem: ActorSystem) extends TypedCommandHandler[T
 
   def handleNotFoundFailureTestCommand(
       cmd: NotFoundFailureTestCommand,
-      currentState: TestState
-  ): Try[CommandHandlerResponse] = {
+      currentState: TestState): Try[CommandHandlerResponse] = {
     Try(CommandHandlerResponse().withFailure(FailureResponse().withNotFound("Oops!!!")))
   }
 
   def handleCustomFailureTestCommand(
       cmd: CustomFailureTestCommand,
-      currentState: TestState
-  ): Try[CommandHandlerResponse] = {
+      currentState: TestState): Try[CommandHandlerResponse] = {
     Try(CommandHandlerResponse().withFailure(FailureResponse().withCustom(Any.pack(com.google.protobuf.empty.Empty()))))
   }
 
@@ -49,15 +46,12 @@ class TestCommandHandler(actorSystem: ActorSystem) extends TypedCommandHandler[T
       CommandHandlerResponse().withEvent(
         Any()
           .withTypeUrl("type.googleapis.com/lagom.test")
-          .withValue(com.google.protobuf.ByteString.copyFrom("".getBytes))
-      )
-    )
+          .withValue(com.google.protobuf.ByteString.copyFrom("".getBytes))))
   }
 
   def handleCriticalFailureTestCommand(
       cmd: CriticalFailureTestCommand,
-      currentState: TestState
-  ): Try[CommandHandlerResponse] =
+      currentState: TestState): Try[CommandHandlerResponse] =
     Try(CommandHandlerResponse().withFailure(FailureResponse().withCritical("Oops!!!")))
 
   def handleNoEventTestCommand(cmd: NoEventTestCommand, currentState: TestState): Try[CommandHandlerResponse] =

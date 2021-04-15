@@ -48,9 +48,7 @@ trait JdbcRepository[M] {
    * @param connection the implicit database connection
    * @return the updated record or None if it was not found
    */
-  def update(entityId: String, model: M)(implicit
-      connection: Connection
-  ): Future[Int]
+  def update(entityId: String, model: M)(implicit connection: Connection): Future[Int]
 
   /**
    * Deletes a record from the database with the corresponding id.
@@ -59,8 +57,6 @@ trait JdbcRepository[M] {
    * @param connection the implicit database connection
    * @return the deleted record or None if it was not found
    */
-  def delete(entityId: String)(implicit
-      connection: Connection
-  ): Future[Option[M]]
+  def delete(entityId: String)(implicit connection: Connection): Future[Option[M]]
 
 }

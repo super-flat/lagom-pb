@@ -4,7 +4,7 @@
 
 package io.superflat.lagompb
 
-import java.time.{Instant, ZoneId}
+import java.time.{ Instant, ZoneId }
 
 import com.google.protobuf.timestamp.Timestamp
 import io.superflat.lagompb.testkit.BaseSpec
@@ -20,11 +20,9 @@ class TimestampsSpec extends BaseSpec {
     }
 
     "be converted successfully to java Instant given the Timezone" in {
-      ts.toInstant(ZoneId.of("America/Los_Angeles"))
-        .compareTo(Instant.ofEpochSecond(1582879956, 704545000)) shouldBe 0
+      ts.toInstant(ZoneId.of("America/Los_Angeles")).compareTo(Instant.ofEpochSecond(1582879956, 704545000)) shouldBe 0
 
-      ts.toInstant(ZoneId.of("GMT+01:00"))
-        .compareTo(Instant.ofEpochSecond(1582879956, 704545000)) shouldBe 0
+      ts.toInstant(ZoneId.of("GMT+01:00")).compareTo(Instant.ofEpochSecond(1582879956, 704545000)) shouldBe 0
     }
 
     "be converted successfully to LocalDate given the Timezone" in {
@@ -37,9 +35,7 @@ class TimestampsSpec extends BaseSpec {
   "An java Instant date" must {
     val instant = Instant.ofEpochSecond(1582879956, 704545000)
     "be convertes successfully to Protobuf Timestamp" in {
-      instant.toTimestamp === Timestamp()
-        .withSeconds(1582879956)
-        .withNanos(704545000)
+      instant.toTimestamp === Timestamp().withSeconds(1582879956).withNanos(704545000)
     }
   }
 }

@@ -13,7 +13,7 @@ import akka.actor.typed.ActorRef
 import akka.actor.typed.scaladsl.adapter._
 import akka.persistence.typed.PersistenceId
 import com.google.protobuf.any.Any
-import io.superflat.lagompb.data.{TestAggregateRoot, TestCommandHandler, TestEventHandler}
+import io.superflat.lagompb.data.{ TestAggregateRoot, TestCommandHandler, TestEventHandler }
 import io.superflat.lagompb.encryption.EncryptionAdapter
 import io.superflat.lagompb.protobuf.v1.core.CommandReply.Reply
 import io.superflat.lagompb.protobuf.v1.core._
@@ -58,8 +58,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           new TestCommandHandler(actorSystem),
           new TestEventHandler(actorSystem),
           TestState(),
-          new EncryptionAdapter(encryptor = None)
-        )
+          new EncryptionAdapter(encryptor = None))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -98,8 +97,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           new TestCommandHandler(actorSystem),
           new TestEventHandler(actorSystem),
           TestState(),
-          new EncryptionAdapter(None)
-        )
+          new EncryptionAdapter(None))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -134,8 +132,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           new TestCommandHandler(actorSystem),
           new TestEventHandler(actorSystem),
           TestState(),
-          new EncryptionAdapter(None)
-        )
+          new EncryptionAdapter(None))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -179,8 +176,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           new TestCommandHandler(actorSystem),
           new TestEventHandler(actorSystem),
           TestState(),
-          new EncryptionAdapter(None)
-        )
+          new EncryptionAdapter(None))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -213,8 +209,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           new TestCommandHandler(actorSystem),
           new TestEventHandler(actorSystem),
           TestState(),
-          new EncryptionAdapter(None)
-        )
+          new EncryptionAdapter(None))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -247,8 +242,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           new TestCommandHandler(actorSystem),
           new TestEventHandler(actorSystem),
           TestState(),
-          new EncryptionAdapter(None)
-        )
+          new EncryptionAdapter(None))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -286,8 +280,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           new TestCommandHandler(actorSystem),
           new TestEventHandler(actorSystem),
           TestState(),
-          new EncryptionAdapter(None)
-        )
+          new EncryptionAdapter(None))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -304,9 +297,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           reply match {
             case Reply.Failure(value) =>
               value.failureType shouldBe a[FailureResponse.FailureType.Critical]
-              value.getCritical should include(
-                "[Lagompb] EventHandler failure"
-              )
+              value.getCritical should include("[Lagompb] EventHandler failure")
             case _ => fail("unexpected message type")
           }
         case _ => fail("unexpected message type")
@@ -324,8 +315,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           new TestCommandHandler(actorSystem),
           new TestEventHandler(actorSystem),
           TestState(),
-          new EncryptionAdapter(None)
-        )
+          new EncryptionAdapter(None))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -354,46 +344,20 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           new TestCommandHandler(actorSystem),
           new TestEventHandler(actorSystem),
           TestState(),
-          new EncryptionAdapter(None)
-        )
+          new EncryptionAdapter(None))
 
       val stateWrapper = StateWrapper.defaultInstance
-        .withState(
-          Any
-            .pack(
-              TestState.defaultInstance
-                .withName("prior")
-                .withCompanyUuid(companyUuid)
-            )
-        )
+        .withState(Any.pack(TestState.defaultInstance.withName("prior").withCompanyUuid(companyUuid)))
         .withMeta(MetaData.defaultInstance)
 
       val eventWrapper = EventWrapper.defaultInstance
-        .withEvent(
-          Any
-            .pack(
-              TestEvent.defaultInstance
-                .withName("event")
-                .withEventUuid("23")
-            )
-        )
+        .withEvent(Any.pack(TestEvent.defaultInstance.withName("event").withEventUuid("23")))
         .withMeta(MetaData.defaultInstance)
-        .withResultingState(
-          Any
-            .pack(
-              TestState.defaultInstance
-                .withName("resulting")
-                .withCompanyUuid(companyUuid)
-            )
-        )
+        .withResultingState(Any.pack(TestState.defaultInstance.withName("resulting").withCompanyUuid(companyUuid)))
 
       val newState: StateWrapper =
         aggregate.genericEventHandler(stateWrapper, eventWrapper)
-      newState.getState shouldBe Any.pack(
-        TestState.defaultInstance
-          .withName("resulting")
-          .withCompanyUuid(companyUuid)
-      )
+      newState.getState shouldBe Any.pack(TestState.defaultInstance.withName("resulting").withCompanyUuid(companyUuid))
     }
 
     "handle event handler failure" in {
@@ -407,8 +371,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           new TestCommandHandler(actorSystem),
           new TestEventHandler(actorSystem),
           TestState(),
-          new EncryptionAdapter(encryptor = None)
-        )
+          new EncryptionAdapter(encryptor = None))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()
@@ -423,9 +386,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           reply match {
             case Reply.Failure(value) =>
               value.failureType shouldBe a[FailureResponse.FailureType.Critical]
-              value.getCritical should include(
-                "[Lagompb] EventHandler failure"
-              )
+              value.getCritical should include("[Lagompb] EventHandler failure")
             case _ => fail("unexpected message type")
           }
         case _ => fail("unexpected message type")
@@ -443,8 +404,7 @@ class AggregateRootSpec extends BaseActorTestKit(s"""
           new TestCommandHandler(actorSystem),
           new TestEventHandler(actorSystem),
           TestState(),
-          new EncryptionAdapter(None)
-        )
+          new EncryptionAdapter(None))
 
       // Let us create the aggregate
       val aggregateId: String = randomId()

@@ -17,8 +17,7 @@ class SendCommandSpec extends BaseSpec {
   "handleLagompbCommandReply" should {
 
     "return a statewrapper on success" in {
-      val someStateWrapper = StateWrapper()
-        .withState(Any.pack(StringValue("good")))
+      val someStateWrapper = StateWrapper().withState(Any.pack(StringValue("good")))
 
       val cmd = CommandReply().withStateWrapper(someStateWrapper)
 
@@ -83,7 +82,7 @@ class SendCommandSpec extends BaseSpec {
       val stateWrapper = StateWrapper().withState(badAny)
       val actual = TestCommandSender.unpackStateWrapper(stateWrapper)
       actual.isFailure shouldBe true
-      actual.failure.exception should have message "could not unpack unrecognized proto whoopsidaisies"
+      (actual.failure.exception should have).message("could not unpack unrecognized proto whoopsidaisies")
     }
   }
 }

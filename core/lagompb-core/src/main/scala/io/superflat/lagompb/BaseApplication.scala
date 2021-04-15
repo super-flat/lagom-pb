@@ -9,9 +9,9 @@ import com.lightbend.lagom.scaladsl.api.ServiceLocator
 import com.lightbend.lagom.scaladsl.broker.kafka.LagomKafkaComponents
 import com.lightbend.lagom.scaladsl.persistence.jdbc.JdbcPersistenceComponents
 import com.lightbend.lagom.scaladsl.persistence.slick.SlickPersistenceComponents
-import com.lightbend.lagom.scaladsl.playjson.{EmptyJsonSerializerRegistry, JsonSerializerRegistry}
-import com.lightbend.lagom.scaladsl.server.{LagomApplication, LagomApplicationContext, LagomServer}
-import io.superflat.lagompb.encryption.{EncryptionAdapter, ProtoEncryption}
+import com.lightbend.lagom.scaladsl.playjson.{ EmptyJsonSerializerRegistry, JsonSerializerRegistry }
+import com.lightbend.lagom.scaladsl.server.{ LagomApplication, LagomApplicationContext, LagomServer }
+import io.superflat.lagompb.encryption.{ EncryptionAdapter, ProtoEncryption }
 import play.api.db.HikariCPComponents
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.mvc.EssentialFilter
@@ -61,9 +61,7 @@ abstract class BaseApplication(context: LagomApplicationContext)
   def protoEncryption: Option[ProtoEncryption] = None
 
   // create an encryption adapter with above ProtoEncryption
-  final lazy val encryptionAdapter: EncryptionAdapter = new EncryptionAdapter(
-    protoEncryption
-  )
+  final lazy val encryptionAdapter: EncryptionAdapter = new EncryptionAdapter(protoEncryption)
 
   /**
    * Defines the persistent entity that will be used to handle commands

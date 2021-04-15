@@ -6,11 +6,11 @@ package io.superflat.lagompb.encryption
 
 import com.google.protobuf.any.Any
 import com.google.protobuf.wrappers.StringValue
-import io.superflat.lagompb.protobuf.v1.core.{EventWrapper, MetaData}
+import io.superflat.lagompb.protobuf.v1.core.{ EventWrapper, MetaData }
 import io.superflat.lagompb.protobuf.v1.encryption.EncryptedProto
 import io.superflat.lagompb.testkit.BaseSpec
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 class EncryptionAdapterSpec extends BaseSpec {
   ".encrypt" should {
@@ -24,13 +24,9 @@ class EncryptionAdapterSpec extends BaseSpec {
       val encryptor = mock[ProtoEncryption]
       val value = StringValue("encrypted")
 
-      val encryptedProto = EncryptedProto()
-        .withEncryptedProto(value.toByteString)
+      val encryptedProto = EncryptedProto().withEncryptedProto(value.toByteString)
 
-      (encryptor
-        .encrypt(_: Any))
-        .expects(*)
-        .returning(Success(encryptedProto))
+      (encryptor.encrypt(_: Any)).expects(*).returning(Success(encryptedProto))
 
       val adapter = new EncryptionAdapter(encryptor = Some(encryptor))
       val actual: Try[Any] = adapter.encrypt(Any.pack(StringValue("value")))
@@ -43,10 +39,7 @@ class EncryptionAdapterSpec extends BaseSpec {
       val encryptor = mock[ProtoEncryption]
       val expected = Failure(new Exception("fail!"))
 
-      (encryptor
-        .encrypt(_: Any))
-        .expects(*)
-        .returning(expected)
+      (encryptor.encrypt(_: Any)).expects(*).returning(expected)
 
       val adapter = new EncryptionAdapter(encryptor = Some(encryptor))
       val actual: Try[Any] = adapter.encrypt(Any.pack(StringValue("value")))
@@ -66,10 +59,7 @@ class EncryptionAdapterSpec extends BaseSpec {
       val value = StringValue("value")
       val any: Any = Any.pack(value)
 
-      (encryptor
-        .decrypt(_: EncryptedProto))
-        .expects(*)
-        .returning(Success(any))
+      (encryptor.decrypt(_: EncryptedProto)).expects(*).returning(Success(any))
 
       val adapter = new EncryptionAdapter(encryptor = Some(encryptor))
       val actual: Try[Any] = adapter.decrypt(Any.pack(EncryptedProto.defaultInstance))
@@ -79,11 +69,7 @@ class EncryptionAdapterSpec extends BaseSpec {
     "skip decryption if not an EncryptedProto" in {
       val encryptor = mock[ProtoEncryption]
 
-      (encryptor
-        .decrypt(_: EncryptedProto))
-        .expects(*)
-        .returning(Failure(new Exception("never happens")))
-        .never()
+      (encryptor.decrypt(_: EncryptedProto)).expects(*).returning(Failure(new Exception("never happens"))).never()
 
       val adapter = new EncryptionAdapter(encryptor = Some(encryptor))
       val notEncrypted = Any.pack(StringValue("not encrypted"))
@@ -96,10 +82,7 @@ class EncryptionAdapterSpec extends BaseSpec {
       val encryptor = mock[ProtoEncryption]
       val decryptFailure = Failure(new Exception("oops"))
 
-      (encryptor
-        .decrypt(_: EncryptedProto))
-        .expects(*)
-        .returning(decryptFailure)
+      (encryptor.decrypt(_: EncryptedProto)).expects(*).returning(decryptFailure)
 
       val adapter = new EncryptionAdapter(encryptor = Some(encryptor))
       val actual: Try[Any] = adapter.decrypt(Any.pack(EncryptedProto.defaultInstance))
@@ -118,10 +101,7 @@ class EncryptionAdapterSpec extends BaseSpec {
       val encryptor = mock[ProtoEncryption]
       val expected = Failure(new Exception("fail!"))
 
-      (encryptor
-        .encrypt(_: Any))
-        .expects(*)
-        .returning(expected)
+      (encryptor.encrypt(_: Any)).expects(*).returning(expected)
 
       val adapter = new EncryptionAdapter(encryptor = Some(encryptor))
       val actual: Try[Any] = Try(adapter.encryptOrThrow(Any.pack(StringValue("value"))))
@@ -140,10 +120,7 @@ class EncryptionAdapterSpec extends BaseSpec {
       val encryptor = mock[ProtoEncryption]
       val decryptFailure = Failure(new Exception("oops"))
 
-      (encryptor
-        .decrypt(_: EncryptedProto))
-        .expects(*)
-        .returning(decryptFailure)
+      (encryptor.decrypt(_: EncryptedProto)).expects(*).returning(decryptFailure)
 
       val adapter = new EncryptionAdapter(encryptor = Some(encryptor))
       val actual: Try[Any] = Try(adapter.decryptOrThrow(Any.pack(EncryptedProto.defaultInstance)))
@@ -157,18 +134,12 @@ class EncryptionAdapterSpec extends BaseSpec {
       val decryptedWrapper = EventWrapper()
         .withEvent(Any.pack(StringValue("event")))
         .withResultingState(Any.pack(StringValue("state")))
-        .withMeta(
-          MetaData()
-            .withEntityId("some-entity-id")
-            .withRevisionNumber(9)
-        )
+        .withMeta(MetaData().withEntityId("some-entity-id").withRevisionNumber(9))
 
       // encrypt values with NoEncryption and pack into wrapper
-      val encryptedWrapper = decryptedWrapper
-        .update(
-          _.event := Any.pack(NoEncryption.encrypt(decryptedWrapper.getEvent).get),
-          _.resultingState := Any.pack(NoEncryption.encrypt(decryptedWrapper.getResultingState).get)
-        )
+      val encryptedWrapper = decryptedWrapper.update(
+        _.event := Any.pack(NoEncryption.encrypt(decryptedWrapper.getEvent).get),
+        _.resultingState := Any.pack(NoEncryption.encrypt(decryptedWrapper.getResultingState).get))
 
       // define an adapter using NoEncryption
       val adapter = new EncryptionAdapter(encryptor = Some(NoEncryption))
@@ -186,29 +157,21 @@ class EncryptionAdapterSpec extends BaseSpec {
 
       val decryptFailure = Failure(new Exception("oops"))
 
-      (encryptor
-        .decrypt(_: EncryptedProto))
-        .expects(*)
-        .onCall { (encryptedProto: EncryptedProto) =>
-          if (encryptedProto.encryptionMeta.contains("fail"))
-            decryptFailure
-          else
-            NoEncryption.decrypt(encryptedProto)
-        }
+      (encryptor.decrypt(_: EncryptedProto)).expects(*).onCall { (encryptedProto: EncryptedProto) =>
+        if (encryptedProto.encryptionMeta.contains("fail"))
+          decryptFailure
+        else
+          NoEncryption.decrypt(encryptedProto)
+      }
 
       // encrypt values with NoEncryption and pack into wrapper
-      val encryptedEvent: EncryptedProto = NoEncryption
-        .encrypt(Any.pack(StringValue("event")))
-        .get
-        .addEncryptionMeta(("fail", "yep"))
+      val encryptedEvent: EncryptedProto =
+        NoEncryption.encrypt(Any.pack(StringValue("event"))).get.addEncryptionMeta(("fail", "yep"))
 
-      val encryptedState: EncryptedProto = NoEncryption
-        .encrypt(Any.pack(StringValue("state")))
-        .get
+      val encryptedState: EncryptedProto = NoEncryption.encrypt(Any.pack(StringValue("state"))).get
 
-      val encryptedWrapper = EventWrapper()
-        .withEvent(Any.pack(encryptedEvent))
-        .withResultingState(Any.pack(encryptedState))
+      val encryptedWrapper =
+        EventWrapper().withEvent(Any.pack(encryptedEvent)).withResultingState(Any.pack(encryptedState))
 
       val adapter = new EncryptionAdapter(encryptor = Some(encryptor))
 
@@ -233,18 +196,13 @@ class EncryptionAdapterSpec extends BaseSpec {
         .twice()
 
       // encrypt values with NoEncryption and pack into wrapper
-      val encryptedEvent: EncryptedProto = NoEncryption
-        .encrypt(Any.pack(StringValue("event")))
-        .get
+      val encryptedEvent: EncryptedProto = NoEncryption.encrypt(Any.pack(StringValue("event"))).get
 
-      val encryptedState: EncryptedProto = NoEncryption
-        .encrypt(Any.pack(StringValue("state")))
-        .get
-        .addEncryptionMeta(("fail", "yep"))
+      val encryptedState: EncryptedProto =
+        NoEncryption.encrypt(Any.pack(StringValue("state"))).get.addEncryptionMeta(("fail", "yep"))
 
-      val encryptedWrapper = EventWrapper()
-        .withEvent(Any.pack(encryptedEvent))
-        .withResultingState(Any.pack(encryptedState))
+      val encryptedWrapper =
+        EventWrapper().withEvent(Any.pack(encryptedEvent)).withResultingState(Any.pack(encryptedState))
 
       val adapter = new EncryptionAdapter(encryptor = Some(encryptor))
 
