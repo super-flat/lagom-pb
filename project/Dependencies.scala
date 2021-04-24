@@ -31,7 +31,7 @@ object Dependencies {
     val ReflectionsVersion = "0.9.12"
     val ScalapbCommonProtoVersion = "1.18.1-1"
     val AkkaProjectionVersion = "1.1.0"
-    val CatsVersion = "2.5.0"
+    val CatsVersion = "2.6.0"
 
     val SbtProtocVersion = "1.0.2"
     val ScalapbCompilerVersion = scalapbVersion
