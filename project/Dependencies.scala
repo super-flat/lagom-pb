@@ -15,7 +15,7 @@ object Dependencies {
     val Scala213 = "2.13.5"
     val Scala212 = "2.12.13"
     val MacWireVersion = "2.3.7"
-    val ScalaTestVersion = "3.2.7"
+    val ScalaTestVersion = "3.2.8"
     val PlayJsonDerivedCodecsVersion = "7.0.0"
     val AkkaDiscoveryKubernetesApiVersion = "1.0.10"
     val PostgresDriverVersion = "42.2.19"
@@ -30,8 +30,8 @@ object Dependencies {
     val PlayGrpcVersion = "0.9.1"
     val ReflectionsVersion = "0.9.12"
     val ScalapbCommonProtoVersion = "1.18.1-1"
-    val AkkaProjectionVersion = "1.2.0"
-    val CatsVersion = "2.5.0"
+    val AkkaProjectionVersion = "1.1.0"
+    val CatsVersion = "2.6.0"
 
     val SbtProtocVersion = "1.0.2"
     val ScalapbCompilerVersion = scalapbVersion
