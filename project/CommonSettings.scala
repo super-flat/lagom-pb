@@ -57,6 +57,5 @@ object CommonSettings extends AutoPlugin {
       libraryDependencies ++= Seq(
         compilerPlugin(("com.github.ghik" % "silencer-plugin" % Versions.SilencerVersion).cross(CrossVersion.full)),
         ("com.github.ghik" % "silencer-lib" % Versions.SilencerVersion % Provided).cross(CrossVersion.full)),
-      scalafmtOnCompile := true,
       scalafmtOnCompile := true)
 }
