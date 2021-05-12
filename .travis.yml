@@ -28,16 +28,13 @@ script:
 
 stages:
   - name: test
-  - name: "coverage report"
   - name: release
     if: ((branch = master AND type = push) OR (tag IS present)) AND NOT fork
 
 jobs:
   include:
     - stage: test
-      script: sbt clean coverage test
-    - stage: "coverage report"
-      script: sbt coverageAggregate
+      script: sbt clean coverage test coverageAggregate
       after_script:
         - bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l Scala -r target/scala-2.13/coverage-report/cobertura.xml
     - stage: release
