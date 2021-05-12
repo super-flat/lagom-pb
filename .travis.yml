@@ -17,7 +17,7 @@ before_install:
 install:
   - |
     # update this only when sbt-the-bash-script needs to be updated
-    export SBT_LAUNCHER=1.5.1
+    export SBT_LAUNCHER=1.5.2
     export SBT_OPTS="-Dfile.encoding=UTF-8"
     curl -L --silent "https://github.com/sbt/sbt/releases/download/v$SBT_LAUNCHER/sbt-$SBT_LAUNCHER.tgz" > $HOME/sbt.tgz
     tar zxf $HOME/sbt.tgz -C $HOME
@@ -28,15 +28,18 @@ script:
 
 stages:
   - name: test
+  - name: "coverage report"
   - name: release
     if: ((branch = master AND type = push) OR (tag IS present)) AND NOT fork
 
 jobs:
   include:
     - stage: test
-      script: sbt clean test coverageReport coverageAggregate
+      script: sbt clean coverage test
+    - stage: "coverage report"
+      script: sbt coverageAggregate
       after_script:
-        - bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l Scala -r target/scala-2.13/coverage-report/cobertura.xml
+        - bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l Scala -r target/scala-2.13/scoverage-report/cobertura.xml
     - stage: release
       jdk: openjdk8
       script: sbt ci-release

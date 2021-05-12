@@ -1,10 +1,12 @@
 import Dependencies.Versions
 import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile
-import sbt.Keys._
 import sbt._
+import sbt.Keys._
+import scoverage.ScoverageKeys.coverageExcludedPackages
 
 object CommonSettings extends AutoPlugin {
   override def requires: Plugins = plugins.JvmPlugin
+
   override def trigger = allRequirements
 
   override def globalSettings =
@@ -57,5 +59,11 @@ object CommonSettings extends AutoPlugin {
       libraryDependencies ++= Seq(
         compilerPlugin(("com.github.ghik" % "silencer-plugin" % Versions.SilencerVersion).cross(CrossVersion.full)),
         ("com.github.ghik" % "silencer-lib" % Versions.SilencerVersion % Provided).cross(CrossVersion.full)),
+      coverageExcludedPackages := "<empty>;com.namely.protobuf.*;" +
+      "io.superflat.lagompb.protobuf.*;" +
+      "io.superflat.lagompb.data.*;" +
+      "io.superflat.lagompb.testkit.*;" +
+      "io.superflat.lagompb.readside.*;" +
+      "io.superflat.lagompb.Plugin;",
       scalafmtOnCompile := true)
 }
