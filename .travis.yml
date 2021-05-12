@@ -34,7 +34,9 @@ stages:
 jobs:
   include:
     - stage: test
-      script: sbt clean test
+      script: sbt clean test coverageReport coverageAggregate
+      after_script:
+        - bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l Scala -r target/scala-2.13/coverage-report/cobertura.xml
     - stage: release
       jdk: openjdk8
       script: sbt ci-release
