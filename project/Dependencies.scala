@@ -13,7 +13,7 @@ object Dependencies {
    */
   object Versions {
     val Scala213 = "2.13.5"
-    val Scala212 = "2.12.13"
+    val Scala212 = "2.12.14"
     val MacWireVersion = "2.3.7"
     val ScalaTestVersion = "3.2.9"
     val PlayJsonDerivedCodecsVersion = "7.0.0"
