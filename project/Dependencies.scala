@@ -15,32 +15,32 @@ object Dependencies {
     val Scala213 = "2.13.5"
     val Scala212 = "2.12.13"
     val MacWireVersion = "2.3.7"
-    val ScalaTestVersion = "3.2.8"
+    val ScalaTestVersion = "3.2.9"
     val PlayJsonDerivedCodecsVersion = "7.0.0"
     val AkkaDiscoveryKubernetesApiVersion = "1.0.10"
-    val PostgresDriverVersion = "42.2.20"
-    val AkkaManagementVersion = "1.1.0"
-    val AkkaManagementClusterBootstrapVersion = "1.1.0"
-    val AkkaManagementClusterHttpVersion = "1.1.0"
+    val PostgresDriverVersion = "42.2.22"
+    val AkkaManagementVersion = "1.0.10"
+    val AkkaManagementClusterBootstrapVersion = "1.0.10"
+    val AkkaManagementClusterHttpVersion = "1.0.10"
     val ScalaMockVersion = "5.1.0"
-    val SilencerVersion = "1.7.3"
+    val SilencerVersion = "1.7.5"
     val AkkaGrpcVersion = "1.0.3"
     val H2Version = "1.4.200"
-    val ScalapbJson4sVersion = "0.11.0"
+    val ScalapbJson4sVersion = "0.11.1"
     val PlayGrpcVersion = "0.9.1"
     val ReflectionsVersion = "0.9.12"
     val ScalapbCommonProtoVersion = "1.18.1-1"
-    val AkkaProjectionVersion = "1.2.0"
-    val CatsVersion = "2.6.0"
+    val AkkaProjectionVersion = "1.2.1"
+    val CatsVersion = "2.6.1"
 
     val SbtProtocVersion = "1.0.2"
     val ScalapbCompilerVersion = scalapbVersion
     val ScalapbValidationVersion = scalapb.validate.compiler.BuildInfo.version
     val JavaAgentVersion = "0.1.6"
     val CrossScalaForPlugin = Seq(Scala212)
-    val AkkaVersion = "2.6.14"
+    val AkkaVersion = "2.6.15"
 
-    val TestContainers: String = "0.39.3"
+    val TestContainers: String = "0.39.5"
 
     // This is not the sbt version used by lagom-pb build itself, but
     // instead the version used to build lagom-pb sbt plugin.
