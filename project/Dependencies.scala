@@ -40,7 +40,7 @@ object Dependencies {
     val CrossScalaForPlugin = Seq(Scala212)
     val AkkaVersion = "2.6.15"
 
-    val TestContainers: String = "0.39.5"
+    val TestContainers: String = "0.39.8"
 
     // This is not the sbt version used by lagom-pb build itself, but
     // instead the version used to build lagom-pb sbt plugin.
