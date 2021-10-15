@@ -38,7 +38,7 @@ object Dependencies {
     val ScalapbValidationVersion = scalapb.validate.compiler.BuildInfo.version
     val JavaAgentVersion = "0.1.6"
     val CrossScalaForPlugin = Seq(Scala212)
-    val AkkaVersion = "2.6.15"
+    val AkkaVersion = "2.6.17"
 
     val TestContainers: String = "0.39.5"
 
