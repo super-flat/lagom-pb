@@ -28,7 +28,7 @@ object Dependencies {
     val H2Version = "1.4.200"
     val ScalapbJson4sVersion = "0.12.0"
     val PlayGrpcVersion = "0.9.1"
-    val ReflectionsVersion = "0.9.12"
+    val ReflectionsVersion = "0.10.2"
     val ScalapbCommonProtoVersion = "1.18.1-1"
     val AkkaProjectionVersion = "1.2.1"
     val CatsVersion = "2.6.1"
