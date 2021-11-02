@@ -23,7 +23,7 @@ object Dependencies {
     val AkkaManagementClusterBootstrapVersion = "1.1.1"
     val AkkaManagementClusterHttpVersion = "1.1.1"
     val ScalaMockVersion = "5.1.0"
-    val SilencerVersion = "1.7.5"
+    val SilencerVersion = "1.7.7"
     val AkkaGrpcVersion = "1.0.3"
     val H2Version = "1.4.200"
     val ScalapbJson4sVersion = "0.12.0"
