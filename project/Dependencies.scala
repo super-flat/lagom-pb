@@ -30,7 +30,7 @@ object Dependencies {
     val PlayGrpcVersion = "0.9.1"
     val ReflectionsVersion = "0.9.12"
     val ScalapbCommonProtoVersion = "1.18.1-1"
-    val AkkaProjectionVersion = "1.2.1"
+    val AkkaProjectionVersion = "1.2.3"
     val CatsVersion = "2.6.1"
 
     val SbtProtocVersion = "1.0.2"
