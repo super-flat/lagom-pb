@@ -14,7 +14,7 @@ object Dependencies {
   object Versions {
     val Scala213 = "2.13.5"
     val Scala212 = "2.12.13"
-    val MacWireVersion = "2.3.7"
+    val MacWireVersion = "2.5.2"
     val ScalaTestVersion = "3.2.9"
     val PlayJsonDerivedCodecsVersion = "7.0.0"
     val AkkaDiscoveryKubernetesApiVersion = "1.1.1"
